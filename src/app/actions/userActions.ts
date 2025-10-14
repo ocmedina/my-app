@@ -3,13 +3,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-interface CreateEmployeeResult {
-  success: boolean
-  message: string
-}
-
-export async function createEmployee(formData: FormData): Promise<CreateEmployeeResult> {
-  const cookieStore = cookies()
+export async function createEmployee(formData: FormData) {
+  // Se await cookies() porque ahora devuelve una promesa
+  const cookieStore = await cookies()
 
   const fullName = formData.get('fullName') as string
   const email = formData.get('email') as string
@@ -20,7 +16,7 @@ export async function createEmployee(formData: FormData): Promise<CreateEmployee
     return { success: false, message: 'Todos los campos son requeridos.' }
   }
 
-  // Cliente Supabase con permisos de administrador usando la clave secreta
+  // Cliente de Supabase con permisos de administrador usando la clave de servicio
   const supabaseAdmin = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -33,25 +29,24 @@ export async function createEmployee(formData: FormData): Promise<CreateEmployee
     }
   )
 
-  try {
-    // Crear el usuario con la función de admin
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true, // Confirma el email automáticamente
-      user_metadata: { full_name: fullName, role },
-    })
+  // Crear usuario directamente con permisos de admin
+  const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true, // confirma el email automáticamente
+    user_metadata: {
+      full_name: fullName,
+      role,
+    },
+  })
 
-    if (error) {
-      if (error.message.includes('unique constraint')) {
-        return { success: false, message: 'Ya existe un usuario con ese correo electrónico.' }
-      }
-      return { success: false, message: error.message }
+  if (error) {
+    if (error.message.includes('unique constraint')) {
+      return { success: false, message: 'Ya existe un usuario con ese correo electrónico.' }
     }
-
-    return { success: true, message: `Empleado "${fullName}" creado exitosamente.` }
-  } catch (err) {
-    console.error('Error al crear empleado:', err)
-    return { success: false, message: 'Ocurrió un error inesperado al crear el empleado.' }
+    return { success: false, message: error.message }
   }
+
+  // El trigger de la DB se encargará de crear el perfil
+  return { success: true, message: `Empleado "${fullName}" creado exitosamente.` }
 }
