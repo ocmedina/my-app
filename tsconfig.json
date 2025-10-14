@@ -5,8 +5,8 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
-    "noEmit": false,          // Cambiado de true a false para permitir build
-    "noEmitOnError": false,   // Permite emitir aunque haya errores
+    "noEmit": false,          // Cambiado de true a false
+    "noEmitOnError": false,   // Permite compilar aunque haya errores
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -15,9 +15,7 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [
-      {
-        "name": "next"
-      }
+      { "name": "next" }
     ],
     "paths": {
       "@/*": ["./src/*"]
