@@ -6,8 +6,9 @@ import { Database } from '@/lib/database.types';
 import { FaMoneyBillWave, FaReceipt } from 'react-icons/fa';
 import RegisterPayment from '@/components/RegisterPayment';
 
-// La lógica de obtención de datos ahora está dentro del componente principal.
-export default async function CustomerDetailPage({ params }: { params: { id: string } }) {
+// Parche: props como any para levantar en Vercel
+export default async function CustomerDetailPage(props: any) {
+  const { params } = props;
   const supabase = createServerComponentClient<Database>({ cookies });
 
   // Obtenemos los datos del cliente y sus pagos
@@ -69,7 +70,6 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
                 </div>
               </div>
               <p className={`font-bold text-lg ${payment.type === 'compra' ? 'text-green-600' : 'text-red-600'}`}>
-                {/* Corregido para que las compras sumen a la deuda y los pagos resten */}
                 {payment.type === 'compra' ? '+' : '-'}${payment.amount?.toFixed(2)}
               </p>
             </li>

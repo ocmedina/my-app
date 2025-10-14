@@ -1,7 +1,7 @@
 // src/app/dashboard/ventas/[id]/page.tsx
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import SaleDetailsClient from './SaleDetailsClient'; // Asegúrate de que este archivo también exista
+import SaleDetailsClient from './SaleDetailsClient'; // Asegúrate de que este archivo exista
 
 async function getSaleDetails(saleId: string) {
   const supabase = createServerComponentClient({ cookies });
@@ -29,7 +29,9 @@ async function getSaleDetails(saleId: string) {
   return data;
 }
 
-export default async function SaleDetailPage({ params }: { params: { id: string } }) {
+// Parche: props como any para levantar en Vercel
+export default async function SaleDetailPage(props: any) {
+  const { params } = props;
   const sale = await getSaleDetails(params.id);
 
   if (!sale) {

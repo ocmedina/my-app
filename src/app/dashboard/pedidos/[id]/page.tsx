@@ -3,9 +3,9 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Database } from '@/lib/database.types';
-import OrderDetailsClient from './OrderDetailsClient'; // Importaremos el componente cliente que crearemos abajo
+import OrderDetailsClient from './OrderDetailsClient'; // Componente cliente
 
-// Esta función obtiene todos los detalles del pedido desde el servidor
+// Función para obtener los detalles del pedido desde el servidor
 async function getOrderDetails(orderId: string) {
   const supabase = createServerComponentClient<Database>({ cookies });
   const { data, error } = await supabase
@@ -33,8 +33,9 @@ async function getOrderDetails(orderId: string) {
   return data;
 }
 
-// Este es el Componente de Servidor principal
-export default async function OrderDetailPage({ params }: { params: { id: string } }) {
+// Componente de servidor principal
+export default async function OrderDetailPage(props: any) {
+  const { params } = props;
   const order = await getOrderDetails(params.id);
 
   if (!order) {
