@@ -5,7 +5,8 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
-    "noEmit": true,
+    "noEmit": false,          // Cambiado de true a false para permitir build
+    "noEmitOnError": false,   // Permite emitir aunque haya errores
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
