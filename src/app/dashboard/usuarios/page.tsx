@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import toast from 'react-hot-toast';
 import { FaUserPlus, FaTimes } from 'react-icons/fa';
-import { createEmployee } from '@/app/actions/userActions'; // Se importa la nueva Server Action
+import { createEmployee } from '@/app/actions/userActions';
 
 // Componente para el Modal de creación de usuario
 function NewUserModal({ isOpen, onClose, onUserCreated }: { isOpen: boolean; onClose: () => void; onUserCreated: () => void; }) {
@@ -51,6 +51,7 @@ function NewUserModal({ isOpen, onClose, onUserCreated }: { isOpen: boolean; onC
             <select name="role" defaultValue="vendedor" required className="mt-1 w-full p-2 border border-gray-300 rounded-md">
               <option value="vendedor">Vendedor</option>
               <option value="administrador">Administrador</option>
+              <option value="repartidor">Repartidor</option>
             </select>
           </div>
           <div className="flex justify-end gap-2 pt-4 border-t mt-4">
@@ -72,7 +73,7 @@ export default function UsersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchUsers = async () => {
-    setLoading(true);
+    // No reseteamos el loading a true aquí para que la recarga sea más suave
     const { data, error } = await supabase.from('profiles').select('*');
     if (error) {
       toast.error('Error al cargar los usuarios.');
@@ -92,7 +93,7 @@ export default function UsersPage() {
       toast.error('No se pudo cambiar el rol.');
     } else {
       toast.success('Rol actualizado.');
-      fetchUsers();
+      fetchUsers(); // Recarga la lista
     }
   };
 
@@ -102,7 +103,7 @@ export default function UsersPage() {
       toast.error('No se pudo cambiar el estado.');
     } else {
       toast.success('Estado del usuario actualizado.');
-      fetchUsers();
+      fetchUsers(); // Recarga la lista
     }
   };
 
@@ -142,6 +143,7 @@ export default function UsersPage() {
                     <select value={user.role} onChange={e => handleRoleChange(user.id, e.target.value)} className="p-1 border rounded-md text-sm bg-gray-50">
                       <option value="vendedor">Vendedor</option>
                       <option value="administrador">Administrador</option>
+                      <option value="repartidor">Repartidor</option>
                     </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

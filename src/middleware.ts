@@ -7,22 +7,35 @@ export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
   const supabase = createMiddlewareClient({ req, res })
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const { data: { session } } = await supabase.auth.getSession()
 
-  // Si el usuario no está autenticado y está intentando acceder a una ruta protegida
-  if (!session && req.nextUrl.pathname.startsWith('/dashboard')) {
-    // Redirige a la página de login
-    const redirectUrl = req.nextUrl.clone()
-    redirectUrl.pathname = '/login'
-    return NextResponse.redirect(redirectUrl)
+  // Si no hay sesión y se intenta acceder a una ruta protegida, redirigir a login
+  if (!session && (req.nextUrl.pathname.startsWith('/dashboard') || req.nextUrl.pathname.startsWith('/reparto'))) {
+    return NextResponse.redirect(new URL('/login', req.url))
+  }
+
+  // Si hay sesión, verificamos el rol
+  if (session) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single()
+
+    // Si es repartidor e intenta entrar al dashboard, lo mandamos a /reparto
+    if (profile?.role === 'repartidor' && req.nextUrl.pathname.startsWith('/dashboard')) {
+      return NextResponse.redirect(new URL('/reparto', req.url))
+    }
+
+    // Si es admin/vendedor e intenta entrar a /reparto, lo mandamos al dashboard
+    if ((profile?.role === 'administrador' || profile?.role === 'vendedor') && req.nextUrl.pathname.startsWith('/reparto')) {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
   }
 
   return res
 }
 
-// Asegura que el middleware se ejecute solo en las rutas que nos interesan
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/reparto/:path*'],
 }

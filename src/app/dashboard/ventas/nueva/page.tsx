@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { Database } from '@/lib/database.types'
 import { User } from '@supabase/supabase-js'
 import { FaTimes } from 'react-icons/fa'
-import toast from 'react-hot-toast' // <-- 1. IMPORTAMOS TOAST
+import toast from 'react-hot-toast'
 
 type Customer = Database['public']['Tables']['customers']['Row']
 type Product = Database['public']['Tables']['products']['Row']
@@ -124,6 +124,7 @@ export default function NewSalePage() {
     const paid = parseFloat(amountPaid) || 0;
     const debtGenerated = total - paid;
 
+    // 1. Registrar la venta
     const { data: saleData, error: saleError } = await supabase.from('sales').insert({
       customer_id: selectedCustomer.id,
       profile_id: currentUser.id,
@@ -131,8 +132,13 @@ export default function NewSalePage() {
       payment_method: paymentMethod,
     }).select().single();
       
-    if (saleError) { toast.error(`Error al registrar la venta: ${saleError.message}`); setLoading(false); return; }
+    if (saleError) { 
+      toast.error(`Error al registrar la venta: ${saleError.message}`); 
+      setLoading(false); 
+      return; 
+    }
 
+    // 2. Registrar los items de la venta
     const saleItems = cart.map(item => ({
       sale_id: saleData.id,
       product_id: item.id,
@@ -141,28 +147,47 @@ export default function NewSalePage() {
     }));
     await supabase.from('sale_items').insert(saleItems);
 
+    // 3. Actualizar stock de productos
     for (const item of cart) {
       const newStock = (item.stock || 0) - item.quantity;
       await supabase.from('products').update({ stock: newStock }).eq('id', item.id);
     }
 
+    // 4. Actualizar deuda del cliente
     const { data: customerData } = await supabase.from('customers').select('debt').eq('id', selectedCustomer.id).single();
     const currentDebt = (customerData?.debt as number) || 0;
     const newDebt = currentDebt + debtGenerated;
     await supabase.from('customers').update({ debt: newDebt }).eq('id', selectedCustomer.id);
     
-    await supabase.from('payments').insert({
-      customer_id: selectedCustomer.id, sale_id: saleData.id, type: 'compra', amount: total,
-    });
+    // 5. LÓGICA CORREGIDA: Registrar movimientos en payments
+    // Si hay deuda generada (compra a crédito/fiado), registramos la compra
+    if (debtGenerated > 0) {
+      await supabase.from('payments').insert({
+        customer_id: selectedCustomer.id, 
+        sale_id: saleData.id, 
+        type: 'compra', 
+        amount: debtGenerated, // ⚠️ SOLO la parte que quedó fiada
+        comment: `Venta ${paymentMethod === 'cuenta_corriente' ? 'a crédito' : 'parcial'}`
+      });
+    }
     
+    // Si hubo pago (total o parcial), registramos el pago
     if (paid > 0) {
       await supabase.from('payments').insert({
-        customer_id: selectedCustomer.id, sale_id: saleData.id, type: 'pago', amount: paid,
+        customer_id: selectedCustomer.id, 
+        sale_id: saleData.id, 
+        type: 'pago', 
+        amount: paid,
+        comment: `Pago con ${paymentMethod}`
       });
     }
 
     toast.success('¡Venta registrada exitosamente!');
+    
+    // Resetear formulario
     setCart([]);
+    setAmountPaid('');
+    setPaymentMethod('efectivo');
     const consumerFinal = customers.find(c => c.full_name === 'Consumidor Final');
     if (consumerFinal) setSelectedCustomer(consumerFinal);
     setLoading(false);

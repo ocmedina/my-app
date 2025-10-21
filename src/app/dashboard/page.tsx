@@ -3,19 +3,39 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { Database } from "@/lib/database.types";
 import { FaBoxes, FaUsers, FaDolly, FaCashRegister } from "react-icons/fa";
-import QuickActions from "@/components/QuickActions"; // Importamos el componente interactivo
+import QuickActions from "@/components/QuickActions";
 
-// --- Componente para las tarjetas ---
+// --- Tipos ---
+type CustomerRow = {
+  id: string
+  full_name: string
+}
+
+type OrderRow = {
+  id: string
+  customers: CustomerRow | null
+}
+
+type ProductRow = {
+  name: string
+  stock: number
+}
+
+type SaleRow = {
+  total_amount: number
+}
+
+// --- Componente de tarjeta ---
 function DashboardCard({
   title,
   value,
   icon,
   note,
 }: {
-  title: string;
-  value: string | number;
-  icon: JSX.Element;
-  note: string;
+  title: string
+  value: string | number
+  icon: JSX.Element
+  note: string
 }) {
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm flex items-center justify-between transition hover:shadow-md">
@@ -26,23 +46,49 @@ function DashboardCard({
       </div>
       <div className="text-4xl text-gray-300">{icon}</div>
     </div>
-  );
+  )
 }
 
-// --- Función para obtener datos ---
+// --- Obtener datos del dashboard ---
 async function getDashboardData() {
-  const supabase = createServerComponentClient<Database>({ cookies });
-  const now = new Date();
-  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const supabase = createServerComponentClient<Database>({ cookies })
+  const now = new Date()
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
 
-  const { count: productCount } = await supabase.from("products").select("*", { count: "exact", head: true }).eq("is_active", true);
-  const { count: clientCount } = await supabase.from("customers").select("*", { count: "exact", head: true }).eq("is_active", true);
-  const { count: totalOrders } = await supabase.from("orders").select("*", { count: "exact", head: true });
-  const { data: salesThisMonth } = await supabase.from("sales").select("total_amount").gte("created_at", firstDayOfMonth.toISOString()).lt("created_at", firstDayOfNextMonth.toISOString());
-  const totalSales = salesThisMonth ? salesThisMonth.reduce((sum, sale) => sum + (sale.total_amount || 0), 0) : 0;
-  const { data: pendingOrders } = await supabase.from("orders").select("id, customers(full_name)").eq("status", "pendiente");
-  const { data: criticalStockProducts } = await supabase.from("products").select("name, stock").eq("is_active", true).lte("stock", 5).limit(5);
+  const { count: productCount } = await supabase
+    .from("products")
+    .select("*", { count: "exact", head: true })
+    .eq("is_active", true)
+
+  const { count: clientCount } = await supabase
+    .from("customers")
+    .select("*", { count: "exact", head: true })
+    .eq("is_active", true)
+
+  const { count: totalOrders } = await supabase
+    .from("orders")
+    .select("*", { count: "exact", head: true })
+
+  const { data: salesThisMonth } = await supabase
+    .from<SaleRow>("sales")
+    .select("total_amount")
+    .gte("created_at", firstDayOfMonth.toISOString())
+    .lt("created_at", firstDayOfNextMonth.toISOString())
+
+  const totalSales = salesThisMonth?.reduce((sum, sale) => sum + (sale.total_amount || 0), 0) ?? 0
+
+  const { data: pendingOrders } = await supabase
+    .from<OrderRow>("orders")
+    .select("id, customers ( id, full_name )")
+    .eq("status", "pendiente")
+
+  const { data: criticalStockProducts } = await supabase
+    .from<ProductRow>("products")
+    .select("name, stock")
+    .eq("is_active", true)
+    .lte("stock", 5)
+    .limit(5)
 
   return {
     productCount: productCount ?? 0,
@@ -51,7 +97,7 @@ async function getDashboardData() {
     totalSales,
     pendingOrders: pendingOrders ?? [],
     criticalStockProducts: criticalStockProducts ?? [],
-  };
+  }
 }
 
 // --- Página principal ---
@@ -63,7 +109,7 @@ export default async function DashboardPage() {
     totalSales,
     pendingOrders,
     criticalStockProducts,
-  } = await getDashboardData();
+  } = await getDashboardData()
 
   return (
     <div className="space-y-6">
@@ -79,21 +125,41 @@ export default async function DashboardPage() {
           <h2 className="text-lg font-semibold mb-4 text-gray-800">📝 Pedidos Pendientes</h2>
           {pendingOrders.length > 0 ? (
             <ul className="space-y-3">
-              {pendingOrders.map((order) => (<li key={order.id} className="flex justify-between items-center text-base"><span>{order.customers?.full_name ?? "Cliente N/A"}</span><Link href={`/dashboard/pedidos/${order.id}`} className="text-blue-500 hover:underline text-sm">Ver</Link></li>))}
+              {pendingOrders.map((order) => (
+                <li key={order.id} className="flex justify-between items-center text-base">
+                  <span>{order.customers?.full_name ?? "Cliente N/A"}</span>
+                  <Link href={`/dashboard/pedidos/${order.id}`} className="text-blue-500 hover:underline text-sm">
+                    Ver
+                  </Link>
+                </li>
+              ))}
             </ul>
-          ) : (<div className="text-center text-gray-400 py-6 text-base"><p>No hay pedidos pendientes.</p></div>)}
+          ) : (
+            <div className="text-center text-gray-400 py-6 text-base">
+              <p>No hay pedidos pendientes.</p>
+            </div>
+          )}
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold mb-4 text-gray-800">🚨 Stock Crítico</h2>
           {criticalStockProducts.length > 0 ? (
             <ul className="space-y-3">
-              {criticalStockProducts.map((product, index) => (<li key={index} className="flex justify-between items-center text-base"><span>{product.name}</span><span className="font-bold bg-red-100 text-red-700 px-2 py-1 rounded-full text-sm">{product.stock} u.</span></li>))}
+              {criticalStockProducts.map((product, index) => (
+                <li key={index} className="flex justify-between items-center text-base">
+                  <span>{product.name}</span>
+                  <span className="font-bold bg-red-100 text-red-700 px-2 py-1 rounded-full text-sm">{product.stock} u.</span>
+                </li>
+              ))}
             </ul>
-          ) : (<div className="text-center text-gray-400 py-6 text-base"><p>No hay productos con stock crítico.</p></div>)}
+          ) : (
+            <div className="text-center text-gray-400 py-6 text-base">
+              <p>No hay productos con stock crítico.</p>
+            </div>
+          )}
         </div>
       </div>
-      
+
       <QuickActions />
     </div>
-  );
+  )
 }
