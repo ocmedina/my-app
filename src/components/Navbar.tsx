@@ -255,6 +255,14 @@ export default function Navbar() {
                       {isAdmin ? 'Administrador' : 'Vendedor'}
                     </p>
                   </div>
+                  <Link
+                    href="/dashboard/configuracion"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <HiOutlineCog className="h-4 w-4" />
+                    Configuración
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
@@ -407,6 +415,18 @@ export default function Navbar() {
                 <p className="text-xs text-gray-500">{userProfile?.email}</p>
               </div>
             </div>
+            
+            {/* Configuración Mobile */}
+            <Link
+              href="/dashboard/configuracion"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 mb-2 rounded-lg text-sm font-medium bg-white text-gray-700 hover:bg-gray-100 transition-colors border border-gray-200"
+            >
+              <HiOutlineCog className="h-5 w-5" />
+              Configuración
+            </Link>
+            
+            {/* Cerrar Sesión Mobile */}
             <button
               onClick={handleLogout}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white text-gray-700 hover:bg-red-100 hover:text-red-600 transition-colors border border-gray-200"

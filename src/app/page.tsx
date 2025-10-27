@@ -56,7 +56,7 @@ export default function FrontStockWelcome() {
             return (
               <div
                 key={index}
-                className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 transition-all duration-300 border border-white/20 hover:bg-white/15 hover:border-white/40"
+                className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20"
               >
                 <div className="flex items-start gap-4">
                   <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center flex-shrink-0`}>
