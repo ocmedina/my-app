@@ -1,59 +1,40 @@
-// src/app/dashboard/clientes/[id]/page.tsx
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
+import { Database } from '@/lib/database.types'; // Importa tu tipo de Database
 import { FaMoneyBillWave, FaReceipt, FaArrowLeft } from 'react-icons/fa';
 import RegisterPayment from '@/components/RegisterPayment';
 
 // Desactivar cache de Next.js
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
-// ✨ Tipos manuales para que TypeScript compile
-type CustomerRow = {
-  id: string;
-  full_name: string;
-  email?: string | null;
-  phone?: string | null;
-  customer_type: string;
-  debt?: number;
-  address?: string | null;
-};
+// --- CORRECCIÓN DE TIPOS ---
+// Usamos los tipos generados de Supabase en lugar de manuales
+type CustomerRow = Database['public']['Tables']['customers']['Row'];
+type PaymentRow = Database['public']['Tables']['payments']['Row'];
 
-type PaymentRow = {
-  id: string;
-  customer_id: string;
-  type: 'pago' | 'compra';
-  amount: number;
-  comment?: string;
-  created_at: string;
-};
-
-interface CustomerDetailProps {
+// Esta es la forma estándar de definir props en una página dinámica de Next.js
+interface CustomerDetailPageProps {
   params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default async function CustomerDetailPage(props: CustomerDetailProps) {
-  const { params } = props;
-  const supabase = createServerComponentClient({ cookies });
+export default async function CustomerDetailPage({ params }: CustomerDetailPageProps) { // <-- Se usa el tipo corregido
+  const supabase = createServerComponentClient<Database>({ cookies });
 
   // Obtenemos los datos del cliente
-  const { data: customerRaw, error: customerError } = await supabase
+  const { data: customer, error: customerError } = await supabase
     .from('customers')
     .select('*')
     .eq('id', params.id)
     .single();
 
-  const customer = customerRaw as CustomerRow | null;
-
   // Obtenemos los pagos
-  const { data: paymentsRaw } = await supabase
+  const { data: payments, error: paymentsError } = await supabase
     .from('payments')
     .select('*')
     .eq('customer_id', params.id)
     .order('created_at', { ascending: false });
-
-  const payments = paymentsRaw as PaymentRow[] | null;
 
   if (customerError || !customer) {
     return (
@@ -70,12 +51,8 @@ export default async function CustomerDetailPage(props: CustomerDetailProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header con información del cliente */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <Link 
-          href="/dashboard/clientes" 
-          className="text-blue-600 mb-4 inline-flex items-center gap-2 hover:underline text-sm"
-        >
+        <Link href="/dashboard/clientes" className="text-blue-600 mb-4 inline-flex items-center gap-2 hover:underline text-sm">
           <FaArrowLeft /> Volver a clientes
         </Link>
         
@@ -104,12 +81,11 @@ export default async function CustomerDetailPage(props: CustomerDetailProps) {
         </div>
       </div>
 
-      {/* Formulario para registrar pago */}
+      {/* Solo mostramos el formulario de pago si el cliente debe dinero */}
       {currentDebt > 0 && (
         <RegisterPayment customerId={customer.id} currentDebt={currentDebt} />
       )}
 
-      {/* Historial de movimientos */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-4">Historial de Movimientos</h2>
         {(!payments || payments.length === 0) ? (
