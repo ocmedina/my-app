@@ -20,15 +20,29 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
 
     const fetchData = async () => {
       setLoadingCheck(true);
-      
+
+      // 1. Verificar sesión
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        toast.error("Tu sesión expiró. Por favor, vuelve a iniciar sesión.");
+        setLoadingCheck(false);
+        return;
+      }
+
+      // 2. Traer configuración
       const { data: settingsData } = await supabase.from('settings').select('*');
       if (isMounted && settingsData) {
-        const settingsMap = settingsData.reduce((acc, s) => ({...acc, [s.key]: s.value }), {});
+        const settingsMap = settingsData.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {});
         setSettings(settingsMap);
       }
 
-      const { data: existingInvoice } = await supabase.from('invoices').select('*').eq('sale_id', sale.id).maybeSingle();
-      
+      // 3. Verificar si ya existe factura
+      const { data: existingInvoice } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('sale_id', sale.id)
+        .maybeSingle();
+
       if (isMounted) {
         setInvoiceData(existingInvoice);
         setLoadingCheck(false);
@@ -36,11 +50,21 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
     };
 
     fetchData();
-    return () => { isMounted = false };
+    return () => { isMounted = false; }
   }, [sale.id]);
 
   const handleGenerateInvoice = async () => {
     setLoadingGenerate(true);
+
+    // 1. Chequear sesión antes de generar
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session) {
+      toast.error("Tu sesión expiró. Por favor, vuelve a iniciar sesión.");
+      setLoadingGenerate(false);
+      return;
+    }
+
+    // 2. Generar factura
     const result = await createInvoiceFromSale(sale.id);
     if (result.success) {
       toast.success(result.message);
@@ -48,6 +72,7 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
     } else {
       toast.error(result.message);
     }
+
     setLoadingGenerate(false);
   };
 
@@ -59,35 +84,35 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
           <p className="text-sm text-gray-500">ID: {sale.id}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-            <Link href="/dashboard/ventas" className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100 whitespace-nowrap">
-                &larr; Volver al Historial
-            </Link>
-            
-            {loadingCheck ? (
-                <span className="px-4 py-2 text-sm text-gray-500 flex items-center gap-2"><FaSpinner className="animate-spin" /> Cargando...</span>
-            ) : invoiceData ? (
-                <PDFDownloadLink
-                    document={<InvoicePDFDocument invoiceData={invoiceData} settings={settings} />}
-                    fileName={`factura_${invoiceData.invoice_number}.pdf`}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-bold rounded-md hover:bg-red-700 whitespace-nowrap"
-                >
-                    {({ loading: pdfLoading }) => 
-                        pdfLoading ? <FaSpinner className="animate-spin" /> : <><FaPrint /> Descargar Factura</>
-                    }
-                </PDFDownloadLink>
-            ) : (
-                <button
-                    onClick={handleGenerateInvoice}
-                    disabled={loadingGenerate}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 disabled:bg-gray-400 whitespace-nowrap"
-                >
-                    {loadingGenerate ? <FaSpinner className="animate-spin"/> : <FaFileInvoiceDollar />} 
-                    {loadingGenerate ? 'Generando...' : 'Generar Factura'}
-                </button>
-            )}
+          <Link href="/dashboard/ventas" className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100 whitespace-nowrap">
+            &larr; Volver al Historial
+          </Link>
+
+          {loadingCheck ? (
+            <span className="px-4 py-2 text-sm text-gray-500 flex items-center gap-2"><FaSpinner className="animate-spin" /> Cargando...</span>
+          ) : invoiceData ? (
+            <PDFDownloadLink
+              document={<InvoicePDFDocument invoiceData={invoiceData} settings={settings} />}
+              fileName={`factura_${invoiceData.invoice_number}.pdf`}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-bold rounded-md hover:bg-red-700 whitespace-nowrap"
+            >
+              {({ loading: pdfLoading }) =>
+                pdfLoading ? <FaSpinner className="animate-spin" /> : <><FaPrint /> Descargar Factura</>
+              }
+            </PDFDownloadLink>
+          ) : (
+            <button
+              onClick={handleGenerateInvoice}
+              disabled={loadingGenerate}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 disabled:bg-gray-400 whitespace-nowrap"
+            >
+              {loadingGenerate ? <FaSpinner className="animate-spin" /> : <FaFileInvoiceDollar />}
+              {loadingGenerate ? 'Generando...' : 'Generar Factura'}
+            </button>
+          )}
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 border-b pb-6">
         <div><p className="text-sm text-gray-500">Fecha de Venta</p><p className="font-semibold">{new Date(sale.created_at).toLocaleString()}</p></div>
         <div><p className="text-sm text-gray-500">Cliente</p><p className="font-semibold">{sale.customers?.full_name ?? 'N/A'}</p></div>

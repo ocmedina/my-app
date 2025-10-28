@@ -52,8 +52,26 @@ function NewUserModal({
               type="text" 
               required 
               className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Juan Pérez"
             />
           </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Usuario</label>
+            <input 
+              name="username" 
+              type="text" 
+              required 
+              className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+              placeholder="juan.perez"
+              pattern="[a-zA-Z0-9._-]+"
+              title="Solo letras, números, puntos, guiones y guiones bajos"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Este será el usuario para iniciar sesión
+            </p>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input 
@@ -61,17 +79,22 @@ function NewUserModal({
               type="email" 
               required 
               className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+              placeholder="juan@empresa.com"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">Contraseña Temporal</label>
             <input 
               name="password" 
               type="password" 
               required 
+              minLength={6}
               className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Mínimo 6 caracteres"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">Rol</label>
             <select 
@@ -85,6 +108,7 @@ function NewUserModal({
               <option value="repartidor">Repartidor</option>
             </select>
           </div>
+
           <div className="flex justify-end gap-2 pt-4 border-t mt-4">
             <button 
               type="button" 
@@ -114,12 +138,20 @@ function UsersPageContent() {
   const { can } = useAuth();
 
   const fetchUsers = async () => {
-    const { data, error } = await supabase.from('profiles').select('*');
+    setLoading(true);
+
+    // Consulta corregida: ordenamos por 'id' descendente
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('id', { ascending: false });
+
     if (error) {
       toast.error('Error al cargar los usuarios.');
     } else {
       setUsers(data || []);
     }
+
     setLoading(false);
   };
 
@@ -137,7 +169,7 @@ function UsersPageContent() {
       .from('profiles')
       .update({ role: newRole })
       .eq('id', userId);
-      
+
     if (error) {
       toast.error('No se pudo cambiar el rol.');
     } else {
@@ -156,7 +188,7 @@ function UsersPageContent() {
       .from('profiles')
       .update({ is_active: !currentStatus })
       .eq('id', userId);
-      
+
     if (error) {
       toast.error('No se pudo cambiar el estado.');
     } else {
@@ -189,30 +221,33 @@ function UsersPageContent() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Nombre
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Rol
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Acciones
-              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={4} className="text-center py-10">Cargando...</td>
+                <td colSpan={5} className="text-center py-10">Cargando...</td>
+              </tr>
+            ) : users.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="text-center py-10 text-gray-500">No hay usuarios registrados</td>
               </tr>
             ) : (
               users.map(user => (
                 <tr key={user.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {user.full_name || 'Sin nombre'}
+                    <div>
+                      <div className="font-medium text-gray-900">{user.full_name || 'Sin nombre'}</div>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-700 font-mono bg-gray-50 px-2 py-1 rounded">{user.username || '-'}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {can('CAMBIAR_ROLES') ? (
@@ -231,9 +266,7 @@ function UsersPageContent() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      user.is_active 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
+                      user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
                       {user.is_active ? 'Activo' : 'Inactivo'}
                     </span>
