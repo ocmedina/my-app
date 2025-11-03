@@ -37,7 +37,10 @@ const navSections = {
   administracion: [
     { href: '/dashboard/reportes', label: 'Cierre de Caja', icon: HiOutlineDocumentReport, adminOnly: true },
     { href: '/dashboard/usuarios', label: 'Usuarios', icon: HiOutlineUserGroup, adminOnly: true },
-  ]
+  ],
+  graficos: [
+    { href: '/dashboard/graficos', label: 'Gráficos', icon: HiOutlineChartPie, adminOnly: true }, // ← Cambiá adminOnly a false si querés que todos la vean
+  ],
 }
 
 export default function Navbar() {
@@ -74,21 +77,11 @@ export default function Navbar() {
 
   const isAdmin = userProfile?.role === 'administrador'
 
-  // Filtrar enlaces visibles según el rol
-  const getVisibleLinks = (section: any[]) => {
-    return section.filter(link => !link.adminOnly || isAdmin)
-  }
+  const getVisibleLinks = (section: any[]) => section.filter(link => !link.adminOnly || isAdmin)
 
   const isLinkActive = (href: string) => {
-    // Para el dashboard, solo debe ser activo en la ruta exacta
     if (href === '/dashboard') return pathname === href
-    
-    // Para rutas hijas, verificar que sea exacta o que sea padre directo
-    // Si estamos en /dashboard/ventas/nueva, no debe activar /dashboard/ventas
-    if (href === '/dashboard/ventas' && pathname.startsWith('/dashboard/ventas/')) {
-      return false
-    }
-    
+    if (href === '/dashboard/ventas' && pathname.startsWith('/dashboard/ventas/')) return false
     return pathname === href || pathname.startsWith(href + '/')
   }
 
@@ -104,7 +97,6 @@ export default function Navbar() {
             >
               FrontStock
             </Link>
-            
             <Link
               href="/dashboard"
               className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors
@@ -125,16 +117,12 @@ export default function Navbar() {
               {getVisibleLinks(navSections.ventas).map((link) => {
                 const Icon = link.icon
                 const isActive = isLinkActive(link.href)
-                
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap
-                      ${isActive
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'text-blue-700 hover:bg-blue-100'
-                      }`}
+                      ${isActive ? 'bg-blue-600 text-white shadow-sm' : 'text-blue-700 hover:bg-blue-100'}`}
                   >
                     <Icon className="h-3.5 w-3.5" />
                     {link.label}
@@ -150,16 +138,12 @@ export default function Navbar() {
               {getVisibleLinks(navSections.catalogos).map((link) => {
                 const Icon = link.icon
                 const isActive = isLinkActive(link.href)
-                
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap
-                      ${isActive
-                        ? 'bg-green-600 text-white shadow-sm'
-                        : 'text-green-700 hover:bg-green-100'
-                      }`}
+                      ${isActive ? 'bg-green-600 text-white shadow-sm' : 'text-green-700 hover:bg-green-100'}`}
                   >
                     <Icon className="h-3.5 w-3.5" />
                     {link.label}
@@ -176,16 +160,12 @@ export default function Navbar() {
                   {getVisibleLinks(navSections.gestion).map((link) => {
                     const Icon = link.icon
                     const isActive = isLinkActive(link.href)
-                    
                     return (
                       <Link
                         key={link.href}
                         href={link.href}
                         className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap
-                          ${isActive
-                            ? 'bg-purple-600 text-white shadow-sm'
-                            : 'text-purple-700 hover:bg-purple-100'
-                          }`}
+                          ${isActive ? 'bg-purple-600 text-white shadow-sm' : 'text-purple-700 hover:bg-purple-100'}`}
                       >
                         <Icon className="h-3.5 w-3.5" />
                         {link.label}
@@ -204,16 +184,36 @@ export default function Navbar() {
                   {getVisibleLinks(navSections.administracion).map((link) => {
                     const Icon = link.icon
                     const isActive = isLinkActive(link.href)
-                    
                     return (
                       <Link
                         key={link.href}
                         href={link.href}
                         className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap
-                          ${isActive
-                            ? 'bg-orange-600 text-white shadow-sm'
-                            : 'text-orange-700 hover:bg-orange-100'
-                          }`}
+                          ${isActive ? 'bg-orange-600 text-white shadow-sm' : 'text-orange-700 hover:bg-orange-100'}`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {link.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+
+            {/* GRÁFICOS (solo admin) */}
+            {isAdmin && getVisibleLinks(navSections.graficos).length > 0 && (
+              <>
+                <div className="w-px h-6 bg-gray-300 mx-1" />
+                <div className="flex items-center gap-0.5 px-1.5 py-1 rounded-lg bg-sky-50">
+                  {getVisibleLinks(navSections.graficos).map((link) => {
+                    const Icon = link.icon
+                    const isActive = isLinkActive(link.href)
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap
+                          ${isActive ? 'bg-sky-600 text-white shadow-sm' : 'text-sky-700 hover:bg-sky-100'}`}
                       >
                         <Icon className="h-3.5 w-3.5" />
                         {link.label}
@@ -240,20 +240,14 @@ export default function Navbar() {
               </div>
             </button>
 
-            {/* Dropdown Menu */}
             {userMenuOpen && (
               <>
-                <div 
-                  className="fixed inset-0 z-10" 
-                  onClick={() => setUserMenuOpen(false)}
-                />
+                <div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-20">
                   <div className="px-4 py-3 border-b border-gray-200">
                     <p className="text-sm font-semibold text-gray-800">{userProfile?.full_name}</p>
                     <p className="text-xs text-gray-500 mt-1">{userProfile?.email}</p>
-                    <p className="text-xs text-blue-600 mt-1 font-medium">
-                      {isAdmin ? 'Administrador' : 'Vendedor'}
-                    </p>
+                    <p className="text-xs text-blue-600 mt-1 font-medium">{isAdmin ? 'Administrador' : 'Vendedor'}</p>
                   </div>
                   <Link
                     href="/dashboard/configuracion"
@@ -275,33 +269,25 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Botón menú móvil */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100"
           >
-            {mobileMenuOpen ? (
-              <HiOutlineX className="h-6 w-6" />
-            ) : (
-              <HiOutlineMenu className="h-6 w-6" />
-            )}
+            {mobileMenuOpen ? <HiOutlineX className="h-6 w-6" /> : <HiOutlineMenu className="h-6 w-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Menú móvil */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-gray-200 bg-white">
           <div className="px-4 py-3 space-y-3">
-            {/* Dashboard */}
             <Link
               href="/dashboard"
               onClick={() => setMobileMenuOpen(false)}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
-                ${pathname === '/dashboard'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                ${pathname === '/dashboard' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
             >
               <HiOutlineChartPie className="h-5 w-5" />
               Dashboard
@@ -318,10 +304,7 @@ export default function Navbar() {
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
-                      ${isLinkActive(link.href)
-                        ? 'bg-blue-600 text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                      ${isLinkActive(link.href) ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
                   >
                     <Icon className="h-5 w-5" />
                     {link.label}
@@ -341,10 +324,7 @@ export default function Navbar() {
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
-                      ${isLinkActive(link.href)
-                        ? 'bg-green-600 text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                      ${isLinkActive(link.href) ? 'bg-green-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
                   >
                     <Icon className="h-5 w-5" />
                     {link.label}
@@ -353,7 +333,7 @@ export default function Navbar() {
               })}
             </div>
 
-            {/* Gestión (admin) */}
+            {/* Gestión */}
             {isAdmin && getVisibleLinks(navSections.gestion).length > 0 && (
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-gray-500 px-3">GESTIÓN</p>
@@ -367,8 +347,7 @@ export default function Navbar() {
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
                         ${isLinkActive(link.href)
                           ? 'bg-purple-600 text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
-                        }`}
+                          : 'text-gray-700 hover:bg-gray-100'}`}
                     >
                       <Icon className="h-5 w-5" />
                       {link.label}
@@ -378,7 +357,7 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* Administración (admin) */}
+            {/* Administración */}
             {isAdmin && getVisibleLinks(navSections.administracion).length > 0 && (
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-gray-500 px-3">ADMINISTRACIÓN</p>
@@ -392,8 +371,7 @@ export default function Navbar() {
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
                         ${isLinkActive(link.href)
                           ? 'bg-orange-600 text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
-                        }`}
+                          : 'text-gray-700 hover:bg-gray-100'}`}
                     >
                       <Icon className="h-5 w-5" />
                       {link.label}
@@ -402,38 +380,30 @@ export default function Navbar() {
                 })}
               </div>
             )}
-          </div>
-          
-          {/* Mobile User Info */}
-          <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
-                {userProfile?.full_name?.charAt(0).toUpperCase() || 'U'}
+
+            {/* Gráficos */}
+            {isAdmin && getVisibleLinks(navSections.graficos).length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-gray-500 px-3">GRÁFICOS</p>
+                {getVisibleLinks(navSections.graficos).map((link) => {
+                  const Icon = link.icon
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+                        ${isLinkActive(link.href)
+                          ? 'bg-sky-600 text-white'
+                          : 'text-gray-700 hover:bg-gray-100'}`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      {link.label}
+                    </Link>
+                  )
+                })}
               </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-800">{userProfile?.full_name}</p>
-                <p className="text-xs text-gray-500">{userProfile?.email}</p>
-              </div>
-            </div>
-            
-            {/* Configuración Mobile */}
-            <Link
-              href="/dashboard/configuracion"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 mb-2 rounded-lg text-sm font-medium bg-white text-gray-700 hover:bg-gray-100 transition-colors border border-gray-200"
-            >
-              <HiOutlineCog className="h-5 w-5" />
-              Configuración
-            </Link>
-            
-            {/* Cerrar Sesión Mobile */}
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white text-gray-700 hover:bg-red-100 hover:text-red-600 transition-colors border border-gray-200"
-            >
-              <HiOutlineLogout className="h-5 w-5" />
-              Cerrar Sesión
-            </button>
+            )}
           </div>
         </div>
       )}

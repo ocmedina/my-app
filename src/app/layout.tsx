@@ -9,7 +9,11 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'FrontStock',
   description: 'Sistema de Gestión de Stock y Ventas',
+  icons: {
+    icon: '/favicon.png',
+  },
 }
+
 
 export default function RootLayout({
   children,
