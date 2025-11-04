@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'FrontStock',
   description: 'Sistema de Gestión de Stock y Ventas',
+  manifest:'/manifest.json',
   icons: {
     icon: '/favicon.png',
   },
