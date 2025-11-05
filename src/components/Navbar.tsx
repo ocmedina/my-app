@@ -235,7 +235,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* User Menu */}
+          {/* User Menu - Desktop */}
           <div className="hidden lg:block relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -291,6 +291,169 @@ export default function Navbar() {
             {mobileMenuOpen ? <HiOutlineX className="h-6 w-6" /> : <HiOutlineMenu className="h-6 w-6" />}
           </button>
         </div>
+
+        {/* Menú móvil desplegable */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-t border-gray-200 bg-white pb-4">
+            <div className="px-2 py-3 space-y-3 max-h-[calc(100vh-4rem)] overflow-y-auto">
+              {/* Dashboard en móvil */}
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${pathname === '/dashboard'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+              >
+                <HiOutlineChartPie className="h-5 w-5" />
+                Dashboard
+              </Link>
+
+              {/* Sección Ventas */}
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-blue-600 uppercase px-3 mb-1">Ventas</p>
+                {getVisibleLinks(navSections.ventas).map((link) => {
+                  const Icon = link.icon
+                  const isActive = isLinkActive(link.href)
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                        ${isActive ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-50'}`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      {link.label}
+                    </Link>
+                  )
+                })}
+              </div>
+
+              {/* Sección Catálogos */}
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-green-600 uppercase px-3 mb-1">Catálogos</p>
+                {getVisibleLinks(navSections.catalogos).map((link) => {
+                  const Icon = link.icon
+                  const isActive = isLinkActive(link.href)
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                        ${isActive ? 'bg-green-600 text-white' : 'text-gray-700 hover:bg-green-50'}`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      {link.label}
+                    </Link>
+                  )
+                })}
+              </div>
+
+              {/* Sección Gestión */}
+              {getVisibleLinks(navSections.gestion).length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-purple-600 uppercase px-3 mb-1">Gestión</p>
+                  {getVisibleLinks(navSections.gestion).map((link) => {
+                    const Icon = link.icon
+                    const isActive = isLinkActive(link.href)
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          ${isActive ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-purple-50'}`}
+                      >
+                        <Icon className="h-5 w-5" />
+                        {link.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Sección Administración */}
+              {getVisibleLinks(navSections.administracion).length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-orange-600 uppercase px-3 mb-1">Administración</p>
+                  {getVisibleLinks(navSections.administracion).map((link) => {
+                    const Icon = link.icon
+                    const isActive = isLinkActive(link.href)
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          ${isActive ? 'bg-orange-600 text-white' : 'text-gray-700 hover:bg-orange-50'}`}
+                      >
+                        <Icon className="h-5 w-5" />
+                        {link.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Sección Gráficos */}
+              {isAdmin && getVisibleLinks(navSections.graficos).length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-sky-600 uppercase px-3 mb-1">Gráficos</p>
+                  {getVisibleLinks(navSections.graficos).map((link) => {
+                    const Icon = link.icon
+                    const isActive = isLinkActive(link.href)
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          ${isActive ? 'bg-sky-600 text-white' : 'text-gray-700 hover:bg-sky-50'}`}
+                      >
+                        <Icon className="h-5 w-5" />
+                        {link.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Usuario y Configuración */}
+              <div className="pt-3 border-t border-gray-200 space-y-1">
+                <div className="px-3 py-2 bg-gray-50 rounded-lg">
+                  <p className="text-sm font-semibold text-gray-800">{userProfile?.full_name}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{userProfile?.email}</p>
+                  <p className="text-xs text-blue-600 mt-1 font-medium">
+                    {isAdmin ? 'Administrador' : isSuper ? 'Supervendedor' : 'Vendedor'}
+                  </p>
+                </div>
+                
+                <Link
+                  href="/dashboard/configuracion"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  <HiOutlineCog className="h-5 w-5" />
+                  Configuración
+                </Link>
+
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    handleLogout()
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                >
+                  <HiOutlineLogout className="h-5 w-5" />
+                  Cerrar Sesión
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   )
