@@ -1,11 +1,16 @@
 'use server'
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 
+// Cliente admin con permisos totales (usa Service Role Key)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } }
+)
+
+// Crear nuevo empleado
 export async function createEmployee(formData: FormData) {
-  const cookieStore = await cookies()
-
   const fullName = formData.get('fullName') as string
   const username = formData.get('username') as string
   const email = formData.get('email') as string
@@ -16,19 +21,10 @@ export async function createEmployee(formData: FormData) {
     return { success: false, message: 'Todos los campos son requeridos.' }
   }
 
-  const supabaseAdmin = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-      },
-    }
-  )
+  // 🔹 Si el rol es "vendedor", lo transformamos a "supervendedor"
+  const finalRole = role === 'vendedor' ? 'supervendedor' : role
 
-  // Verificar que el username no exista
+  // Verificar si el username ya existe
   const { data: existingUsername } = await supabaseAdmin
     .from('profiles')
     .select('username')
@@ -39,38 +35,54 @@ export async function createEmployee(formData: FormData) {
     return { success: false, message: 'El nombre de usuario ya existe.' }
   }
 
-  // Crear usuario en Supabase Auth
+  // Crear usuario en Auth
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
-    user_metadata: {
-      full_name: fullName,
-      username: username,
-      role,
-    },
+    user_metadata: { full_name: fullName, username, role: finalRole },
   })
 
-  if (authError) {
-    if (authError.message.includes('unique constraint')) {
+  if (authError || !authData?.user) {
+    if (authError?.message?.includes('unique constraint')) {
       return { success: false, message: 'Ya existe un usuario con ese correo electrónico.' }
     }
-    return { success: false, message: authError.message }
+    return { success: false, message: authError?.message || 'Error al crear el usuario.' }
   }
 
-  // Actualizar el perfil con username y email
+  // Actualizar perfil en la tabla "profiles"
   const { error: updateError } = await supabaseAdmin
     .from('profiles')
-    .update({ 
-      username: username,
-      email: email
-    })
+    .update({ username, email, role: finalRole })
     .eq('id', authData.user.id)
 
   if (updateError) {
+    // Si falla, elimina el usuario de Auth
     await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
     return { success: false, message: 'Error al configurar el perfil del usuario.' }
   }
 
   return { success: true, message: `Empleado "${fullName}" (${username}) creado exitosamente.` }
+}
+
+// Cambiar contraseña (solo admin)
+export async function changeUserPassword(userId: string, newPassword: string) {
+  if (!userId || !newPassword) {
+    return { success: false, message: 'Usuario y contraseña son requeridos.' }
+  }
+
+  if (newPassword.length < 6) {
+    return { success: false, message: 'La contraseña debe tener al menos 6 caracteres.' }
+  }
+
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+    password: newPassword,
+  })
+
+  if (error) {
+    console.error('Error al cambiar contraseña:', error)
+    return { success: false, message: 'Error al cambiar la contraseña.' }
+  }
+
+  return { success: true, message: 'Contraseña actualizada correctamente.' }
 }
