@@ -1,5 +1,7 @@
-// src/app/dashboard/clientes/page.tsx
-"use client";
+'use client'
+
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -24,7 +26,7 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<CustomerRow[]>([]);
   const [debtFilter, setDebtFilter] = useState(
     filterParam === "with_debt" ? "with_debt" : "all"
-  ); // 'all', 'with_debt', 'no_debt'
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +39,6 @@ export default function CustomersPage() {
         .eq("is_active", true)
         .order("full_name", { ascending: true });
 
-      // Filtro por deuda
       if (debtFilter === "with_debt") {
         query = query.gt("debt", 0);
       } else if (debtFilter === "no_debt") {
@@ -102,24 +103,12 @@ export default function CustomersPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Nombre
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Teléfono
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tipo
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Deuda
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Acciones
-              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deuda</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -139,9 +128,7 @@ export default function CustomersPage() {
               customers.map((customer) => (
                 <tr
                   key={customer.id}
-                  className={
-                    customer.debt && customer.debt > 0 ? "bg-red-50" : ""
-                  }
+                  className={customer.debt && customer.debt > 0 ? "bg-red-50" : ""}
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <Link
@@ -151,15 +138,9 @@ export default function CustomersPage() {
                       {customer.full_name}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {customer.phone}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {customer.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
-                    {customer.customer_type}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.phone}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{customer.customer_type}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     {customer.debt && customer.debt > 0 ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -179,5 +160,5 @@ export default function CustomersPage() {
         </table>
       </div>
     </div>
-  );
+  )
 }
