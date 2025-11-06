@@ -1,14 +1,13 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { Database } from '@/lib/database.types'; // Importa tu tipo de Database
-import { FaMoneyBillWave, FaReceipt, FaArrowLeft } from 'react-icons/fa';
+import { Database } from '@/lib/database.types';
+import { FaMoneyBillWave, FaReceipt, FaArrowLeft, FaMapMarkerAlt } from 'react-icons/fa'; // Importa el ícono de dirección
 import RegisterPayment from '@/components/RegisterPayment';
 
 // Desactivar cache de Next.js
 export const dynamic = 'force-dynamic';
 
-// --- CORRECCIÓN DE TIPOS ---
 // Usamos los tipos generados de Supabase en lugar de manuales
 type CustomerRow = Database['public']['Tables']['customers']['Row'];
 type PaymentRow = Database['public']['Tables']['payments']['Row'];
@@ -19,7 +18,7 @@ interface CustomerDetailPageProps {
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default async function CustomerDetailPage({ params }: CustomerDetailPageProps) { // <-- Se usa el tipo corregido
+export default async function CustomerDetailPage({ params }: CustomerDetailPageProps) {
   const supabase = createServerComponentClient<Database>({ cookies });
 
   // Obtenemos los datos del cliente
@@ -63,10 +62,20 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
               Tipo: {customer.customer_type}
             </p>
             {customer.email && (
-              <p className="text-sm text-gray-500 mt-1">📧 {customer.email}</p>
+              <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                <span className="text-gray-400">📧</span> {customer.email}
+              </p>
             )}
             {customer.phone && (
-              <p className="text-sm text-gray-500">📱 {customer.phone}</p>
+              <p className="text-sm text-gray-500 flex items-center gap-2">
+                <span className="text-gray-400">📱</span> {customer.phone}
+              </p>
+            )}
+            {/* --- CAMPO DE DIRECCIÓN AÑADIDO --- */}
+            {customer.address && (
+              <p className="text-sm text-gray-500 flex items-center gap-2">
+                <span className="text-gray-400"><FaMapMarkerAlt /></span> {customer.address}
+              </p>
             )}
           </div>
           <div className="text-right bg-gray-50 px-6 py-4 rounded-lg border-2 border-gray-200">
@@ -128,10 +137,10 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
                   </div>
                   <div className="text-right">
                     <p className={`font-bold text-xl ${isCompra ? 'text-red-600' : 'text-green-600'}`}>
-                      {isCompra ? '+' : '-'}${payment.amount.toFixed(2)}
+                      {isCompra ? '+' : '-'}${Math.abs(payment.amount).toFixed(2)}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {isCompra ? 'Debe más' : 'Abonó'}
+                      {isCompra ? 'Suma a la deuda' : 'Resta a la deuda'}
                     </p>
                   </div>
                 </div>
