@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 
 type Customer = Database['public']['Tables']['customers']['Row']
 type Product = Database['public']['Tables']['products']['Row']
-type CartItem = Product & { quantity: number }
+type CartItem = Product & { quantity: number; customPrice?: number }
 
 // --- COMPONENTE INTERNO: BUSCADOR DE PRODUCTOS ---
 function ProductSearch({ onProductSelect }: { onProductSelect: (product: Product) => void }) {
@@ -206,8 +206,10 @@ export default function NewSalePage() {
     }
 
     const newTotal = cart.reduce((acc, item) => {
-      const price =
-        selectedCustomer.customer_type === 'mayorista'
+      // Si tiene precio personalizado, usarlo; sino, usar el precio según tipo de cliente
+      const price = item.customPrice !== undefined 
+        ? item.customPrice
+        : selectedCustomer.customer_type === 'mayorista'
           ? item.price_mayorista
           : item.price_minorista
       return acc + (price || 0) * item.quantity
@@ -278,6 +280,19 @@ export default function NewSalePage() {
     toast.success('Producto eliminado')
   }
 
+  const handleUpdateCustomPrice = (productId: string, newPrice: string) => {
+    const priceValue = parseFloat(newPrice)
+    if (isNaN(priceValue) || priceValue < 0) return
+
+    setCart(
+      cart.map((item) =>
+        item.id === productId
+          ? { ...item, customPrice: priceValue }
+          : item
+      )
+    )
+  }
+
   const handleFinalizeSale = async () => {
     if (!selectedCustomer || cart.length === 0 || !currentUser?.id) {
       toast.error('Faltan datos para completar la venta.')
@@ -321,8 +336,9 @@ export default function NewSalePage() {
         sale_id: saleData.id,
         product_id: item.id,
         quantity: item.quantity,
-        price:
-          selectedCustomer.customer_type === 'mayorista'
+        price: item.customPrice !== undefined 
+          ? item.customPrice
+          : selectedCustomer.customer_type === 'mayorista'
             ? item.price_mayorista
             : item.price_minorista,
       }))
@@ -330,15 +346,27 @@ export default function NewSalePage() {
       const { error: itemsError } = await supabase.from('sale_items').insert(saleItems)
       if (itemsError) throw itemsError
 
-      // 3. Actualizar stock de productos
-      const stockUpdates = cart.map((item) => {
-        const newStock = (item.stock || 0) - item.quantity
-        return supabase
-          .from('products')
-          .update({ stock: newStock })
-          .eq('id', item.id)
-      })
-      await Promise.all(stockUpdates)
+      // 3. Actualizar stock de productos (excepto alimentos sueltos)
+      const stockUpdates = cart
+        .filter((item) => {
+          // No actualizar stock para alimentos sueltos/granel
+          const isLooseFood = item.name?.toLowerCase().includes('alimento suelto') || 
+                             item.name?.toLowerCase().includes('alimento a granel') ||
+                             item.sku === 'SUELTO' || 
+                             item.sku === 'GRANEL'
+          return !isLooseFood
+        })
+        .map((item) => {
+          const newStock = (item.stock || 0) - item.quantity
+          return supabase
+            .from('products')
+            .update({ stock: newStock })
+            .eq('id', item.id)
+        })
+      
+      if (stockUpdates.length > 0) {
+        await Promise.all(stockUpdates)
+      }
 
       // 4. Actualizar deuda del cliente
       const { data: customerData, error: customerError } = await supabase
@@ -452,45 +480,117 @@ export default function NewSalePage() {
                 <p className="text-gray-400 text-center pt-8">El carrito está vacío.</p>
               ) : (
                 cart.map((item) => {
-                  const price =
-                    selectedCustomer?.customer_type === 'mayorista'
+                  // Determinar si es "Alimento suelto" (producto editable)
+                  const isLooseFood = item.name?.toLowerCase().includes('alimento suelto') || 
+                                     item.name?.toLowerCase().includes('alimento a granel') ||
+                                     item.sku === 'SUELTO' || 
+                                     item.sku === 'GRANEL'
+                  
+                  const price = item.customPrice !== undefined 
+                    ? item.customPrice
+                    : selectedCustomer?.customer_type === 'mayorista'
                       ? item.price_mayorista
                       : item.price_minorista
+                  
                   return (
                     <div
                       key={item.id}
-                      className="flex justify-between items-center text-sm border-b pb-3"
+                      className={`rounded-md p-3 ${isLooseFood ? 'bg-yellow-50' : 'bg-gray-50'}`}
                     >
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-800">{item.name}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <button
-                            onClick={() => handleUpdateQuantity(item.id, -1)}
-                            className="p-1 text-gray-600 hover:text-gray-800"
-                            disabled={item.quantity <= 1}
-                          >
-                            <FaMinus size={12} />
-                          </button>
-                          <span className="text-gray-600 px-2">{item.quantity}</span>
-                          <button
-                            onClick={() => handleUpdateQuantity(item.id, 1)}
-                            className="p-1 text-gray-600 hover:text-gray-800"
-                            disabled={item.quantity >= (item.stock || 0)}
-                          >
-                            <FaPlus size={12} />
-                          </button>
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800">
+                            {item.name}
+                            {isLooseFood && <span className="ml-2 text-xs text-yellow-700 font-semibold">✏️ Editable</span>}
+                          </p>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-semibold text-gray-800">
-                          ${((price || 0) * item.quantity).toFixed(2)}
-                        </span>
                         <button
                           onClick={() => handleRemoveFromCart(item.id)}
                           className="text-red-500 hover:text-red-700 p-1"
+                          title="Eliminar producto"
                         >
                           <FaTimes />
                         </button>
+                      </div>
+
+                      {/* Cantidad */}
+                      <div className="mb-2">
+                        <label className="text-xs text-gray-600 mb-1 block">Cantidad</label>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleUpdateQuantity(item.id, -1)}
+                            className="p-2 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded"
+                            disabled={item.quantity <= 0.01}
+                            title="Disminuir cantidad"
+                          >
+                            <FaMinus size={12} />
+                          </button>
+                          <input
+                            type="number"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const newQty = parseFloat(e.target.value) || 0
+                              if (newQty > (item.stock || 0) && !isLooseFood) {
+                                toast.error('Stock insuficiente')
+                                return
+                              }
+                              if (newQty >= 0) {
+                                setCart(cart.map(i => 
+                                  i.id === item.id ? { ...i, quantity: newQty } : i
+                                ))
+                              }
+                            }}
+                            className="flex-1 px-2 py-1 text-center border border-gray-300 rounded"
+                            step="0.01"
+                            min="0"
+                            aria-label="Cantidad del producto"
+                          />
+                          <button
+                            onClick={() => handleUpdateQuantity(item.id, 1)}
+                            className="p-2 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded"
+                            disabled={!isLooseFood && item.quantity >= (item.stock || 0)}
+                            title="Aumentar cantidad"
+                          >
+                            <FaPlus size={12} />
+                          </button>
+                          <span className="text-xs text-gray-600 w-12 text-right">kg/un</span>
+                        </div>
+                      </div>
+
+                      {/* Precio - Editable solo para alimentos sueltos */}
+                      {isLooseFood ? (
+                        <div className="mb-2">
+                          <label className="text-xs text-gray-600 mb-1 block">Precio por kg/unidad</label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600">$</span>
+                            <input
+                              type="number"
+                              value={item.customPrice !== undefined && item.customPrice > 0 ? item.customPrice : ''}
+                              onChange={(e) => handleUpdateCustomPrice(item.id, e.target.value)}
+                              placeholder="Ingresa el precio"
+                              className="flex-1 px-2 py-1 border border-yellow-400 rounded bg-white"
+                              step="0.01"
+                              min="0"
+                            />
+                          </div>
+                          <p className="text-xs text-yellow-700 mt-1">
+                            💡 Precio personalizado para esta venta
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="mb-2">
+                          <p className="text-xs text-gray-500">
+                            Precio: <strong>${(price || 0).toFixed(2)}</strong> /kg o unidad
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Subtotal */}
+                      <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                        <span className="text-sm text-gray-600">Subtotal:</span>
+                        <span className="font-semibold text-gray-800">
+                          ${((price || 0) * item.quantity).toFixed(2)}
+                        </span>
                       </div>
                     </div>
                   )
