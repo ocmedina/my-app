@@ -1,0 +1,495 @@
+"use client";
+
+import { use, useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import toast from "react-hot-toast";
+import {
+  FaSave,
+  FaTimes,
+  FaPlus,
+  FaMinus,
+  FaTrash,
+  FaSearch,
+} from "react-icons/fa";
+import { updateOrder } from "@/app/actions/orderActions";
+
+type Product = {
+  id: string;
+  name: string;
+  sku: string | null;
+  stock: number | null;
+  price_mayorista: number | null;
+  price_minorista: number | null;
+};
+
+type OrderItem = {
+  id?: string;
+  product_id: string;
+  quantity: number;
+  price: number;
+  products?: Product;
+};
+
+type Customer = {
+  id: string;
+  full_name: string;
+  customer_type: string;
+};
+
+type Order = {
+  id: string;
+  customer_id: string;
+  total_amount: number;
+  status: string;
+  created_at: string;
+  customers?: Customer;
+  order_items: OrderItem[];
+};
+
+export default function EditOrderPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [order, setOrder] = useState<Order | null>(null);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState("");
+  const [items, setItems] = useState<OrderItem[]>([]);
+
+  // Búsqueda de productos
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  useEffect(() => {
+    loadOrderData();
+    loadCustomers();
+  }, [id]);
+
+  useEffect(() => {
+    if (searchQuery.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    const searchProducts = async () => {
+      setSearching(true);
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .or(`name.ilike.%${searchQuery}%,sku.ilike.%${searchQuery}%`)
+        .eq("is_active", true)
+        .limit(10);
+
+      if (error) {
+        console.error("Error buscando productos:", error);
+        toast.error("Error al buscar productos");
+      } else {
+        setSearchResults(data || []);
+      }
+      setSearching(false);
+    };
+
+    const debounce = setTimeout(searchProducts, 300);
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
+
+  const loadOrderData = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("orders")
+      .select(
+        `
+        *,
+        customers (*),
+        order_items (
+          *,
+          products (*)
+        )
+      `
+      )
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Error cargando pedido:", error);
+      toast.error("Error al cargar el pedido");
+      router.push("/dashboard/pedidos");
+      return;
+    }
+
+    if (data.status !== "pendiente") {
+      toast.error("Solo se pueden editar pedidos en estado pendiente");
+      router.push(`/dashboard/pedidos/${id}`);
+      return;
+    }
+
+    setOrder(data);
+    setSelectedCustomerId(data.customer_id);
+    setItems(data.order_items || []);
+    setLoading(false);
+  };
+
+  const loadCustomers = async () => {
+    const { data, error } = await supabase
+      .from("customers")
+      .select("*")
+      .eq("is_active", true)
+      .order("full_name");
+
+    if (error) {
+      console.error("Error cargando clientes:", error);
+    } else {
+      setCustomers(data || []);
+    }
+  };
+
+  const addProduct = (product: Product) => {
+    const existingItem = items.find((item) => item.product_id === product.id);
+
+    if (existingItem) {
+      updateQuantity(items.indexOf(existingItem), 1);
+      toast.success("Cantidad actualizada");
+    } else {
+      const selectedCustomer = customers.find(
+        (c) => c.id === selectedCustomerId
+      );
+      const price =
+        selectedCustomer?.customer_type === "mayorista"
+          ? product.price_mayorista || 0
+          : product.price_minorista || 0;
+
+      setItems([
+        ...items,
+        {
+          product_id: product.id,
+          quantity: 1,
+          price: price,
+          products: product,
+        },
+      ]);
+      toast.success("Producto agregado");
+    }
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
+  const updateQuantity = (index: number, delta: number) => {
+    const newItems = [...items];
+    const newQuantity = newItems[index].quantity + delta;
+
+    if (newQuantity <= 0) {
+      removeItem(index);
+      return;
+    }
+
+    const maxStock = newItems[index].products?.stock || 0;
+    if (newQuantity > maxStock) {
+      toast.error("No hay suficiente stock disponible");
+      return;
+    }
+
+    newItems[index].quantity = newQuantity;
+    setItems(newItems);
+  };
+
+  const removeItem = (index: number) => {
+    const newItems = items.filter((_, i) => i !== index);
+    setItems(newItems);
+    toast.success("Producto eliminado");
+  };
+
+  const calculateTotal = () => {
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  };
+
+  const handleSave = async () => {
+    if (!selectedCustomerId) {
+      toast.error("Selecciona un cliente");
+      return;
+    }
+
+    if (items.length === 0) {
+      toast.error("Agrega al menos un producto");
+      return;
+    }
+
+    setSaving(true);
+    const loadingToast = toast.loading("Guardando cambios...");
+
+    try {
+      const total = calculateTotal();
+
+      // Usar el Server Action para actualizar el pedido
+      const result = await updateOrder(
+        id,
+        selectedCustomerId,
+        total,
+        items.map((item) => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: item.price,
+        }))
+      );
+
+      toast.dismiss(loadingToast);
+
+      if (result.success) {
+        toast.success("Pedido actualizado exitosamente");
+        router.push(`/dashboard/pedidos/${id}`);
+        router.refresh();
+      } else {
+        toast.error(`Error: ${result.error}`);
+      }
+    } catch (error: any) {
+      toast.dismiss(loadingToast);
+      console.error("Error guardando pedido:", error);
+      toast.error(`Error al guardar: ${error.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-gray-500">Cargando pedido...</div>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return null;
+  }
+
+  const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
+
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Editar Pedido</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              ID: {order.id.substring(0, 8)}
+            </p>
+          </div>
+          <Link
+            href={`/dashboard/pedidos/${id}`}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+          >
+            <FaTimes /> Cancelar
+          </Link>
+        </div>
+
+        {/* Cliente */}
+        <div className="mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Cliente
+          </label>
+          <select
+            value={selectedCustomerId}
+            onChange={(e) => setSelectedCustomerId(e.target.value)}
+            className="w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            title="Seleccionar cliente"
+          >
+            <option value="">Seleccionar cliente...</option>
+            {customers.map((customer) => (
+              <option key={customer.id} value={customer.id}>
+                {customer.full_name} (
+                {customer.customer_type === "mayorista"
+                  ? "Mayorista"
+                  : "Minorista"}
+                )
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Buscador de Productos */}
+        <div className="mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Buscar Productos
+          </label>
+          <div className="relative">
+            <div className="absolute left-3 top-3 text-gray-400">
+              <FaSearch className="h-5 w-5" />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar por nombre o SKU..."
+              className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            {searching && (
+              <div className="absolute right-3 top-3.5">
+                <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+              </div>
+            )}
+          </div>
+
+          {searchResults.length > 0 && (
+            <ul className="absolute z-10 w-full mt-2 bg-white border-2 border-gray-200 rounded-lg shadow-xl max-h-80 overflow-y-auto">
+              {searchResults.map((product) => (
+                <li
+                  key={product.id}
+                  onClick={() => addProduct(product)}
+                  className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="font-semibold text-gray-900">
+                        {product.name}
+                      </span>
+                      {product.sku && (
+                        <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                          {product.sku}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-blue-600">
+                        $
+                        {selectedCustomer?.customer_type === "mayorista"
+                          ? product.price_mayorista?.toFixed(2)
+                          : product.price_minorista?.toFixed(2)}
+                      </div>
+                      <div
+                        className={`text-xs ${
+                          (product.stock || 0) > 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        Stock: {product.stock || 0}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Lista de Productos */}
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">
+            Productos en el Pedido
+          </h2>
+
+          {items.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+              <p className="text-gray-500">No hay productos en el pedido</p>
+              <p className="text-sm text-gray-400 mt-1">
+                Busca y agrega productos arriba
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {items.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900">
+                      {item.products?.name}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      ${item.price.toFixed(2)} c/u
+                      {item.products?.sku && ` • SKU: ${item.products.sku}`}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-300">
+                      <button
+                        onClick={() => updateQuantity(index, -1)}
+                        className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-l-lg transition-all"
+                        disabled={saving}
+                        title="Disminuir cantidad"
+                      >
+                        <FaMinus size={12} />
+                      </button>
+                      <span className="px-3 font-bold text-gray-900 min-w-[3rem] text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(index, 1)}
+                        className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-r-lg transition-all"
+                        disabled={saving}
+                        title="Aumentar cantidad"
+                      >
+                        <FaPlus size={12} />
+                      </button>
+                    </div>
+
+                    <div className="text-right min-w-[6rem]">
+                      <p className="font-bold text-gray-900">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => removeItem(index)}
+                      className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all"
+                      disabled={saving}
+                      title="Eliminar"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Total */}
+        <div className="border-t-2 border-gray-200 pt-4 mb-6">
+          <div className="flex justify-between items-center">
+            <span className="text-xl font-bold text-gray-900">Total:</span>
+            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              ${calculateTotal().toFixed(2)}
+            </span>
+          </div>
+        </div>
+
+        {/* Botones de Acción */}
+        <div className="flex gap-4">
+          <button
+            onClick={handleSave}
+            disabled={saving || items.length === 0 || !selectedCustomerId}
+            className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-lg"
+          >
+            {saving ? (
+              <>
+                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                Guardando...
+              </>
+            ) : (
+              <>
+                <FaSave />
+                Guardar Cambios
+              </>
+            )}
+          </button>
+
+          <Link
+            href={`/dashboard/pedidos/${id}`}
+            className="px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition-all text-center"
+          >
+            Cancelar
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
