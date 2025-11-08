@@ -179,6 +179,14 @@ export default function NewOrderPage() {
     const loadingToast = toast.loading("Guardando pedido...");
 
     try {
+      // Obtener timestamp en zona horaria Argentina
+      const now = new Date();
+      const argentinaTime = new Date(
+        now.toLocaleString("en-US", {
+          timeZone: "America/Argentina/Buenos_Aires",
+        })
+      );
+
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -189,6 +197,7 @@ export default function NewOrderPage() {
           payment_method: paymentMethod,
           amount_paid: amountReceived,
           amount_pending: total - amountReceived,
+          created_at: argentinaTime.toISOString(),
         })
         .select()
         .single();

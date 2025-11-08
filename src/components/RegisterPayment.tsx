@@ -1,75 +1,93 @@
 // src/components/RegisterPayment.tsx
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
-import { useRouter } from 'next/navigation'
+import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 interface RegisterPaymentProps {
   customerId: string;
   currentDebt: number;
 }
 
-export default function RegisterPayment({ customerId, currentDebt }: RegisterPaymentProps) {
-  const router = useRouter()
-  const [amount, setAmount] = useState('')
-  const [comment, setComment] = useState('')
-  const [loading, setLoading] = useState(false)
+export default function RegisterPayment({
+  customerId,
+  currentDebt,
+}: RegisterPaymentProps) {
+  const router = useRouter();
+  const [amount, setAmount] = useState("");
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleRegisterPayment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const paymentAmount = parseFloat(amount)
+    e.preventDefault();
+    const paymentAmount = parseFloat(amount);
 
     if (!paymentAmount || paymentAmount <= 0) {
-      alert('Por favor, ingresa un monto válido.')
-      return
+      alert("Por favor, ingresa un monto válido.");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     // 1. Calcular la nueva deuda
-    const newDebt = currentDebt - paymentAmount
+    const newDebt = currentDebt - paymentAmount;
 
     // 2. Actualizar la deuda del cliente en la tabla 'customers'
     const { error: updateError } = await supabase
-      .from('customers')
+      .from("customers")
       .update({ debt: newDebt })
-      .eq('id', customerId)
+      .eq("id", customerId);
 
     if (updateError) {
-      alert(`Error al actualizar la deuda: ${updateError.message}`)
-      setLoading(false)
-      return
+      alert(`Error al actualizar la deuda: ${updateError.message}`);
+      setLoading(false);
+      return;
     }
 
-    // 3. Registrar el movimiento en la tabla 'payments'
-    const { error: paymentError } = await supabase
-      .from('payments')
-      .insert({
-        customer_id: customerId,
-        type: 'pago',
-        amount: paymentAmount,
-        comment: comment || 'Pago a cuenta',
+    // Obtener timestamp en zona horaria Argentina
+    const now = new Date();
+    const argentinaTime = new Date(
+      now.toLocaleString("en-US", {
+        timeZone: "America/Argentina/Buenos_Aires",
       })
-      
+    );
+
+    // 3. Registrar el movimiento en la tabla 'payments'
+    const { error: paymentError } = await supabase.from("payments").insert({
+      customer_id: customerId,
+      type: "pago",
+      amount: paymentAmount,
+      comment: comment || "Pago a cuenta",
+      created_at: argentinaTime.toISOString(),
+    });
+
     if (paymentError) {
-      alert(`Error al registrar el pago: ${paymentError.message}`)
+      alert(`Error al registrar el pago: ${paymentError.message}`);
     } else {
-      alert('¡Pago registrado exitosamente!')
-      setAmount('')
-      setComment('')
-      router.refresh() // Recarga la página para mostrar los datos actualizados
+      alert("¡Pago registrado exitosamente!");
+      setAmount("");
+      setComment("");
+      router.refresh(); // Recarga la página para mostrar los datos actualizados
     }
-    
-    setLoading(false)
-  }
+
+    setLoading(false);
+  };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mb-6">
       <h2 className="text-xl font-bold mb-4">Registrar un Pago</h2>
-      <form onSubmit={handleRegisterPayment} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+      <form
+        onSubmit={handleRegisterPayment}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"
+      >
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Monto a Pagar</label>
+          <label
+            htmlFor="amount"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Monto a Pagar
+          </label>
           <input
             type="number"
             id="amount"
@@ -81,7 +99,12 @@ export default function RegisterPayment({ customerId, currentDebt }: RegisterPay
           />
         </div>
         <div className="md:col-span-1">
-          <label htmlFor="comment" className="block text-sm font-medium text-gray-700">Comentario (Opcional)</label>
+          <label
+            htmlFor="comment"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Comentario (Opcional)
+          </label>
           <input
             type="text"
             id="comment"
@@ -96,9 +119,9 @@ export default function RegisterPayment({ customerId, currentDebt }: RegisterPay
           disabled={loading}
           className="w-full px-4 py-2 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 disabled:bg-gray-400"
         >
-          {loading ? 'Registrando...' : 'Registrar Pago'}
+          {loading ? "Registrando..." : "Registrar Pago"}
         </button>
       </form>
     </div>
-  )
+  );
 }

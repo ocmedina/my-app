@@ -381,6 +381,14 @@ export default function NewSalePage() {
     try {
       const debtGenerated = total - paid;
 
+      // Obtener timestamp en zona horaria Argentina
+      const now = new Date();
+      const argentinaTime = new Date(
+        now.toLocaleString("en-US", {
+          timeZone: "America/Argentina/Buenos_Aires",
+        })
+      );
+
       // 1. Registrar la venta
       const { data: saleData, error: saleError } = await supabase
         .from("sales")
@@ -391,6 +399,7 @@ export default function NewSalePage() {
           payment_method: paymentMethod,
           amount_paid: paid,
           amount_pending: debtGenerated,
+          created_at: argentinaTime.toISOString(),
         })
         .select()
         .single();

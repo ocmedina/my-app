@@ -62,9 +62,7 @@ export default function StartingFloatModal({
         type: "fondo_inicial",
         amount: floatAmount,
         description: "Fondo inicial del día",
-        created_at: new Date().toLocaleString("en-US", {
-          timeZone: "America/Argentina/Buenos_Aires",
-        }),
+        created_at: argDate.toISOString(),
       });
 
       if (error) throw error;
