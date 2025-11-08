@@ -294,7 +294,9 @@ export default function ReportsPage() {
           {/* Resumen de ventas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div className="bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200">
-              <p className="text-xs sm:text-sm text-blue-600 font-medium">Total Ventas</p>
+              <p className="text-xs sm:text-sm text-blue-600 font-medium">
+                Total Ventas
+              </p>
               <p className="text-xl sm:text-2xl font-bold text-blue-700">
                 ${closingData.totalSales.toFixed(2)}
               </p>
@@ -335,7 +337,9 @@ export default function ReportsPage() {
                     key={method}
                     className="flex justify-between items-center bg-white p-2 sm:p-3 rounded border"
                   >
-                    <span className="text-xs sm:text-sm text-gray-600">{method}</span>
+                    <span className="text-xs sm:text-sm text-gray-600">
+                      {method}
+                    </span>
                     <span className="text-sm sm:text-base font-semibold text-gray-800">
                       ${amount.toFixed(2)}
                     </span>
@@ -352,21 +356,27 @@ export default function ReportsPage() {
             </h3>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm sm:text-base text-gray-600">Fondo de Caja Inicial</span>
+              <span className="text-sm sm:text-base text-gray-600">
+                Fondo de Caja Inicial
+              </span>
               <span className="font-medium text-green-600 text-base sm:text-lg">
                 + ${closingData.startingFloat.toFixed(2)}
               </span>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm sm:text-base text-gray-600">Efectivo Recibido (Ventas)</span>
+              <span className="text-sm sm:text-base text-gray-600">
+                Efectivo Recibido (Ventas)
+              </span>
               <span className="font-medium text-green-600 text-base sm:text-lg">
                 + ${closingData.cashSales.toFixed(2)}
               </span>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm sm:text-base text-gray-600">Gastos y Retiros</span>
+              <span className="text-sm sm:text-base text-gray-600">
+                Gastos y Retiros
+              </span>
               <span className="font-medium text-red-600 text-base sm:text-lg">
                 - ${closingData.totalExpenses.toFixed(2)}
               </span>
@@ -406,7 +416,9 @@ export default function ReportsPage() {
                     : "border-red-500"
                 }`}
               >
-                <p className="text-xs sm:text-sm text-gray-600 mb-1">Diferencia</p>
+                <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                  Diferencia
+                </p>
                 <p
                   className={`text-2xl sm:text-3xl font-bold ${
                     realTimeDifference >= 0 ? "text-green-600" : "text-red-600"
