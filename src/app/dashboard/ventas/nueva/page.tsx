@@ -180,6 +180,15 @@ export default function NewSalePage() {
   const [paymentMethod, setPaymentMethod] = useState("efectivo");
   const [loading, setLoading] = useState(false);
 
+  // Estados para pagos mixtos
+  const [useMixedPayment, setUseMixedPayment] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState<
+    Array<{ method: string; amount: string }>
+  >([
+    { method: "efectivo", amount: "" },
+    { method: "transferencia", amount: "" },
+  ]);
+
   useEffect(() => {
     async function loadInitialData() {
       try {
@@ -235,12 +244,46 @@ export default function NewSalePage() {
 
     setTotal(newTotal);
 
-    if (paymentMethod !== "cuenta_corriente") {
-      setAmountPaid(newTotal.toFixed(2));
-    } else {
-      setAmountPaid("0");
+    if (!useMixedPayment) {
+      if (paymentMethod !== "cuenta_corriente") {
+        setAmountPaid(newTotal.toFixed(2));
+      } else {
+        setAmountPaid("0");
+      }
     }
-  }, [cart, selectedCustomer, paymentMethod]);
+  }, [cart, selectedCustomer, paymentMethod, useMixedPayment]);
+
+  // Funciones para manejo de pagos mixtos
+  const handleAddPaymentMethod = () => {
+    setPaymentMethods([...paymentMethods, { method: "efectivo", amount: "" }]);
+  };
+
+  const handleRemovePaymentMethod = (index: number) => {
+    if (paymentMethods.length > 1) {
+      setPaymentMethods(paymentMethods.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleUpdatePaymentMethod = (
+    index: number,
+    field: "method" | "amount",
+    value: string
+  ) => {
+    const updated = [...paymentMethods];
+    // Asegurar que el índice existe
+    if (!updated[index]) {
+      updated[index] = { method: "efectivo", amount: "" };
+    }
+    updated[index][field] = value;
+    setPaymentMethods(updated);
+  };
+
+  const getTotalPaidFromMixed = () => {
+    return paymentMethods.reduce(
+      (sum, pm) => sum + (parseFloat(pm.amount) || 0),
+      0
+    );
+  };
 
   const handleAddProduct = useCallback(
     (productToAdd: Product) => {
@@ -315,7 +358,10 @@ export default function NewSalePage() {
       return;
     }
 
-    const paid = parseFloat(amountPaid) || 0;
+    const paid = useMixedPayment
+      ? getTotalPaidFromMixed()
+      : parseFloat(amountPaid) || 0;
+
     if (paid < 0) {
       toast.error("El monto pagado no puede ser negativo.");
       return;
@@ -420,20 +466,38 @@ export default function NewSalePage() {
           sale_id: saleData.id,
           type: "compra",
           amount: debtGenerated,
-          comment: `Venta ${
-            paymentMethod === "cuenta_corriente" ? "a crédito" : "parcial"
-          }`,
+          comment: useMixedPayment
+            ? "Venta parcial - pagos mixtos"
+            : `Venta ${
+                paymentMethod === "cuenta_corriente" ? "a crédito" : "parcial"
+              }`,
         });
       }
 
       if (paid > 0) {
-        paymentRecords.push({
-          customer_id: selectedCustomer.id,
-          sale_id: saleData.id,
-          type: "pago",
-          amount: paid,
-          comment: `Pago con ${paymentMethod}`,
-        });
+        if (useMixedPayment) {
+          // Registrar cada método de pago por separado
+          paymentMethods.forEach((pm) => {
+            const amount = parseFloat(pm.amount) || 0;
+            if (amount > 0) {
+              paymentRecords.push({
+                customer_id: selectedCustomer.id,
+                sale_id: saleData.id,
+                type: "pago",
+                amount: amount,
+                comment: `Pago con ${pm.method}`,
+              });
+            }
+          });
+        } else {
+          paymentRecords.push({
+            customer_id: selectedCustomer.id,
+            sale_id: saleData.id,
+            type: "pago",
+            amount: paid,
+            comment: `Pago con ${paymentMethod}`,
+          });
+        }
       }
 
       if (paymentRecords.length > 0) {
@@ -449,6 +513,8 @@ export default function NewSalePage() {
       setCart([]);
       setAmountPaid("");
       setPaymentMethod("efectivo");
+      setUseMixedPayment(false);
+      setPaymentMethods([{ method: "efectivo", amount: "" }]);
       const consumerFinal = customers.find(
         (c) => c.full_name === "Consumidor Final"
       );
@@ -463,7 +529,9 @@ export default function NewSalePage() {
     }
   };
 
-  const debtDifference = total - (parseFloat(amountPaid) || 0);
+  const debtDifference = useMixedPayment
+    ? total - getTotalPaidFromMixed()
+    : total - (parseFloat(amountPaid) || 0);
 
   return (
     <div className="min-h-screen bg-gray-50 py-6">
@@ -674,48 +742,151 @@ export default function NewSalePage() {
                 <span>${total.toFixed(2)}</span>
               </div>
 
-              <div>
-                <label
-                  htmlFor="paymentMethod"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Método de Pago
-                </label>
-                <select
-                  id="paymentMethod"
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="efectivo">Efectivo</option>
-                  <option value="tarjeta_debito">Tarjeta de Débito</option>
-                  <option value="tarjeta_credito">Tarjeta de Crédito</option>
-                  <option value="transferencia">Transferencia</option>
-                  <option value="mercado_pago">Mercado Pago</option>
-                  <option value="cuenta_corriente">
-                    Cuenta Corriente (Fiado)
-                  </option>
-                </select>
-              </div>
+              {!useMixedPayment ? (
+                <>
+                  {/* Pago simple */}
+                  <div>
+                    <label
+                      htmlFor="paymentMethod"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Método de Pago
+                    </label>
+                    <select
+                      id="paymentMethod"
+                      value={paymentMethod}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setPaymentMethod(value);
+                        if (value === "mixtos") {
+                          setUseMixedPayment(true);
+                          setPaymentMethods([
+                            { method: "efectivo", amount: "" },
+                            { method: "transferencia", amount: "" },
+                          ]);
+                        }
+                      }}
+                      className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="efectivo">Efectivo</option>
+                      <option value="tarjeta_debito">Tarjeta de Débito</option>
+                      <option value="tarjeta_credito">
+                        Tarjeta de Crédito
+                      </option>
+                      <option value="transferencia">Transferencia</option>
+                      <option value="mercado_pago">Mercado Pago</option>
+                      <option value="mixtos">Pagos Mixtos</option>
+                      <option value="cuenta_corriente">
+                        Cuenta Corriente (Fiado)
+                      </option>
+                    </select>
+                  </div>
 
-              <div>
-                <label
-                  htmlFor="amountPaid"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Monto Pagado
-                </label>
-                <input
-                  type="number"
-                  id="amountPaid"
-                  value={amountPaid}
-                  onChange={(e) => setAmountPaid(e.target.value)}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
-                />
-              </div>
+                  <div>
+                    <label
+                      htmlFor="amountPaid"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Monto Pagado
+                    </label>
+                    <input
+                      type="number"
+                      id="amountPaid"
+                      value={amountPaid}
+                      onChange={(e) => setAmountPaid(e.target.value)}
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="0.00"
+                      step="0.01"
+                      min="0"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Pagos mixtos */}
+                  <div className="space-y-3">
+                    <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="text-sm font-semibold text-gray-800">
+                          💳 Pagos Mixtos
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUseMixedPayment(false);
+                            setPaymentMethod("efectivo");
+                          }}
+                          className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        Combina diferentes métodos de pago para esta venta
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      {/* Efectivo */}
+                      <div className="p-3 bg-gray-50 rounded-md border">
+                        <label className="block text-xs font-medium text-gray-700 mb-2">
+                          💵 Efectivo
+                        </label>
+                        <input
+                          type="number"
+                          value={paymentMethods[0]?.amount || ""}
+                          onChange={(e) =>
+                            handleUpdatePaymentMethod(
+                              0,
+                              "amount",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Monto en efectivo"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                          step="0.01"
+                          min="0"
+                          aria-label="Monto en efectivo"
+                        />
+                      </div>
+
+                      {/* Transferencia */}
+                      <div className="p-3 bg-gray-50 rounded-md border">
+                        <label className="block text-xs font-medium text-gray-700 mb-2">
+                          🏦 Transferencia
+                        </label>
+                        <input
+                          type="number"
+                          value={paymentMethods[1]?.amount || ""}
+                          onChange={(e) =>
+                            handleUpdatePaymentMethod(
+                              1,
+                              "amount",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Monto por transferencia"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                          step="0.01"
+                          min="0"
+                          aria-label="Monto por transferencia"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium text-gray-700">
+                          Total Pagado:
+                        </span>
+                        <span className="font-bold text-blue-700">
+                          ${getTotalPaidFromMixed().toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
 
               {debtDifference > 0 && (
                 <div className="flex justify-between font-medium text-red-600 bg-red-50 p-3 rounded-md">
