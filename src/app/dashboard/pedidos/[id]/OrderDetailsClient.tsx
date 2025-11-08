@@ -84,7 +84,9 @@ export default function OrderDetailsClient({
       <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-0 mb-4 sm:mb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Detalle de Pedido</h1>
-          <p className="text-xs sm:text-sm text-gray-500">ID: {order.id.substring(0, 8)}...</p>
+          <p className="text-xs sm:text-sm text-gray-500">
+            ID: {order.id.substring(0, 8)}...
+          </p>
         </div>
         <Link
           href="/dashboard/pedidos"
@@ -107,11 +109,15 @@ export default function OrderDetailsClient({
         </div>
         <div>
           <p className="text-xs sm:text-sm text-gray-500">Cliente</p>
-          <p className="text-sm sm:text-base font-semibold">{order.customers?.full_name ?? "N/A"}</p>
+          <p className="text-sm sm:text-base font-semibold">
+            {order.customers?.full_name ?? "N/A"}
+          </p>
         </div>
         <div>
           <p className="text-xs sm:text-sm text-gray-500">Estado Actual</p>
-          <p className="text-sm sm:text-base font-semibold capitalize">{order.status}</p>
+          <p className="text-sm sm:text-base font-semibold capitalize">
+            {order.status}
+          </p>
         </div>
         <div>
           <p className="text-xs sm:text-sm text-gray-500">Método de Pago</p>
@@ -130,7 +136,7 @@ export default function OrderDetailsClient({
       </div>
 
       <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Productos</h2>
-      
+
       {/* Tabla Desktop */}
       <div className="hidden sm:block overflow-x-auto mb-6 sm:mb-8">
         <table className="min-w-full divide-y divide-gray-200">
@@ -227,7 +233,9 @@ export default function OrderDetailsClient({
               </div>
               <div>
                 <span className="text-gray-500">Precio Unit:</span>
-                <span className="ml-1 font-semibold">${item.price?.toFixed(2)}</span>
+                <span className="ml-1 font-semibold">
+                  ${item.price?.toFixed(2)}
+                </span>
               </div>
             </div>
             <div className="pt-2 border-t">
@@ -312,7 +320,8 @@ export default function OrderDetailsClient({
               "Generando Remito..."
             ) : (
               <>
-                <FaPrint /> <span className="hidden sm:inline">Descargar</span> Remito
+                <FaPrint /> <span className="hidden sm:inline">Descargar</span>{" "}
+                Remito
               </>
             )
           }

@@ -995,8 +995,13 @@ export default function OrdersPage() {
             <div className="text-gray-400 mb-2">
               <FaBoxOpen className="w-12 h-12 mx-auto" />
             </div>
-            <p className="text-gray-600 mb-4">No se encontraron pedidos con los filtros aplicados.</p>
-            {(filterCustomer || filterStatus || filterDeliveryDay || filterDate) && (
+            <p className="text-gray-600 mb-4">
+              No se encontraron pedidos con los filtros aplicados.
+            </p>
+            {(filterCustomer ||
+              filterStatus ||
+              filterDeliveryDay ||
+              filterDate) && (
               <button
                 onClick={clearFilters}
                 className="text-sm text-blue-600 hover:text-blue-700 underline"
@@ -1124,7 +1129,8 @@ export default function OrdersPage() {
               Anterior
             </button>
             <span className="text-xs sm:text-sm text-gray-700 whitespace-nowrap">
-              Pág. <span className="font-medium">{currentPage}</span> / {totalPages}
+              Pág. <span className="font-medium">{currentPage}</span> /{" "}
+              {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
