@@ -1425,10 +1425,18 @@ export default function RepartoPage() {
   // Fetch daily orders
   const fetchDailyHistory = useCallback(async (userId: string) => {
     try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
+      // Obtener fecha en zona horaria Argentina
+      const now = new Date();
+      const argDate = new Date(
+        now.toLocaleString("en-US", {
+          timeZone: "America/Argentina/Buenos_Aires",
+        })
+      );
+      const today = argDate.toISOString().split("T")[0];
+
+      const tomorrowDate = new Date(argDate);
+      tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+      const tomorrow = tomorrowDate.toISOString().split("T")[0];
 
       const { data, error } = await supabase
         .from("orders")
@@ -1436,8 +1444,8 @@ export default function RepartoPage() {
           "id, total_amount, status, created_at, customer_id, profile_id, customers(full_name)"
         )
         .eq("profile_id", userId)
-        .gte("created_at", today.toISOString())
-        .lt("created_at", tomorrow.toISOString())
+        .gte("created_at", `${today}T00:00:00-03:00`)
+        .lt("created_at", `${tomorrow}T00:00:00-03:00`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

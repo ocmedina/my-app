@@ -19,18 +19,26 @@ export default function DashboardWrapper({
 
   const checkStartingFloat = async () => {
     try {
-      const today = new Date().toISOString().split("T")[0];
-      const yesterday = new Date(Date.now() - 86400000)
-        .toISOString()
-        .split("T")[0];
+      // Obtener fecha en zona horaria Argentina (UTC-3)
+      const now = new Date();
+      const argDate = new Date(
+        now.toLocaleString("en-US", {
+          timeZone: "America/Argentina/Buenos_Aires",
+        })
+      );
+      const today = argDate.toISOString().split("T")[0];
+
+      const yesterdayDate = new Date(argDate);
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+      const yesterday = yesterdayDate.toISOString().split("T")[0];
 
       // 1. Verificar si existe un fondo inicial para hoy
       const { data: todayFloat } = await supabase
         .from("cash_movements")
         .select("id")
         .eq("type", "fondo_inicial")
-        .gte("created_at", `${today}T00:00:00`)
-        .lte("created_at", `${today}T23:59:59.999`)
+        .gte("created_at", `${today}T00:00:00-03:00`)
+        .lte("created_at", `${today}T23:59:59.999-03:00`)
         .maybeSingle();
 
       // Si ya hay fondo inicial de hoy, no mostrar modal

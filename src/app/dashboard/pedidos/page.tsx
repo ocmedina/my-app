@@ -628,13 +628,10 @@ export default function OrdersPage() {
 
     if (statusFilter !== "todos") query = query.eq("status", statusFilter);
     if (dateFilter) {
-      const startDate = new Date(dateFilter);
-      startDate.setUTCHours(0, 0, 0, 0);
-      const endDate = new Date(dateFilter);
-      endDate.setUTCHours(23, 59, 59, 999);
-      query = query
-        .gte("created_at", startDate.toISOString())
-        .lte("created_at", endDate.toISOString());
+      // Filtro con zona horaria Argentina (UTC-3)
+      const startDate = `${dateFilter}T00:00:00-03:00`;
+      const endDate = `${dateFilter}T23:59:59.999-03:00`;
+      query = query.gte("created_at", startDate).lte("created_at", endDate);
     }
     if (searchQuery.length > 2)
       query = query.ilike("customers.full_name", `%${searchQuery}%`);

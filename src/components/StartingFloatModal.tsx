@@ -33,15 +33,22 @@ export default function StartingFloatModal({
     setLoading(true);
 
     try {
-      const today = new Date().toISOString().split("T")[0];
+      // Obtener fecha en zona horaria Argentina (UTC-3)
+      const now = new Date();
+      const argDate = new Date(
+        now.toLocaleString("en-US", {
+          timeZone: "America/Argentina/Buenos_Aires",
+        })
+      );
+      const today = argDate.toISOString().split("T")[0];
 
       // Verificar si ya existe un fondo inicial para hoy
       const { data: existingMovement } = await supabase
         .from("cash_movements")
         .select("id")
         .eq("type", "fondo_inicial")
-        .gte("created_at", `${today}T00:00:00`)
-        .lte("created_at", `${today}T23:59:59.999`)
+        .gte("created_at", `${today}T00:00:00-03:00`)
+        .lte("created_at", `${today}T23:59:59.999-03:00`)
         .maybeSingle();
 
       if (existingMovement) {
@@ -50,12 +57,14 @@ export default function StartingFloatModal({
         return;
       }
 
-      // Registrar el fondo inicial
+      // Registrar el fondo inicial con zona horaria Argentina
       const { error } = await supabase.from("cash_movements").insert({
         type: "fondo_inicial",
         amount: floatAmount,
         description: "Fondo inicial del día",
-        created_at: new Date().toISOString(),
+        created_at: new Date().toLocaleString("en-US", {
+          timeZone: "America/Argentina/Buenos_Aires",
+        }),
       });
 
       if (error) throw error;

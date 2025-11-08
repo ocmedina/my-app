@@ -75,9 +75,9 @@ export default function ReportsPage() {
       }
 
       // 2. Calcular datos para el arqueo
-      // Usar la zona horaria local para evitar problemas de división de datos
-      const startDate = `${date}T00:00:00`;
-      const endDate = `${date}T23:59:59.999`;
+      // Usar la zona horaria de Argentina (UTC-3)
+      const startDate = `${date}T00:00:00-03:00`;
+      const endDate = `${date}T23:59:59.999-03:00`;
 
       // Obtener ventas y movimientos en paralelo
       const [salesResult, movementsResult] = await Promise.all([

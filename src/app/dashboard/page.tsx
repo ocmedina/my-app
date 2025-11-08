@@ -61,13 +61,31 @@ function DashboardCard({
 // --- Obtener datos del dashboard ---
 async function getDashboardData() {
   const supabase = await createClient();
+
+  // Obtener fecha en zona horaria Argentina
   const now = new Date();
-  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const firstDayOfNextMonth = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
+  const argDate = new Date(
+    now.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" })
+  );
+
+  const firstDayOfMonth = new Date(
+    argDate.getFullYear(),
+    argDate.getMonth(),
     1
   );
+  const firstDayOfNextMonth = new Date(
+    argDate.getFullYear(),
+    argDate.getMonth() + 1,
+    1
+  );
+
+  // Formatear fechas con zona horaria Argentina
+  const startOfMonth = `${
+    firstDayOfMonth.toISOString().split("T")[0]
+  }T00:00:00-03:00`;
+  const startOfNextMonth = `${
+    firstDayOfNextMonth.toISOString().split("T")[0]
+  }T00:00:00-03:00`;
 
   const { count: productCount } = await supabase
     .from("products")
@@ -86,8 +104,8 @@ async function getDashboardData() {
   const { data: salesThisMonth } = await supabase
     .from("sales")
     .select("total_amount")
-    .gte("created_at", firstDayOfMonth.toISOString())
-    .lt("created_at", firstDayOfNextMonth.toISOString());
+    .gte("created_at", startOfMonth)
+    .lt("created_at", startOfNextMonth);
 
   const totalSales =
     salesThisMonth?.reduce((sum, sale) => sum + (sale.total_amount || 0), 0) ??
