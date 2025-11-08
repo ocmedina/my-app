@@ -30,27 +30,66 @@ function CustomersPageContent() {
     const fetchCustomers = async () => {
       setLoading(true);
 
-      let query = supabase
+      // Obtener todos los clientes activos
+      const { data: customersData, error: customersError } = await supabase
         .from("customers")
         .select("*")
         .eq("is_active", true)
         .order("full_name", { ascending: true });
 
-      if (debtFilter === "with_debt") {
-        query = query.gt("debt", 0);
-      } else if (debtFilter === "no_debt") {
-        query = query.eq("debt", 0);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching customers:", error);
+      if (customersError) {
+        console.error("Error fetching customers:", customersError);
         setCustomers([]);
-      } else {
-        setCustomers((data as CustomerRow[]) || []);
+        setLoading(false);
+        return;
       }
 
+      // Obtener la deuda de cada cliente desde los pedidos FIADOS y ventas en CUENTA CORRIENTE
+      const customersWithDebt = await Promise.all(
+        (customersData || []).map(async (customer) => {
+          // Deuda de pedidos fiados
+          const { data: ordersData } = await supabase
+            .from("orders")
+            .select("amount_pending")
+            .eq("customer_id", customer.id)
+            .eq("payment_method", "fiado")
+            .not("status", "eq", "cancelado");
+
+          const ordersDebt = (ordersData || []).reduce(
+            (sum, order) => sum + (order.amount_pending || 0),
+            0
+          );
+
+          // Deuda de ventas en cuenta corriente
+          const { data: salesData } = await supabase
+            .from("sales")
+            .select("amount_pending")
+            .eq("customer_id", customer.id)
+            .eq("payment_method", "cuenta_corriente");
+
+          const salesDebt = (salesData || []).reduce(
+            (sum, sale) => sum + ((sale as any).amount_pending || 0),
+            0
+          );
+
+          return {
+            ...customer,
+            debt: ordersDebt + salesDebt,
+          };
+        })
+      );
+
+      // Aplicar filtro de deuda
+      let filteredCustomers = customersWithDebt;
+      if (debtFilter === "with_debt") {
+        filteredCustomers = customersWithDebt.filter((c) => (c.debt || 0) > 0);
+      } else if (debtFilter === "no_debt") {
+        filteredCustomers = customersWithDebt.filter(
+          (c) => (c.debt || 0) === 0
+        );
+      }
+
+      setCustomers(filteredCustomers);
       setLoading(false);
     };
 
@@ -85,12 +124,12 @@ function CustomersPageContent() {
             className="p-2 border border-gray-300 rounded-md min-w-[200px]"
           >
             <option value="all">Todos los clientes</option>
-            <option value="with_debt">🔴 Con cuenta corriente (deuda)</option>
-            <option value="no_debt">✅ Sin deuda</option>
+            <option value="with_debt">🔴 Con fiados pendientes</option>
+            <option value="no_debt">✅ Sin fiados pendientes</option>
           </select>
           {debtFilter === "with_debt" && (
             <span className="text-sm font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-full">
-              🔴 Mostrando solo clientes con deuda
+              🔴 Mostrando solo clientes con fiados pendientes
             </span>
           )}
         </div>
@@ -113,7 +152,7 @@ function CustomersPageContent() {
                 Tipo
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Deuda
+                Fiados Pendientes
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Acciones

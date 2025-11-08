@@ -12,6 +12,7 @@ import {
   FaMinus,
   FaTrash,
   FaSearch,
+  FaCheckCircle,
 } from "react-icons/fa";
 import { updateOrder } from "@/app/actions/orderActions";
 
@@ -61,6 +62,10 @@ export default function EditOrderPage({
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState("");
   const [items, setItems] = useState<OrderItem[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<"efectivo" | "fiado">(
+    "efectivo"
+  );
+  const [amountReceived, setAmountReceived] = useState<number>(0);
 
   // Búsqueda de productos
   const [searchQuery, setSearchQuery] = useState("");
@@ -133,6 +138,8 @@ export default function EditOrderPage({
     setOrder(data);
     setSelectedCustomerId(data.customer_id);
     setItems(data.order_items || []);
+    setPaymentMethod(data.payment_method || "efectivo");
+    setAmountReceived(data.amount_paid || 0);
     setLoading(false);
   };
 
@@ -235,7 +242,10 @@ export default function EditOrderPage({
           product_id: item.product_id,
           quantity: item.quantity,
           price: item.price,
-        }))
+        })),
+        paymentMethod,
+        amountReceived,
+        total - amountReceived
       );
 
       toast.dismiss(loadingToast);
@@ -271,18 +281,20 @@ export default function EditOrderPage({
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <div className="flex justify-between items-start mb-6">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6">
+      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Editar Pedido</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Editar Pedido
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
               ID: {order.id.substring(0, 8)}
             </p>
           </div>
           <Link
             href={`/dashboard/pedidos/${id}`}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all text-sm"
           >
             <FaTimes /> Cancelar
           </Link>
@@ -310,6 +322,88 @@ export default function EditOrderPage({
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Método de Pago */}
+        <div className="mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Método de Pago
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentMethod("efectivo");
+                setAmountReceived(calculateTotal());
+              }}
+              className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                paymentMethod === "efectivo"
+                  ? "border-green-500 bg-green-50 text-green-700 font-semibold"
+                  : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+              }`}
+            >
+              💵 Efectivo
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentMethod("fiado");
+                setAmountReceived(0);
+              }}
+              className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                paymentMethod === "fiado"
+                  ? "border-orange-500 bg-orange-50 text-orange-700 font-semibold"
+                  : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+              }`}
+            >
+              📋 Fiado
+            </button>
+          </div>
+        </div>
+
+        {/* Monto Recibido */}
+        <div className="mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Entrega Recibida
+          </label>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                $
+              </span>
+              <input
+                type="number"
+                min="0"
+                max={calculateTotal()}
+                step="0.01"
+                value={amountReceived === 0 ? "" : amountReceived}
+                onChange={(e) => {
+                  const value =
+                    e.target.value === "" ? 0 : parseFloat(e.target.value);
+                  setAmountReceived(Math.min(value, calculateTotal()));
+                }}
+                className="w-full pl-8 pr-3 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="0.00"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setAmountReceived(0)}
+              className="px-4 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-semibold"
+              title="Poner en cero"
+            >
+              ✕ 0
+            </button>
+          </div>
+          <div className="flex justify-end mt-2">
+            <button
+              type="button"
+              onClick={() => setAmountReceived(calculateTotal())}
+              className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold"
+            >
+              ✓ Pago completo
+            </button>
+          </div>
         </div>
 
         {/* Buscador de Productos */}
@@ -341,11 +435,11 @@ export default function EditOrderPage({
                 <li
                   key={product.id}
                   onClick={() => addProduct(product)}
-                  className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                  className="px-3 sm:px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 transition-colors"
                 >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-semibold text-gray-900">
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                    <div className="flex-1">
+                      <span className="font-semibold text-gray-900 text-sm sm:text-base">
                         {product.name}
                       </span>
                       {product.sku && (
@@ -354,7 +448,7 @@ export default function EditOrderPage({
                         </span>
                       )}
                     </div>
-                    <div className="text-right">
+                    <div className="flex justify-between sm:text-right">
                       <div className="text-sm font-medium text-blue-600">
                         $
                         {selectedCustomer?.customer_type === "mayorista"
@@ -362,7 +456,7 @@ export default function EditOrderPage({
                           : product.price_minorista?.toFixed(2)}
                       </div>
                       <div
-                        className={`text-xs ${
+                        className={`text-xs ml-3 ${
                           (product.stock || 0) > 0
                             ? "text-green-600"
                             : "text-red-600"
@@ -396,19 +490,19 @@ export default function EditOrderPage({
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 gap-3"
                 >
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                       {item.products?.name}
                     </h3>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs sm:text-sm text-gray-500">
                       ${item.price.toFixed(2)} c/u
                       {item.products?.sku && ` • SKU: ${item.products.sku}`}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
                     <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-300">
                       <button
                         onClick={() => updateQuantity(index, -1)}
@@ -418,7 +512,7 @@ export default function EditOrderPage({
                       >
                         <FaMinus size={12} />
                       </button>
-                      <span className="px-3 font-bold text-gray-900 min-w-[3rem] text-center">
+                      <span className="px-2 sm:px-3 font-bold text-gray-900 min-w-[2.5rem] sm:min-w-[3rem] text-center text-sm sm:text-base">
                         {item.quantity}
                       </span>
                       <button
@@ -431,8 +525,8 @@ export default function EditOrderPage({
                       </button>
                     </div>
 
-                    <div className="text-right min-w-[6rem]">
-                      <p className="font-bold text-gray-900">
+                    <div className="text-right min-w-[5rem] sm:min-w-[6rem]">
+                      <p className="font-bold text-gray-900 text-sm sm:text-base">
                         ${(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
@@ -443,7 +537,7 @@ export default function EditOrderPage({
                       disabled={saving}
                       title="Eliminar"
                     >
-                      <FaTrash />
+                      <FaTrash size={14} />
                     </button>
                   </div>
                 </div>
@@ -452,22 +546,53 @@ export default function EditOrderPage({
           )}
         </div>
 
-        {/* Total */}
-        <div className="border-t-2 border-gray-200 pt-4 mb-6">
+        {/* Total y Estado de Pago */}
+        <div className="border-t-2 border-gray-200 pt-4 mb-6 space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-xl font-bold text-gray-900">Total:</span>
-            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-lg sm:text-xl font-bold text-gray-900">
+              Total:
+            </span>
+            <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               ${calculateTotal().toFixed(2)}
             </span>
           </div>
+
+          <div className="flex justify-between items-center text-green-700 bg-green-50 px-3 sm:px-4 py-2 rounded-lg">
+            <span className="font-semibold text-sm sm:text-base">
+              Entrega Recibida:
+            </span>
+            <span className="text-lg sm:text-xl font-bold">
+              ${amountReceived.toFixed(2)}
+            </span>
+          </div>
+
+          {amountReceived < calculateTotal() ? (
+            <div className="flex justify-between items-center text-orange-700 bg-orange-50 px-3 sm:px-4 py-3 rounded-lg border-2 border-orange-200">
+              <span className="font-semibold text-sm sm:text-base">
+                Saldo Pendiente:
+              </span>
+              <span className="text-xl sm:text-2xl font-bold">
+                ${(calculateTotal() - amountReceived).toFixed(2)}
+              </span>
+            </div>
+          ) : (
+            calculateTotal() > 0 && (
+              <div className="flex items-center justify-center gap-2 text-green-700 bg-green-50 px-3 sm:px-4 py-2 rounded-lg border-2 border-green-200">
+                <FaCheckCircle />
+                <span className="font-semibold text-sm sm:text-base">
+                  Pago Completo
+                </span>
+              </div>
+            )
+          )}
         </div>
 
         {/* Botones de Acción */}
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button
             onClick={handleSave}
             disabled={saving || items.length === 0 || !selectedCustomerId}
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-lg"
+            className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-lg text-sm sm:text-base"
           >
             {saving ? (
               <>
@@ -484,7 +609,7 @@ export default function EditOrderPage({
 
           <Link
             href={`/dashboard/pedidos/${id}`}
-            className="px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition-all text-center"
+            className="px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition-all text-center text-sm sm:text-base"
           >
             Cancelar
           </Link>

@@ -13,7 +13,10 @@ export async function updateOrder(
   orderId: string,
   customerId: string,
   totalAmount: number,
-  items: OrderItemInput[]
+  items: OrderItemInput[],
+  paymentMethod?: string,
+  amountPaid?: number,
+  amountPending?: number
 ) {
   try {
     // Usar el cliente Admin para tener permisos completos
@@ -71,12 +74,26 @@ export async function updateOrder(
     console.log(`[Server Action] Items insertados: ${insertedItems?.length || 0}`, insertedItems);
 
     // Actualizar el pedido
+    const updateData: any = {
+      customer_id: customerId,
+      total_amount: totalAmount,
+    };
+    
+    if (paymentMethod !== undefined) {
+      updateData.payment_method = paymentMethod;
+    }
+    
+    if (amountPaid !== undefined) {
+      updateData.amount_paid = amountPaid;
+    }
+    
+    if (amountPending !== undefined) {
+      updateData.amount_pending = amountPending;
+    }
+
     const { error: orderError } = await supabase
       .from('orders')
-      .update({
-        customer_id: customerId,
-        total_amount: totalAmount,
-      })
+      .update(updateData)
       .eq('id', orderId);
 
     if (orderError) {

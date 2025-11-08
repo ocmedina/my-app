@@ -263,6 +263,18 @@ function OrderDetailsModal({
                       )}
                     </p>
                   </div>
+                  <div className="col-span-2">
+                    <p className="text-gray-600 mb-1">Método de Pago:</p>
+                    {(orderData as any).payment_method === "fiado" ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">
+                        📋 Fiado
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                        💵 Efectivo
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -369,6 +381,49 @@ function OrderDetailsModal({
                   </span>
                 </div>
               </div>
+
+              {/* Estado de Pago */}
+              {(orderData as any).amount_paid !== undefined &&
+                (orderData as any).amount_paid !== null && (
+                  <div className="space-y-2">
+                    <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                      <div className="flex items-center justify-between">
+                        <span className="text-green-700 font-semibold">
+                          Entrega Recibida:
+                        </span>
+                        <span className="text-xl font-bold text-green-700">
+                          ${((orderData as any).amount_paid || 0).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {((orderData as any).amount_pending || 0) > 0 && (
+                      <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-300">
+                        <div className="flex items-center justify-between">
+                          <span className="text-orange-700 font-bold">
+                            Saldo Pendiente:
+                          </span>
+                          <span className="text-2xl font-bold text-orange-700">
+                            $
+                            {((orderData as any).amount_pending || 0).toFixed(
+                              2
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {((orderData as any).amount_pending || 0) === 0 &&
+                      (orderData as any).amount_paid > 0 && (
+                        <div className="bg-green-50 rounded-xl p-3 border-2 border-green-300 flex items-center justify-center gap-2">
+                          <FaCheckCircle className="text-green-700" />
+                          <span className="text-green-700 font-bold">
+                            Pago Completo
+                          </span>
+                        </div>
+                      )}
+                  </div>
+                )}
             </div>
           )}
         </div>
@@ -618,7 +673,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Modal de Detalles */}
       <OrderDetailsModal
         isOpen={isOrderDetailsModalOpen}
@@ -634,40 +689,41 @@ export default function OrdersPage() {
       />
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Gestión de Pedidos
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
             {totalCount} pedido{totalCount !== 1 ? "s" : ""} en total
           </p>
         </div>
         <Link
           href="/dashboard/pedidos/nuevo"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm sm:text-base text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
         >
           <FaPlus className="w-4 h-4" />
-          Nuevo Pedido
+          <span className="hidden sm:inline">Nuevo Pedido</span>
+          <span className="sm:hidden">Nuevo</span>
         </Link>
       </div>
 
       {/* Filtros de Estado */}
-      <div className="bg-white rounded-lg shadow-sm p-4">
+      <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-700">
+          <h2 className="text-xs sm:text-sm font-semibold text-gray-700">
             Filtrar por Estado
           </h2>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+            className="inline-flex items-center gap-2 px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
           >
             <FaFilter className="w-3 h-3" />
             {showFilters ? "Ocultar" : "Más"} Filtros
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
           {(
             Object.keys(STATUS_CONFIG) as Array<keyof typeof STATUS_CONFIG>
           ).map((status) => {
@@ -680,7 +736,7 @@ export default function OrdersPage() {
                   setStatusFilter(status as any);
                   setCurrentPage(1);
                 }}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all ${
                   isActive
                     ? config.activeColor
                     : `${config.color} hover:opacity-80`
@@ -695,23 +751,24 @@ export default function OrdersPage() {
 
       {/* Filtros Avanzados */}
       {showFilters && (
-        <div className="bg-white rounded-lg shadow-sm p-4 space-y-4 animate-slideDown">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 space-y-4 animate-slideDown">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-700">
+            <h2 className="text-xs sm:text-sm font-semibold text-gray-700">
               Filtros Avanzados
             </h2>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="inline-flex items-center gap-1 px-3 py-1 text-xs text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+                className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 text-xs text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
               >
                 <FaTimes className="w-3 h-3" />
-                Limpiar Filtros
+                <span className="hidden sm:inline">Limpiar Filtros</span>
+                <span className="sm:hidden">Limpiar</span>
               </button>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Buscar Cliente
@@ -770,28 +827,31 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Tabla de Pedidos */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      {/* Tabla de Pedidos - Desktop */}
+      <div className="hidden lg:block bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Fecha
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Cliente
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Día de Reparto
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Pago
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Estado
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
@@ -799,7 +859,7 @@ export default function OrdersPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <div className="flex justify-center items-center gap-2 text-gray-500">
                       <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                       Cargando pedidos...
@@ -809,7 +869,7 @@ export default function OrdersPage() {
               ) : orders.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-6 py-12 text-center text-gray-500"
                   >
                     <div className="flex flex-col items-center gap-2">
@@ -832,35 +892,62 @@ export default function OrdersPage() {
                     key={order.id}
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                       {new Date(order.created_at).toLocaleDateString("es-AR", {
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {order.customers?.full_name ?? "Sin cliente"}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                       {order.customers?.delivery_day ?? "N/A"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      $
-                      {order.total_amount?.toLocaleString("es-AR", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }) ?? "0.00"}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        $
+                        {order.total_amount?.toLocaleString("es-AR", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }) ?? "0.00"}
+                      </div>
+                      {((order as any).amount_pending || 0) > 0 && (
+                        <div className="text-xs text-orange-600 font-semibold mt-1">
+                          Pendiente: $
+                          {((order as any).amount_pending || 0).toFixed(2)}
+                        </div>
+                      )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="space-y-1">
+                        {(order as any).payment_method === "fiado" ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                            📋 Fiado
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                            💵 Efectivo
+                          </span>
+                        )}
+                        {((order as any).amount_pending || 0) === 0 &&
+                          ((order as any).amount_paid || 0) > 0 && (
+                            <div className="text-xs text-green-600 font-semibold flex items-center gap-1">
+                              <FaCheckCircle className="w-3 h-3" /> Pagado
+                            </div>
+                          )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <OrderStatusChanger
                         order={order}
                         onStatusUpdate={fetchOrders}
                       />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => {
@@ -896,10 +983,135 @@ export default function OrdersPage() {
         </div>
       </div>
 
+      {/* Vista de Tarjetas - Mobile y Tablet */}
+      <div className="lg:hidden space-y-3">
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-2 text-sm text-gray-600">Cargando pedidos...</p>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+            <div className="text-gray-400 mb-2">
+              <FaBoxOpen className="w-12 h-12 mx-auto" />
+            </div>
+            <p className="text-gray-600 mb-4">No se encontraron pedidos con los filtros aplicados.</p>
+            {(filterCustomer || filterStatus || filterDeliveryDay || filterDate) && (
+              <button
+                onClick={clearFilters}
+                className="text-sm text-blue-600 hover:text-blue-700 underline"
+              >
+                Limpiar filtros
+              </button>
+            )}
+          </div>
+        ) : (
+          orders.map((order) => (
+            <div
+              key={order.id}
+              className="bg-white rounded-lg shadow-sm p-4 space-y-3"
+            >
+              {/* Header con fecha y estado */}
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex-1">
+                  <div className="text-xs text-gray-500 mb-1">
+                    {new Date(order.created_at).toLocaleDateString("es-AR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </div>
+                  <div className="text-sm font-semibold text-gray-900">
+                    {order.customers?.full_name ?? "Sin cliente"}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    Reparto: {order.customers?.delivery_day ?? "N/A"}
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <OrderStatusChanger
+                    order={order}
+                    onStatusUpdate={fetchOrders}
+                  />
+                  {(order as any).payment_method === "fiado" ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                      📋 Fiado
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                      💵 Efectivo
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Total y pago */}
+              <div className="border-t pt-3 space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Total:</span>
+                  <span className="text-base font-bold text-gray-900">
+                    $
+                    {order.total_amount?.toLocaleString("es-AR", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }) ?? "0.00"}
+                  </span>
+                </div>
+                {((order as any).amount_pending || 0) > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-orange-600">Pendiente:</span>
+                    <span className="text-sm font-semibold text-orange-600">
+                      ${((order as any).amount_pending || 0).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                {((order as any).amount_pending || 0) === 0 &&
+                  ((order as any).amount_paid || 0) > 0 && (
+                    <div className="flex justify-between items-center text-green-600">
+                      <span className="text-xs">Estado:</span>
+                      <span className="text-xs font-semibold flex items-center gap-1">
+                        <FaCheckCircle className="w-3 h-3" /> Pagado
+                      </span>
+                    </div>
+                  )}
+              </div>
+
+              {/* Acciones */}
+              <div className="border-t pt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    setSelectedOrderIdForDetails(order.id);
+                    setIsOrderDetailsModalOpen(true);
+                  }}
+                  className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-1 px-3 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700 transition-all"
+                >
+                  <FaInfoCircle /> Ver Detalles
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedOrderIdForRemito(order.id);
+                    setIsRemitoModalOpen(true);
+                  }}
+                  className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-1 px-3 py-2 bg-gray-600 text-white text-xs font-semibold rounded-lg hover:bg-gray-700 transition-all"
+                >
+                  <FaPrint /> Remito
+                </button>
+                <Link
+                  href={`/dashboard/pedidos/${order.id}`}
+                  className="flex-1 min-w-[120px] inline-flex items-center justify-center px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-semibold rounded-lg transition-all"
+                >
+                  Detalle Completo
+                </Link>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
       {/* Paginación */}
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white rounded-lg shadow-sm p-4">
-          <span className="text-sm text-gray-700">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 bg-white rounded-lg shadow-sm p-3 sm:p-4">
+          <span className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
             Mostrando <span className="font-medium">{orders.length}</span> de{" "}
             <span className="font-medium">{totalCount}</span> pedidos
           </span>
@@ -907,18 +1119,17 @@ export default function OrdersPage() {
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1 || loading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Anterior
             </button>
-            <span className="text-sm text-gray-700">
-              Página <span className="font-medium">{currentPage}</span> de{" "}
-              <span className="font-medium">{totalPages}</span>
+            <span className="text-xs sm:text-sm text-gray-700 whitespace-nowrap">
+              Pág. <span className="font-medium">{currentPage}</span> / {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage >= totalPages || loading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Siguiente
             </button>
