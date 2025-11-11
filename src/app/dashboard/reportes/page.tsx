@@ -93,30 +93,31 @@ export default function ReportsPage() {
       const endDate = `${date}T23:59:59.999-03:00`;
 
       // Obtener ventas de mostrador, pedidos y movimientos en paralelo
-      const [salesResult, ordersResult, movementsResult, paymentsResult] = await Promise.all([
-        supabase
-          .from("sales")
-          .select("total_amount, payment_method")
-          .gte("created_at", startDate)
-          .lte("created_at", endDate),
-        (supabase as any)
-          .from("orders")
-          .select("total_amount, status, created_at")
-          .eq("status", "entregado")
-          .gte("created_at", startDate)
-          .lte("created_at", endDate),
-        supabase
-          .from("cash_movements")
-          .select("type, amount")
-          .gte("created_at", startDate)
-          .lte("created_at", endDate),
-        supabase
-          .from("payments")
-          .select("amount, type, comment")
-          .eq("type", "pago")
-          .gte("created_at", startDate)
-          .lte("created_at", endDate),
-      ]);
+      const [salesResult, ordersResult, movementsResult, paymentsResult] =
+        await Promise.all([
+          supabase
+            .from("sales")
+            .select("total_amount, payment_method")
+            .gte("created_at", startDate)
+            .lte("created_at", endDate),
+          (supabase as any)
+            .from("orders")
+            .select("total_amount, status, created_at")
+            .eq("status", "entregado")
+            .gte("created_at", startDate)
+            .lte("created_at", endDate),
+          supabase
+            .from("cash_movements")
+            .select("type, amount")
+            .gte("created_at", startDate)
+            .lte("created_at", endDate),
+          supabase
+            .from("payments")
+            .select("amount, type, comment")
+            .eq("type", "pago")
+            .gte("created_at", startDate)
+            .lte("created_at", endDate),
+        ]);
 
       if (salesResult.error) throw salesResult.error;
       if (ordersResult.error) throw ordersResult.error;
@@ -355,9 +356,7 @@ export default function ReportsPage() {
               <p className="text-xl sm:text-2xl font-bold text-green-700">
                 ${closingData.cashSales.toFixed(2)}
               </p>
-              <p className="text-xs text-green-600 mt-1">
-                Total en efectivo
-              </p>
+              <p className="text-xs text-green-600 mt-1">Total en efectivo</p>
             </div>
             <div className="bg-purple-50 p-3 sm:p-4 rounded-lg border border-purple-200">
               <p className="text-xs sm:text-sm text-purple-600 font-medium">
@@ -374,9 +373,7 @@ export default function ReportsPage() {
               <p className="text-xl sm:text-2xl font-bold text-orange-700">
                 ${closingData.deliverySales.pending.toFixed(2)}
               </p>
-              <p className="text-xs text-orange-500">
-                Pendiente de cobro
-              </p>
+              <p className="text-xs text-orange-500">Pendiente de cobro</p>
             </div>
           </div>
 
@@ -406,13 +403,17 @@ export default function ReportsPage() {
               </div>
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="text-xs font-semibold text-gray-700 mb-2">Métodos de Pago:</p>
+              <p className="text-xs font-semibold text-gray-700 mb-2">
+                Métodos de Pago:
+              </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {Object.entries(closingData.counterSales.breakdown).map(
                   ([method, amount]) => (
                     <div key={method} className="flex justify-between text-sm">
                       <span className="text-gray-600">{method}:</span>
-                      <span className="font-semibold">${amount.toFixed(2)}</span>
+                      <span className="font-semibold">
+                        ${amount.toFixed(2)}
+                      </span>
                     </div>
                   )
                 )}
@@ -595,26 +596,36 @@ export default function ReportsPage() {
             {/* Resumen general */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                <p className="text-xs text-blue-600 font-medium">Total Ventas</p>
+                <p className="text-xs text-blue-600 font-medium">
+                  Total Ventas
+                </p>
                 <p className="text-xl font-bold text-blue-700">
                   ${savedReport.totalSales.toFixed(2)}
                 </p>
-                <p className="text-xs text-blue-500">{savedReport.transactionCount} transacciones</p>
+                <p className="text-xs text-blue-500">
+                  {savedReport.transactionCount} transacciones
+                </p>
               </div>
               <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                <p className="text-xs text-green-600 font-medium">Efectivo Total</p>
+                <p className="text-xs text-green-600 font-medium">
+                  Efectivo Total
+                </p>
                 <p className="text-xl font-bold text-green-700">
                   ${savedReport.cashSales.toFixed(2)}
                 </p>
               </div>
               <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
-                <p className="text-xs text-purple-600 font-medium">Fondo Inicial</p>
+                <p className="text-xs text-purple-600 font-medium">
+                  Fondo Inicial
+                </p>
                 <p className="text-xl font-bold text-purple-700">
                   ${savedReport.startingFloat.toFixed(2)}
                 </p>
               </div>
               <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                <p className="text-xs text-orange-600 font-medium">Cuenta Corriente</p>
+                <p className="text-xs text-orange-600 font-medium">
+                  Cuenta Corriente
+                </p>
                 <p className="text-xl font-bold text-orange-700">
                   ${savedReport.deliverySales.pending.toFixed(2)}
                 </p>
@@ -623,7 +634,9 @@ export default function ReportsPage() {
 
             {/* Ventas de Mostrador */}
             <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-300">
-              <h3 className="font-semibold text-blue-800 mb-3">🏪 Ventas de Mostrador</h3>
+              <h3 className="font-semibold text-blue-800 mb-3">
+                🏪 Ventas de Mostrador
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                 <div className="bg-white p-3 rounded shadow-sm">
                   <span className="text-xs text-gray-600">Total:</span>
@@ -639,17 +652,26 @@ export default function ReportsPage() {
                 </div>
                 <div className="bg-white p-3 rounded shadow-sm">
                   <span className="text-xs text-gray-600">Ventas:</span>
-                  <p className="text-lg font-bold">{savedReport.counterSales.count}</p>
+                  <p className="text-lg font-bold">
+                    {savedReport.counterSales.count}
+                  </p>
                 </div>
               </div>
               <div className="bg-white p-3 rounded shadow-sm">
-                <p className="text-xs font-semibold text-gray-700 mb-2">Métodos de Pago:</p>
+                <p className="text-xs font-semibold text-gray-700 mb-2">
+                  Métodos de Pago:
+                </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {Object.entries(savedReport.counterSales.breakdown).map(
                     ([method, amount]: [string, any]) => (
-                      <div key={method} className="flex justify-between text-sm">
+                      <div
+                        key={method}
+                        className="flex justify-between text-sm"
+                      >
                         <span className="text-gray-600">{method}:</span>
-                        <span className="font-medium">${amount.toFixed(2)}</span>
+                        <span className="font-medium">
+                          ${amount.toFixed(2)}
+                        </span>
                       </div>
                     )
                   )}
@@ -659,10 +681,14 @@ export default function ReportsPage() {
 
             {/* Entregas de Reparto */}
             <div className="bg-green-50 p-4 rounded-lg border-2 border-green-300">
-              <h3 className="font-semibold text-green-800 mb-3">🚚 Entregas de Reparto</h3>
+              <h3 className="font-semibold text-green-800 mb-3">
+                🚚 Entregas de Reparto
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div className="bg-white p-3 rounded shadow-sm">
-                  <span className="text-xs text-gray-600">Total Entregado:</span>
+                  <span className="text-xs text-gray-600">
+                    Total Entregado:
+                  </span>
                   <p className="text-lg font-bold text-green-700">
                     ${savedReport.deliverySales.total.toFixed(2)}
                   </p>
@@ -674,14 +700,18 @@ export default function ReportsPage() {
                   </p>
                 </div>
                 <div className="bg-white p-3 rounded shadow-sm">
-                  <span className="text-xs text-gray-600">Cuenta Corriente:</span>
+                  <span className="text-xs text-gray-600">
+                    Cuenta Corriente:
+                  </span>
                   <p className="text-lg font-bold text-orange-600">
                     ${savedReport.deliverySales.pending.toFixed(2)}
                   </p>
                 </div>
                 <div className="bg-white p-3 rounded shadow-sm">
                   <span className="text-xs text-gray-600">Entregas:</span>
-                  <p className="text-lg font-bold">{savedReport.deliverySales.count}</p>
+                  <p className="text-lg font-bold">
+                    {savedReport.deliverySales.count}
+                  </p>
                 </div>
               </div>
             </div>
