@@ -1246,7 +1246,10 @@ function EditOrderModal({
         }
 
         // Eliminar item
-        await (supabase as any).from("order_items").delete().eq("id", removedItem.id);
+        await (supabase as any)
+          .from("order_items")
+          .delete()
+          .eq("id", removedItem.id);
       }
 
       toast.dismiss(loadingToast);
@@ -1762,7 +1765,9 @@ export default function RepartoPage() {
     paymentMethod: string
   ) => {
     // Buscar el pedido en ambas listas (diarios y historial)
-    const order = dailyOrders.find((o) => o.id === orderId) || allOrders.find((o) => o.id === orderId);
+    const order =
+      dailyOrders.find((o) => o.id === orderId) ||
+      allOrders.find((o) => o.id === orderId);
     if (!order) {
       toast.error("No se encontró el pedido");
       return;
