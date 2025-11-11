@@ -536,6 +536,14 @@ function ProductSearchModal({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  // Scroll automático al elemento seleccionado cuando cambia el índice
+  useEffect(() => {
+    const selectedElement = document.querySelector(`[data-product-index="${selectedIndex}"]`);
+    if (selectedElement) {
+      selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [selectedIndex]);
+
   // Cargar productos cuando se abre el modal
   useEffect(() => {
     if (isOpen) {
@@ -683,6 +691,7 @@ function ProductSearchModal({
               {filteredProducts.map((product, index) => (
                 <button
                   key={product.id}
+                  data-product-index={index}
                   onClick={() => handleSelectProduct(product)}
                   className={`p-4 rounded-lg border-2 text-left transition-all ${
                     index === selectedIndex

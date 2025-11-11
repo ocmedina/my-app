@@ -1,6 +1,7 @@
 // src/app/dashboard/layout.tsx
 import Navbar from "@/components/Navbar";
 import DashboardWrapper from "@/components/DashboardWrapper";
+import UpdatesNotification from "@/components/UpdatesNotification";
 
 export default function DashboardLayout({
   children,
@@ -14,6 +15,8 @@ export default function DashboardLayout({
         <main className="w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="max-w-full">{children}</div>
         </main>
+        {/* Campanita de actualizaciones */}
+        <UpdatesNotification />
       </div>
     </DashboardWrapper>
   );

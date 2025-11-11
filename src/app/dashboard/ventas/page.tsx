@@ -295,6 +295,13 @@ export default function SalesHistoryPage() {
                 setDate(e.target.value);
                 setCurrentPage(1);
               }}
+              onClick={(e) => {
+                // Mantener la posición actual al abrir el datepicker
+                const currentScrollPos = window.scrollY;
+                setTimeout(() => {
+                  window.scrollTo(0, currentScrollPos);
+                }, 100);
+              }}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </div>

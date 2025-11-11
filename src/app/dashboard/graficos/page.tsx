@@ -356,8 +356,8 @@ export default function GraficosPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-white bg-opacity-20 rounded-lg p-3">
-                <FaDollarSign className="w-6 h-6" />
+              <div className="bg-white rounded-lg p-3">
+                <FaDollarSign className="w-6 h-6 text-green-600" />
               </div>
             </div>
             <p className="text-green-100 text-sm mb-1">Total General</p>
@@ -372,8 +372,8 @@ export default function GraficosPage() {
 
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-white bg-opacity-20 rounded-lg p-3">
-                <FaStore className="w-6 h-6" />
+              <div className="bg-white rounded-lg p-3">
+                <FaStore className="w-6 h-6 text-blue-600" />
               </div>
             </div>
             <p className="text-blue-100 text-sm mb-1">Ventas Local</p>
@@ -388,8 +388,8 @@ export default function GraficosPage() {
 
           <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-white bg-opacity-20 rounded-lg p-3">
-                <FaTruck className="w-6 h-6" />
+              <div className="bg-white rounded-lg p-3">
+                <FaTruck className="w-6 h-6 text-purple-600" />
               </div>
             </div>
             <p className="text-purple-100 text-sm mb-1">Ventas Reparto</p>
@@ -404,13 +404,13 @@ export default function GraficosPage() {
 
           <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-white bg-opacity-20 rounded-lg p-3">
+              <div className="bg-white rounded-lg p-3">
                 {stats.growth > 0 ? (
-                  <FaArrowUp className="w-6 h-6" />
+                  <FaArrowUp className="w-6 h-6 text-orange-600" />
                 ) : stats.growth < 0 ? (
-                  <FaArrowDown className="w-6 h-6" />
+                  <FaArrowDown className="w-6 h-6 text-orange-600" />
                 ) : (
-                  <FaEquals className="w-6 h-6" />
+                  <FaEquals className="w-6 h-6 text-orange-600" />
                 )}
               </div>
             </div>
