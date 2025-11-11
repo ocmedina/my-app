@@ -12,11 +12,27 @@ type Customer = Database["public"]["Tables"]["customers"]["Row"];
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type CartItem = Product & { quantity: number; customPrice?: number };
 
+// Tipo para el estado de cada pestaña de venta
+type SaleTab = {
+  id: number;
+  name: string;
+  selectedCustomer: Customer | null;
+  cart: CartItem[];
+  total: number;
+  amountPaid: string;
+  paymentMethod: string;
+  useMixedPayment: boolean;
+  paymentMethods: Array<{ method: string; amount: string }>;
+  showPaymentPanel: boolean;
+};
+
 // --- COMPONENTE INTERNO: BUSCADOR DE PRODUCTOS ---
 function ProductSearch({
   onProductSelect,
+  isEditingTab,
 }: {
   onProductSelect: (product: Product) => void;
+  isEditingTab: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Product[]>([]);
@@ -26,54 +42,93 @@ function ProductSearch({
 
   // Detectar entrada de lector de código de barras
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // No procesar si se está editando una pestaña
+      if (isEditingTab) {
+        return;
+      }
+
       const currentTime = Date.now();
       const timeDiff = currentTime - lastKeyTime;
 
       // Si es Enter y hay un buffer, procesar como código de barras
       if (e.key === "Enter" && barcodeBuffer.length > 0) {
         e.preventDefault();
+        e.stopPropagation();
         searchByBarcode(barcodeBuffer);
         setBarcodeBuffer("");
         setLastKeyTime(0);
+        setQuery(""); // Limpiar el campo de búsqueda
         return;
       }
 
-      // Acumular caracteres si vienen rápido (< 100ms entre teclas = lector)
-      if (timeDiff < 100 && e.key.length === 1) {
+      // Acumular caracteres si vienen rápido (< 50ms entre teclas = lector)
+      if (
+        timeDiff < 50 &&
+        e.key.length === 1 &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        !e.metaKey
+      ) {
+        e.preventDefault(); // Prevenir que escriba en el input
+        e.stopPropagation();
         setBarcodeBuffer((prev) => prev + e.key);
         setLastKeyTime(currentTime);
-      } else if (timeDiff >= 100) {
-        // Reset si hay pausa (escritura manual)
-        setBarcodeBuffer(e.key.length === 1 ? e.key : "");
+      } else if (timeDiff >= 50 && e.key.length === 1) {
+        // Reset si hay pausa (escritura manual) - dejar escribir normalmente
+        setBarcodeBuffer(e.key);
         setLastKeyTime(currentTime);
       }
     };
 
-    window.addEventListener("keypress", handleKeyPress);
-    return () => window.removeEventListener("keypress", handleKeyPress);
-  }, [barcodeBuffer, lastKeyTime]);
+    window.addEventListener("keydown", handleKeyDown, true); // true = capture phase
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [barcodeBuffer, lastKeyTime, isEditingTab]);
 
   const searchByBarcode = async (barcode: string) => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // Intentar búsqueda exacta por SKU
+      const { data: exactMatch } = await supabase
         .from("products")
         .select("*")
-        .eq("sku", barcode)
+        .eq("sku", barcode.trim())
         .eq("is_active", true)
-        .single();
+        .maybeSingle();
 
-      if (error || !data) {
-        toast.error(`Producto con código "${barcode}" no encontrado`);
+      if (exactMatch) {
+        // Agregar directamente al carrito
+        onProductSelect(exactMatch);
+        toast.success(`✓ ${exactMatch.name} agregado`);
         return;
       }
 
-      // Agregar directamente al carrito
-      onProductSelect(data);
-      toast.success(`✓ ${data.name} agregado`);
+      // Si no hay coincidencia exacta, buscar por similitud (nombre o SKU parcial)
+      const { data: similarProducts } = await supabase
+        .from("products")
+        .select("*")
+        .or(`name.ilike.%${barcode}%,sku.ilike.%${barcode}%`)
+        .eq("is_active", true)
+        .limit(5);
+
+      if (similarProducts && similarProducts.length > 0) {
+        // Si hay solo un resultado, agregarlo automáticamente
+        if (similarProducts.length === 1) {
+          onProductSelect(similarProducts[0]);
+          toast.success(`✓ ${similarProducts[0].name} agregado`);
+        } else {
+          // Si hay múltiples resultados, mostrarlos para que el usuario seleccione
+          setResults(similarProducts);
+          setQuery(barcode);
+          toast(`Se encontraron ${similarProducts.length} productos`, {
+            icon: "🔍",
+          });
+        }
+      } else {
+        toast.error(`No se encontró ningún producto con "${barcode}"`);
+      }
     } catch (error) {
-      console.error("Error buscando por código de barras:", error);
+      console.error("Error buscando producto:", error);
       toast.error("Error al buscar el producto");
     } finally {
       setIsLoading(false);
@@ -116,6 +171,16 @@ function ProductSearch({
     setResults([]);
   };
 
+  // Detectar Enter en el input para búsqueda rápida por SKU
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && query.trim().length > 0) {
+      e.preventDefault();
+      // Intentar buscar por SKU primero
+      searchByBarcode(query.trim());
+      setQuery("");
+    }
+  };
+
   return (
     <div className="relative">
       <div className="relative">
@@ -123,6 +188,7 @@ function ProductSearch({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleInputKeyDown}
           placeholder="Buscar por nombre o escanear código de barras..."
           className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
@@ -133,7 +199,7 @@ function ProductSearch({
         )}
       </div>
       <p className="text-xs text-gray-500 mt-1">
-        💡 Escanea con el lector o escribe para buscar manualmente
+        💡 Escanea con el lector o escribe código y presiona Enter
       </p>
       {results.length > 0 && (
         <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
@@ -168,26 +234,661 @@ function ProductSearch({
   );
 }
 
+// --- MODAL DE PAGO ---
+function PaymentModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  total,
+  customerName,
+  cartItemsCount,
+  paymentMethod,
+  setPaymentMethod,
+  amountPaid,
+  setAmountPaid,
+  useMixedPayment,
+  setUseMixedPayment,
+  paymentMethods,
+  setPaymentMethods,
+  handleAddPaymentMethod,
+  handleRemovePaymentMethod,
+  handleUpdatePaymentMethod,
+  getTotalPaidFromMixed,
+  loading,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  total: number;
+  customerName: string;
+  cartItemsCount: number;
+  paymentMethod: string;
+  setPaymentMethod: (method: string) => void;
+  amountPaid: string;
+  setAmountPaid: (amount: string) => void;
+  useMixedPayment: boolean;
+  setUseMixedPayment: (value: boolean) => void;
+  paymentMethods: Array<{ method: string; amount: string }>;
+  setPaymentMethods: (
+    methods: Array<{ method: string; amount: string }>
+  ) => void;
+  handleAddPaymentMethod: () => void;
+  handleRemovePaymentMethod: (index: number) => void;
+  handleUpdatePaymentMethod: (
+    index: number,
+    field: "method" | "amount",
+    value: string
+  ) => void;
+  getTotalPaidFromMixed: () => number;
+  loading: boolean;
+}) {
+  if (!isOpen) return null;
+
+  const debtDifference = useMixedPayment
+    ? total - getTotalPaidFromMixed()
+    : total - (parseFloat(amountPaid) || 0);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 rounded-t-xl">
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                💳 Finalizar Venta
+              </h2>
+              <p className="text-green-100 text-sm">Cliente: {customerName}</p>
+              <p className="text-green-100 text-sm">
+                {cartItemsCount} productos
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+            >
+              <FaTimes size={24} />
+            </button>
+          </div>
+          <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-4">
+            <p className="text-green-100 text-sm font-medium">Total a Pagar</p>
+            <p className="text-4xl font-bold text-white">${total.toFixed(2)}</p>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="p-6 space-y-6">
+          {/* Atajos de teclado */}
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="font-semibold text-blue-900 mb-2">
+              ⌨️ Atajos de teclado:
+            </p>
+            <div className="flex gap-4 text-sm text-blue-800">
+              <span>
+                <kbd className="px-2 py-1 bg-white rounded border shadow-sm">
+                  F12
+                </kbd>{" "}
+                Cerrar
+              </span>
+              <span>
+                <kbd className="px-2 py-1 bg-white rounded border shadow-sm">
+                  F2
+                </kbd>{" "}
+                Confirmar
+              </span>
+            </div>
+          </div>
+
+          {!useMixedPayment ? (
+            <>
+              {/* Método de pago simple */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Método de Pago
+                </label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setPaymentMethod(value);
+                    if (value === "mixtos") {
+                      setUseMixedPayment(true);
+                    } else if (value === "cuenta_corriente") {
+                      setAmountPaid("0");
+                    } else {
+                      setAmountPaid(total.toFixed(2));
+                    }
+                  }}
+                  className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg"
+                >
+                  <option value="efectivo">💵 Efectivo</option>
+                  <option value="tarjeta_debito">💳 Tarjeta de Débito</option>
+                  <option value="tarjeta_credito">💳 Tarjeta de Crédito</option>
+                  <option value="transferencia">🏦 Transferencia</option>
+                  <option value="mercado_pago">📱 Mercado Pago</option>
+                  <option value="mixtos">🔀 Pagos Mixtos</option>
+                  <option value="cuenta_corriente">
+                    📋 Cuenta Corriente (Fiado)
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Monto Pagado
+                </label>
+                <input
+                  id="amountPaid"
+                  type="number"
+                  value={amountPaid}
+                  onChange={(e) => setAmountPaid(e.target.value)}
+                  step="0.01"
+                  min="0"
+                  className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg font-semibold"
+                  placeholder="0.00"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Pagos mixtos */}
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="font-semibold text-blue-900">
+                    🔀 Pagos Mixtos
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setUseMixedPayment(false);
+                      setPaymentMethod("efectivo");
+                      setAmountPaid(total.toFixed(2));
+                    }}
+                    className="text-sm px-3 py-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+                <p className="text-sm text-blue-700">
+                  Combina diferentes métodos de pago
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="p-4 bg-gray-50 rounded-lg border">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    💵 Efectivo
+                  </label>
+                  <input
+                    type="number"
+                    value={paymentMethods[0]?.amount || ""}
+                    onChange={(e) =>
+                      handleUpdatePaymentMethod(0, "amount", e.target.value)
+                    }
+                    placeholder="Monto en efectivo"
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-lg border">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    🏦 Transferencia
+                  </label>
+                  <input
+                    type="number"
+                    value={paymentMethods[1]?.amount || ""}
+                    onChange={(e) =>
+                      handleUpdatePaymentMethod(1, "amount", e.target.value)
+                    }
+                    placeholder="Monto por transferencia"
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+
+                <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-gray-700">
+                      Total Pagado:
+                    </span>
+                    <span className="font-bold text-blue-700">
+                      ${getTotalPaidFromMixed().toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Indicadores de deuda/cambio */}
+          {debtDifference > 0 && (
+            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-red-800">
+                  ⚠️ Saldo Pendiente:
+                </span>
+                <span className="text-2xl font-bold text-red-600">
+                  ${debtDifference.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {debtDifference < 0 && (
+            <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-green-800">
+                  💰 Cambio a Devolver:
+                </span>
+                <span className="text-2xl font-bold text-green-600">
+                  ${Math.abs(debtDifference).toFixed(2)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Botones */}
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={loading}
+              className="flex-2 py-3 px-6 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>⏳ Procesando...</>
+              ) : (
+                <>
+                  ✅ Confirmar Venta{" "}
+                  <span className="text-xs bg-green-500 px-2 py-0.5 rounded">
+                    F2
+                  </span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- COMPONENTE: MODAL DE BÚSQUEDA DE PRODUCTOS ---
+function ProductSearchModal({
+  isOpen,
+  onClose,
+  onSelectProduct,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectProduct: (product: Product) => void;
+}) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Cargar productos cuando se abre el modal
+  useEffect(() => {
+    if (isOpen) {
+      loadProducts();
+      setSearchQuery("");
+      setSelectedIndex(0);
+    }
+  }, [isOpen]);
+
+  const loadProducts = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .order("name");
+
+      if (error) throw error;
+      setProducts(data || []);
+      setFilteredProducts(data || []);
+    } catch (error) {
+      console.error("Error cargando productos:", error);
+      toast.error("Error al cargar productos");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Filtrar productos según búsqueda
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredProducts(products);
+      setSelectedIndex(0);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        p.sku?.toLowerCase().includes(query) ||
+        p.description?.toLowerCase().includes(query)
+    );
+    setFilteredProducts(filtered);
+    setSelectedIndex(0);
+  }, [searchQuery, products]);
+
+  // Navegación con teclado
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex((prev) =>
+          prev < filteredProducts.length - 1 ? prev + 1 : prev
+        );
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+      } else if (e.key === "Enter" && filteredProducts[selectedIndex]) {
+        e.preventDefault();
+        handleSelectProduct(filteredProducts[selectedIndex]);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, filteredProducts, selectedIndex]);
+
+  const handleSelectProduct = (product: Product) => {
+    onSelectProduct(product);
+    onClose();
+    toast.success(`✓ ${product.name} agregado`);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 rounded-t-xl">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-1">
+                🔍 Buscar Productos
+              </h2>
+              <p className="text-purple-100 text-sm">
+                {filteredProducts.length} productos encontrados
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+            >
+              <FaTimes size={24} />
+            </button>
+          </div>
+
+          {/* Buscador */}
+          <div className="mt-4">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar por nombre, SKU o descripción..."
+              autoFocus
+              className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white text-lg"
+            />
+          </div>
+
+          {/* Atajos de teclado */}
+          <div className="mt-3 flex gap-3 text-xs text-purple-100">
+            <span>
+              <kbd className="px-2 py-1 bg-white/20 rounded">↑↓</kbd> Navegar
+            </span>
+            <span>
+              <kbd className="px-2 py-1 bg-white/20 rounded">Enter</kbd>{" "}
+              Seleccionar
+            </span>
+            <span>
+              <kbd className="px-2 py-1 bg-white/20 rounded">Esc</kbd> Cerrar
+            </span>
+          </div>
+        </div>
+
+        {/* Lista de productos */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="text-gray-500">Cargando productos...</div>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="flex flex-col justify-center items-center h-64 text-gray-500">
+              <p className="text-lg mb-2">No se encontraron productos</p>
+              <p className="text-sm">Intenta con otra búsqueda</p>
+            </div>
+          ) : (
+            <div className="grid gap-2">
+              {filteredProducts.map((product, index) => (
+                <button
+                  key={product.id}
+                  onClick={() => handleSelectProduct(product)}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    index === selectedIndex
+                      ? "border-purple-500 bg-purple-50 shadow-md"
+                      : "border-gray-200 hover:border-purple-300 hover:bg-gray-50"
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900 text-lg mb-1">
+                        {product.name}
+                      </h3>
+                      <div className="flex gap-4 text-sm text-gray-600">
+                        <span>
+                          SKU: <strong>{product.sku}</strong>
+                        </span>
+                        {product.description && (
+                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
+                            {product.description.length > 30
+                              ? product.description.substring(0, 30) + "..."
+                              : product.description}
+                          </span>
+                        )}
+                        <span>
+                          Stock: <strong>{product.stock || 0}</strong>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right ml-4">
+                      <div className="text-sm text-gray-600">Minorista</div>
+                      <div className="text-xl font-bold text-green-600">
+                        ${(product.price_minorista || 0).toFixed(2)}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Mayor: ${(product.price_mayorista || 0).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function NewSalePage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null
-  );
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [total, setTotal] = useState(0);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [amountPaid, setAmountPaid] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("efectivo");
   const [loading, setLoading] = useState(false);
 
-  // Estados para pagos mixtos
-  const [useMixedPayment, setUseMixedPayment] = useState(false);
-  const [paymentMethods, setPaymentMethods] = useState<
-    Array<{ method: string; amount: string }>
-  >([
-    { method: "efectivo", amount: "" },
-    { method: "transferencia", amount: "" },
+  // Sistema de pestañas
+  const [tabs, setTabs] = useState<SaleTab[]>([
+    {
+      id: 1,
+      name: "Venta 1",
+      selectedCustomer: null,
+      cart: [],
+      total: 0,
+      amountPaid: "",
+      paymentMethod: "efectivo",
+      useMixedPayment: false,
+      paymentMethods: [
+        { method: "efectivo", amount: "" },
+        { method: "transferencia", amount: "" },
+      ],
+      showPaymentPanel: false,
+    },
   ]);
+  const [activeTabId, setActiveTabId] = useState(1);
+  const [nextTabId, setNextTabId] = useState(2);
+  const [editingTabId, setEditingTabId] = useState<number | null>(null);
+  const [editingTabName, setEditingTabName] = useState("");
+  const [showProductSearchModal, setShowProductSearchModal] = useState(false);
+
+  // Obtener la pestaña activa
+  const activeTab = tabs.find((tab) => tab.id === activeTabId) || tabs[0];
+
+  // Aliases para mantener compatibilidad con el código existente
+  const selectedCustomer = activeTab.selectedCustomer;
+  const cart = activeTab.cart;
+  const total = activeTab.total;
+  const amountPaid = activeTab.amountPaid;
+  const paymentMethod = activeTab.paymentMethod;
+  const useMixedPayment = activeTab.useMixedPayment;
+  const paymentMethods = activeTab.paymentMethods;
+  const showPaymentPanel = activeTab.showPaymentPanel;
+
+  // Funciones para actualizar el estado de la pestaña activa
+  const updateActiveTab = (updates: Partial<SaleTab>) => {
+    setTabs((prevTabs) =>
+      prevTabs.map((tab) =>
+        tab.id === activeTabId ? { ...tab, ...updates } : tab
+      )
+    );
+  };
+
+  const setSelectedCustomer = (customer: Customer | null) => {
+    updateActiveTab({ selectedCustomer: customer });
+  };
+
+  const setCart = (cart: CartItem[]) => {
+    updateActiveTab({ cart });
+  };
+
+  const setTotal = (total: number) => {
+    updateActiveTab({ total });
+  };
+
+  const setAmountPaid = (amountPaid: string) => {
+    updateActiveTab({ amountPaid });
+  };
+
+  const setPaymentMethod = (paymentMethod: string) => {
+    updateActiveTab({ paymentMethod });
+  };
+
+  const setUseMixedPayment = (useMixedPayment: boolean) => {
+    updateActiveTab({ useMixedPayment });
+  };
+
+  const setPaymentMethodsState = (
+    paymentMethods: Array<{ method: string; amount: string }>
+  ) => {
+    updateActiveTab({ paymentMethods });
+  };
+
+  const setShowPaymentPanel = (showPaymentPanel: boolean) => {
+    updateActiveTab({ showPaymentPanel });
+  };
+
+  // Funciones para manejo de pestañas
+  const addNewTab = () => {
+    const defaultCustomer =
+      customers.find((c) => c.full_name === "Consumidor Final") ||
+      customers[0] ||
+      null;
+
+    const newTab: SaleTab = {
+      id: nextTabId,
+      name: `Venta ${nextTabId}`,
+      selectedCustomer: defaultCustomer,
+      cart: [],
+      total: 0,
+      amountPaid: "",
+      paymentMethod: "efectivo",
+      useMixedPayment: false,
+      paymentMethods: [
+        { method: "efectivo", amount: "" },
+        { method: "transferencia", amount: "" },
+      ],
+      showPaymentPanel: false,
+    };
+
+    setTabs([...tabs, newTab]);
+    setActiveTabId(nextTabId);
+    setNextTabId(nextTabId + 1);
+    toast.success(`📋 Nueva venta creada`);
+  };
+
+  const closeTab = (tabId: number) => {
+    if (tabs.length === 1) {
+      toast.error("Debe haber al menos una venta abierta");
+      return;
+    }
+
+    const tabToClose = tabs.find((t) => t.id === tabId);
+    if (tabToClose && tabToClose.cart.length > 0) {
+      if (!confirm("¿Cerrar esta venta? Se perderán los productos cargados.")) {
+        return;
+      }
+    }
+
+    const newTabs = tabs.filter((tab) => tab.id !== tabId);
+    setTabs(newTabs);
+
+    if (activeTabId === tabId) {
+      setActiveTabId(newTabs[0].id);
+    }
+    toast.success("📋 Venta cerrada");
+  };
+
+  const startEditingTab = (tabId: number, currentName: string) => {
+    setEditingTabId(tabId);
+    setEditingTabName(currentName);
+  };
+
+  const saveTabName = (tabId: number) => {
+    if (editingTabName.trim()) {
+      setTabs((prevTabs) =>
+        prevTabs.map((tab) =>
+          tab.id === tabId ? { ...tab, name: editingTabName.trim() } : tab
+        )
+      );
+      toast.success("✏️ Nombre actualizado");
+    }
+    setEditingTabId(null);
+    setEditingTabName("");
+  };
+
+  const cancelEditingTab = () => {
+    setEditingTabId(null);
+    setEditingTabName("");
+  };
 
   useEffect(() => {
     async function loadInitialData() {
@@ -251,16 +952,19 @@ export default function NewSalePage() {
         setAmountPaid("0");
       }
     }
-  }, [cart, selectedCustomer, paymentMethod, useMixedPayment]);
+  }, [cart, selectedCustomer, paymentMethod, useMixedPayment, activeTabId]);
 
   // Funciones para manejo de pagos mixtos
   const handleAddPaymentMethod = () => {
-    setPaymentMethods([...paymentMethods, { method: "efectivo", amount: "" }]);
+    setPaymentMethodsState([
+      ...paymentMethods,
+      { method: "efectivo", amount: "" },
+    ]);
   };
 
   const handleRemovePaymentMethod = (index: number) => {
     if (paymentMethods.length > 1) {
-      setPaymentMethods(paymentMethods.filter((_, i) => i !== index));
+      setPaymentMethodsState(paymentMethods.filter((_, i) => i !== index));
     }
   };
 
@@ -275,7 +979,7 @@ export default function NewSalePage() {
       updated[index] = { method: "efectivo", amount: "" };
     }
     updated[index][field] = value;
-    setPaymentMethods(updated);
+    setPaymentMethodsState(updated);
   };
 
   const getTotalPaidFromMixed = () => {
@@ -352,7 +1056,7 @@ export default function NewSalePage() {
     );
   };
 
-  const handleFinalizeSale = async () => {
+  const handleFinalizeSale = useCallback(async () => {
     if (!selectedCustomer || cart.length === 0 || !currentUser?.id) {
       toast.error("Faltan datos para completar la venta.");
       return;
@@ -518,16 +1222,24 @@ export default function NewSalePage() {
 
       toast.success("¡Venta registrada exitosamente!");
 
-      // Resetear formulario
-      setCart([]);
-      setAmountPaid("");
-      setPaymentMethod("efectivo");
-      setUseMixedPayment(false);
-      setPaymentMethods([{ method: "efectivo", amount: "" }]);
-      const consumerFinal = customers.find(
-        (c) => c.full_name === "Consumidor Final"
-      );
-      if (consumerFinal) setSelectedCustomer(consumerFinal);
+      // Si hay solo una pestaña, resetear su contenido
+      if (tabs.length === 1) {
+        setCart([]);
+        setAmountPaid("");
+        setPaymentMethod("efectivo");
+        setUseMixedPayment(false);
+        setPaymentMethodsState([
+          { method: "efectivo", amount: "" },
+          { method: "transferencia", amount: "" },
+        ]);
+        const consumerFinal = customers.find(
+          (c) => c.full_name === "Consumidor Final"
+        );
+        if (consumerFinal) setSelectedCustomer(consumerFinal);
+      } else {
+        // Si hay múltiples pestañas, cerrar la actual
+        closeTab(activeTabId);
+      }
     } catch (error: any) {
       console.error("Error al finalizar venta:", error);
       toast.error(
@@ -535,8 +1247,100 @@ export default function NewSalePage() {
       );
     } finally {
       setLoading(false);
+      setShowPaymentPanel(false); // Cerrar el panel después de finalizar
     }
-  };
+  }, [
+    selectedCustomer,
+    cart,
+    currentUser,
+    useMixedPayment,
+    getTotalPaidFromMixed,
+    amountPaid,
+    total,
+    paymentMethod,
+    paymentMethods,
+    customers,
+  ]);
+
+  // Atajos de teclado F10, F12, F2 y Ctrl+T
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // No procesar atajos si se está editando el nombre de una pestaña
+      if (editingTabId !== null) {
+        return;
+      }
+
+      // F10: Abrir modal de búsqueda de productos
+      if (e.key === "F10") {
+        e.preventDefault();
+        setShowProductSearchModal(true);
+        toast.success("🔍 Buscador de productos abierto", { duration: 1500 });
+        return;
+      }
+
+      // F9: Nueva pestaña de venta
+      if (e.key === "F9") {
+        e.preventDefault();
+        addNewTab();
+        return;
+      }
+
+      // F8: Cerrar pestaña actual
+      if (e.key === "F8") {
+        e.preventDefault();
+        if (tabs.length > 1) {
+          closeTab(activeTabId);
+        } else {
+          toast.error("Debe haber al menos una venta abierta");
+        }
+        return;
+      }
+
+      // F12: Abrir/cerrar panel de pago (solo si hay productos en el carrito)
+      if (e.key === "F12") {
+        e.preventDefault();
+        if (cart.length > 0 && selectedCustomer) {
+          setShowPaymentPanel(!showPaymentPanel);
+          if (!showPaymentPanel) {
+            toast.success("💳 Panel de pago abierto (F2 para confirmar)", {
+              duration: 2000,
+            });
+            // Enfocar el campo de monto pagado después de un momento
+            setTimeout(() => {
+              const amountInput = document.getElementById("amountPaid");
+              if (amountInput) amountInput.focus();
+            }, 100);
+          }
+        } else if (cart.length === 0) {
+          toast.error("⚠️ Agrega productos al carrito primero");
+        } else if (!selectedCustomer) {
+          toast.error("⚠️ Selecciona un cliente primero");
+        }
+      }
+
+      // F2: Confirmar venta (solo si el panel de pago está abierto)
+      if (e.key === "F2") {
+        e.preventDefault();
+        if (showPaymentPanel && cart.length > 0 && !loading) {
+          handleFinalizeSale();
+        } else if (!showPaymentPanel) {
+          toast.error("⚠️ Presiona F12 para abrir el panel de pago");
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    cart,
+    selectedCustomer,
+    showPaymentPanel,
+    loading,
+    handleFinalizeSale,
+    tabs,
+    activeTabId,
+    editingTabId,
+  ]);
 
   const debtDifference = useMixedPayment
     ? total - getTotalPaidFromMixed()
@@ -545,10 +1349,147 @@ export default function NewSalePage() {
   return (
     <div className="min-h-screen bg-gray-50 py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Pestañas de Ventas */}
+        <div className="mb-4 bg-white rounded-lg shadow-md p-2">
+          <div className="flex items-center gap-2 overflow-x-auto">
+            {tabs.map((tab) => (
+              <div
+                key={tab.id}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${
+                  tab.id === activeTabId
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {editingTabId === tab.id ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={editingTabName}
+                      onChange={(e) => setEditingTabName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          saveTabName(tab.id);
+                        } else if (e.key === "Escape") {
+                          cancelEditingTab();
+                        }
+                      }}
+                      onBlur={() => saveTabName(tab.id)}
+                      autoFocus
+                      placeholder="Nombre de venta"
+                      className="w-32 px-2 py-1 text-sm border border-gray-300 rounded text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveTabId(tab.id);
+                    }}
+                    onDoubleClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      startEditingTab(tab.id, tab.name);
+                    }}
+                    className="flex items-center gap-2 flex-1"
+                    title="Doble click para renombrar"
+                  >
+                    <span className="font-semibold">{tab.name}</span>
+                    {tab.cart.length > 0 && (
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                          tab.id === activeTabId
+                            ? "bg-white/20 text-white"
+                            : "bg-blue-100 text-blue-700"
+                        }`}
+                      >
+                        {tab.cart.length}
+                      </span>
+                    )}
+                  </button>
+                )}
+                {tabs.length > 1 && editingTabId !== tab.id && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      closeTab(tab.id);
+                    }}
+                    className={`p-1 rounded hover:bg-red-500 hover:text-white transition-colors ${
+                      tab.id === activeTabId ? "text-white" : "text-gray-500"
+                    }`}
+                  >
+                    <FaTimes size={14} />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              onClick={addNewTab}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all shadow-md whitespace-nowrap"
+            >
+              <FaPlus size={14} />
+              <span className="font-semibold">Nueva Venta</span>
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Panel izquierdo - Selección de cliente y productos */}
           <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md space-y-6">
-            <h1 className="text-2xl font-bold text-gray-800">Nueva Venta</h1>
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-bold text-gray-800">
+                {activeTab.name}
+              </h1>
+              <div className="text-sm text-gray-500">
+                Pestaña {tabs.findIndex((t) => t.id === activeTabId) + 1} de{" "}
+                {tabs.length}
+              </div>
+            </div>
+
+            {/* Atajos de teclado */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
+              <p className="text-xs font-semibold text-blue-900 mb-2">
+                ⌨️ Atajos de teclado:
+              </p>
+              <div className="flex flex-wrap gap-3 text-xs text-blue-800">
+                <span>
+                  <kbd className="px-2 py-1 bg-white rounded border shadow-sm font-mono">
+                    F9
+                  </kbd>{" "}
+                  Nueva venta
+                </span>
+                <span>
+                  <kbd className="px-2 py-1 bg-white rounded border shadow-sm font-mono">
+                    F8
+                  </kbd>{" "}
+                  Cerrar venta
+                </span>
+                <span>
+                  <kbd className="px-2 py-1 bg-white rounded border shadow-sm font-mono">
+                    F10
+                  </kbd>{" "}
+                  Buscar productos
+                </span>
+                <span>
+                  <kbd className="px-2 py-1 bg-white rounded border shadow-sm font-mono">
+                    F12
+                  </kbd>{" "}
+                  Ir a pagar
+                </span>
+                <span>
+                  <kbd className="px-2 py-1 bg-white rounded border shadow-sm font-mono">
+                    F2
+                  </kbd>{" "}
+                  Confirmar venta
+                </span>
+                <span className="text-gray-600">
+                  <kbd className="px-2 py-1 bg-white rounded border shadow-sm font-mono">
+                    Doble Click
+                  </kbd>{" "}
+                  Renombrar pestaña
+                </span>
+              </div>
+            </div>
 
             <div>
               <label
@@ -582,7 +1523,10 @@ export default function NewSalePage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 2. Agregar Producto
               </label>
-              <ProductSearch onProductSelect={handleAddProduct} />
+              <ProductSearch
+                onProductSelect={handleAddProduct}
+                isEditingTab={editingTabId !== null}
+              />
             </div>
           </div>
 
@@ -751,177 +1695,52 @@ export default function NewSalePage() {
                 <span>${total.toFixed(2)}</span>
               </div>
 
-              {!useMixedPayment ? (
-                <>
-                  {/* Pago simple */}
-                  <div>
-                    <label
-                      htmlFor="paymentMethod"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Método de Pago
-                    </label>
-                    <select
-                      id="paymentMethod"
-                      value={paymentMethod}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setPaymentMethod(value);
-                        if (value === "mixtos") {
-                          setUseMixedPayment(true);
-                          setPaymentMethods([
-                            { method: "efectivo", amount: "" },
-                            { method: "transferencia", amount: "" },
-                          ]);
-                        }
-                      }}
-                      className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="efectivo">Efectivo</option>
-                      <option value="tarjeta_debito">Tarjeta de Débito</option>
-                      <option value="tarjeta_credito">
-                        Tarjeta de Crédito
-                      </option>
-                      <option value="transferencia">Transferencia</option>
-                      <option value="mercado_pago">Mercado Pago</option>
-                      <option value="mixtos">Pagos Mixtos</option>
-                      <option value="cuenta_corriente">
-                        Cuenta Corriente (Fiado)
-                      </option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="amountPaid"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Monto Pagado
-                    </label>
-                    <input
-                      type="number"
-                      id="amountPaid"
-                      value={amountPaid}
-                      onChange={(e) => setAmountPaid(e.target.value)}
-                      className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="0.00"
-                      step="0.01"
-                      min="0"
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Pagos mixtos */}
-                  <div className="space-y-3">
-                    <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
-                      <div className="flex justify-between items-center mb-2">
-                        <label className="text-sm font-semibold text-gray-800">
-                          💳 Pagos Mixtos
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUseMixedPayment(false);
-                            setPaymentMethod("efectivo");
-                          }}
-                          className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                      <p className="text-xs text-gray-600">
-                        Combina diferentes métodos de pago para esta venta
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      {/* Efectivo */}
-                      <div className="p-3 bg-gray-50 rounded-md border">
-                        <label className="block text-xs font-medium text-gray-700 mb-2">
-                          💵 Efectivo
-                        </label>
-                        <input
-                          type="number"
-                          value={paymentMethods[0]?.amount || ""}
-                          onChange={(e) =>
-                            handleUpdatePaymentMethod(
-                              0,
-                              "amount",
-                              e.target.value
-                            )
-                          }
-                          placeholder="Monto en efectivo"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                          step="0.01"
-                          min="0"
-                          aria-label="Monto en efectivo"
-                        />
-                      </div>
-
-                      {/* Transferencia */}
-                      <div className="p-3 bg-gray-50 rounded-md border">
-                        <label className="block text-xs font-medium text-gray-700 mb-2">
-                          🏦 Transferencia
-                        </label>
-                        <input
-                          type="number"
-                          value={paymentMethods[1]?.amount || ""}
-                          onChange={(e) =>
-                            handleUpdatePaymentMethod(
-                              1,
-                              "amount",
-                              e.target.value
-                            )
-                          }
-                          placeholder="Monto por transferencia"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                          step="0.01"
-                          min="0"
-                          aria-label="Monto por transferencia"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium text-gray-700">
-                          Total Pagado:
-                        </span>
-                        <span className="font-bold text-blue-700">
-                          ${getTotalPaidFromMixed().toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </>
+              {/* Botón para abrir modal de pago */}
+              {cart.length > 0 && (
+                <button
+                  onClick={() => setShowPaymentPanel(true)}
+                  className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg flex items-center justify-center gap-2 text-lg"
+                >
+                  💳 Ir a Pagar
+                  <span className="text-xs bg-green-500 px-2 py-1 rounded">
+                    F12
+                  </span>
+                </button>
               )}
-
-              {debtDifference > 0 && (
-                <div className="flex justify-between font-medium text-red-600 bg-red-50 p-3 rounded-md">
-                  <span>Saldo Pendiente (Deuda)</span>
-                  <span>${debtDifference.toFixed(2)}</span>
-                </div>
-              )}
-
-              {debtDifference < 0 && (
-                <div className="flex justify-between font-medium text-green-600 bg-green-50 p-3 rounded-md">
-                  <span>Cambio a Devolver</span>
-                  <span>${Math.abs(debtDifference).toFixed(2)}</span>
-                </div>
-              )}
-
-              <button
-                onClick={handleFinalizeSale}
-                disabled={cart.length === 0 || !selectedCustomer || loading}
-                className="w-full mt-4 py-3 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                {loading ? "Procesando..." : "Finalizar Venta"}
-              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Modal de Pago */}
+      <PaymentModal
+        isOpen={showPaymentPanel}
+        onClose={() => setShowPaymentPanel(false)}
+        onConfirm={handleFinalizeSale}
+        total={total}
+        customerName={selectedCustomer?.full_name || ""}
+        cartItemsCount={cart.length}
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+        amountPaid={amountPaid}
+        setAmountPaid={setAmountPaid}
+        useMixedPayment={useMixedPayment}
+        setUseMixedPayment={setUseMixedPayment}
+        paymentMethods={paymentMethods}
+        setPaymentMethods={setPaymentMethodsState}
+        handleAddPaymentMethod={handleAddPaymentMethod}
+        handleRemovePaymentMethod={handleRemovePaymentMethod}
+        handleUpdatePaymentMethod={handleUpdatePaymentMethod}
+        getTotalPaidFromMixed={getTotalPaidFromMixed}
+        loading={loading}
+      />
+
+      {/* Modal de Búsqueda de Productos */}
+      <ProductSearchModal
+        isOpen={showProductSearchModal}
+        onClose={() => setShowProductSearchModal(false)}
+        onSelectProduct={handleAddProduct}
+      />
     </div>
   );
 }

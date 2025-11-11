@@ -13,6 +13,11 @@ import {
   FaUser,
   FaBox,
   FaCheckCircle,
+  FaArrowLeft,
+  FaClipboardList,
+  FaDollarSign,
+  FaMoneyBillWave,
+  FaFileInvoice,
 } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -24,6 +29,7 @@ type CartItem = Product & { quantity: number };
 export default function NewOrderPage() {
   const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
@@ -33,6 +39,7 @@ export default function NewOrderPage() {
   const [total, setTotal] = useState(0);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [customerSearchQuery, setCustomerSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"efectivo" | "fiado">(
     "efectivo"
@@ -65,6 +72,7 @@ export default function NewOrderPage() {
       }
 
       setCustomers(customersData || []);
+      setFilteredCustomers(customersData || []);
       setProducts(productsData || []);
       setFilteredProducts(productsData || []);
       setCurrentUser(session?.user ?? null);
@@ -99,6 +107,23 @@ export default function NewOrderPage() {
       setFilteredProducts(filtered);
     }
   }, [searchQuery, products]);
+
+  useEffect(() => {
+    if (customerSearchQuery.trim() === "") {
+      setFilteredCustomers(customers);
+    } else {
+      const filtered = customers.filter(
+        (c) =>
+          c.full_name
+            .toLowerCase()
+            .includes(customerSearchQuery.toLowerCase()) ||
+          c.customer_type
+            ?.toLowerCase()
+            .includes(customerSearchQuery.toLowerCase())
+      );
+      setFilteredCustomers(filtered);
+    }
+  }, [customerSearchQuery, customers]);
 
   const getProductPrice = (product: Product) => {
     if (!selectedCustomer) return 0;
@@ -241,378 +266,429 @@ export default function NewOrderPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Nuevo Pedido</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Crea un nuevo pedido seleccionando cliente y productos
-          </p>
-        </div>
-        <button
-          onClick={() => router.back()}
-          className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          Cancelar
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Panel Principal */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Selección de Cliente */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center gap-2 mb-4">
-              <FaUser className="text-blue-600" />
-              <h2 className="text-lg font-semibold text-gray-900">
-                1. Seleccionar Cliente
-              </h2>
-            </div>
-
-            <select
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={selectedCustomer?.id || ""}
-              onChange={(e) => {
-                const customer = customers.find((c) => c.id === e.target.value);
-                setSelectedCustomer(customer || null);
-                if (customer) {
-                  toast.success(`Cliente seleccionado: ${customer.full_name}`);
-                }
-              }}
-            >
-              <option value="">Selecciona un cliente...</option>
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.full_name} -{" "}
-                  {customer.customer_type === "mayorista"
-                    ? "🏢 Mayorista"
-                    : "👤 Minorista"}
-                </option>
-              ))}
-            </select>
-
-            {selectedCustomer && (
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <span className="text-gray-600">Tipo:</span>
-                    <span className="ml-2 font-medium text-gray-900">
-                      {selectedCustomer.customer_type === "mayorista"
-                        ? "Mayorista"
-                        : "Minorista"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Día de reparto:</span>
-                    <span className="ml-2 font-medium text-gray-900">
-                      {selectedCustomer.delivery_day || "No especificado"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-3">
+              <FaClipboardList className="text-purple-600" /> Nuevo Pedido
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Crea un nuevo pedido seleccionando cliente y productos
+            </p>
           </div>
+          <button
+            onClick={() => router.back()}
+            className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-semibold flex items-center gap-2"
+          >
+            <FaArrowLeft /> Cancelar
+          </button>
+        </div>
 
-          {/* Selección de Productos */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center gap-2 mb-4">
-              <FaBox className="text-blue-600" />
-              <h2 className="text-lg font-semibold text-gray-900">
-                2. Agregar Productos
-              </h2>
-            </div>
-
-            {!selectedCustomer ? (
-              <div className="text-center py-12 text-gray-500">
-                <FaUser className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>Selecciona un cliente para ver los productos disponibles</p>
-              </div>
-            ) : (
-              <>
-                {/* Buscador */}
-                <div className="relative mb-4">
-                  <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Buscar productos..."
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Panel Principal */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Selección de Cliente */}
+            <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center">
+                  <FaUser className="text-blue-600" />
                 </div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  1. Seleccionar Cliente
+                </h2>
+              </div>
 
-                {/* Lista de Productos */}
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {filteredProducts.length === 0 ? (
-                    <p className="text-center py-8 text-gray-500">
-                      No se encontraron productos
-                    </p>
-                  ) : (
-                    filteredProducts.map((product) => {
-                      const isInCart = cart.some(
-                        (item) => item.id === product.id
-                      );
-                      const price = getProductPrice(product);
+              {/* Barra de búsqueda de clientes */}
+              <div className="relative mb-4">
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  value={customerSearchQuery}
+                  onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                  placeholder="Buscar cliente por nombre, tipo o día de reparto..."
+                  className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
 
-                      return (
-                        <div
-                          key={product.id}
-                          className={`flex items-center justify-between p-4 rounded-lg border transition-all ${
-                            isInCart
-                              ? "border-blue-300 bg-blue-50"
-                              : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                          }`}
-                        >
+              {/* Lista de Clientes */}
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {filteredCustomers.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <FaUser className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p>No se encontraron clientes</p>
+                  </div>
+                ) : (
+                  filteredCustomers.map((customer) => {
+                    const isSelected = selectedCustomer?.id === customer.id;
+                    return (
+                      <div
+                        key={customer.id}
+                        onClick={() => {
+                          setSelectedCustomer(customer);
+                          toast.success(
+                            `Cliente seleccionado: ${customer.full_name}`
+                          );
+                        }}
+                        className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                          isSelected
+                            ? "border-blue-500 bg-blue-50 shadow-md"
+                            : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h3 className="font-medium text-gray-900">
-                                {product.name}
+                              <h3 className="font-semibold text-gray-900">
+                                {customer.full_name}
                               </h3>
-                              {isInCart && (
-                                <span className="px-2 py-0.5 text-xs bg-blue-600 text-white rounded-full">
-                                  En carrito
-                                </span>
+                              {isSelected && (
+                                <FaCheckCircle className="text-blue-600 w-4 h-4" />
                               )}
                             </div>
-                            <div className="flex items-center gap-3 mt-1">
-                              <span className="text-sm font-semibold text-gray-900">
-                                ${price?.toFixed(2)}
-                              </span>
+                            <div className="flex items-center gap-3 mt-1.5">
                               <span
-                                className={`text-xs px-2 py-0.5 rounded-full font-medium ${getStockColor(
-                                  product.stock
-                                )}`}
+                                className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
+                                  customer.customer_type === "mayorista"
+                                    ? "bg-purple-100 text-purple-700"
+                                    : "bg-green-100 text-green-700"
+                                }`}
                               >
-                                Stock: {product.stock || 0}
+                                {customer.customer_type === "mayorista"
+                                  ? "🏢 Mayorista"
+                                  : "👤 Minorista"}
                               </span>
                             </div>
                           </div>
-
-                          <button
-                            onClick={() => handleAddProduct(product)}
-                            disabled={(product.stock || 0) === 0}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                          >
-                            <FaPlus className="w-3 h-3" />
-                            Agregar
-                          </button>
                         </div>
-                      );
-                    })
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Panel de Carrito */}
-        <div className="lg:col-span-1">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 sticky top-6">
-            <div className="flex items-center gap-2 mb-4">
-              <FaShoppingCart className="text-blue-600" />
-              <h2 className="text-lg font-semibold text-gray-900">
-                Resumen del Pedido
-              </h2>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
 
-            <div className="space-y-3 min-h-[300px] max-h-[400px] overflow-y-auto mb-4">
-              {cart.length === 0 ? (
+            {/* Selección de Productos */}
+            <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg flex items-center justify-center">
+                  <FaBox className="text-purple-600" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  2. Agregar Productos
+                </h2>
+              </div>
+
+              {!selectedCustomer ? (
                 <div className="text-center py-12 text-gray-400">
-                  <FaShoppingCart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p>El carrito está vacío</p>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FaUser className="w-8 h-8 text-gray-300" />
+                  </div>
+                  <p className="font-semibold">Selecciona un cliente primero</p>
+                  <p className="text-sm mt-1">
+                    Para ver los productos disponibles y sus precios
+                  </p>
                 </div>
               ) : (
-                cart.map((item) => {
-                  const price = getProductPrice(item);
-                  const subtotal = price * item.quantity;
-
-                  return (
-                    <div
-                      key={item.id}
-                      className="p-3 bg-gray-50 rounded-lg border border-gray-200"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900 text-sm">
-                            {item.name}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            ${price.toFixed(2)} c/u
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => handleRemoveFromCart(item.id)}
-                          className="text-red-500 hover:text-red-700 p-1"
-                        >
-                          <FaTrash className="w-3 h-3" />
-                        </button>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleUpdateQuantity(item.id, -1)}
-                            className="w-7 h-7 flex items-center justify-center bg-white border border-gray-300 rounded hover:bg-gray-100"
-                          >
-                            <FaMinus className="w-3 h-3" />
-                          </button>
-                          <span className="w-8 text-center font-medium">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => handleUpdateQuantity(item.id, 1)}
-                            className="w-7 h-7 flex items-center justify-center bg-white border border-gray-300 rounded hover:bg-gray-100"
-                            disabled={item.quantity >= (item.stock || 0)}
-                          >
-                            <FaPlus className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <span className="font-semibold text-gray-900">
-                          ${subtotal.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            <div className="border-t pt-4 space-y-3">
-              <div className="flex justify-between items-center text-sm text-gray-600">
-                <span>Productos</span>
-                <span>{cart.length}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm text-gray-600">
-                <span>Unidades</span>
-                <span>
-                  {cart.reduce((acc, item) => acc + item.quantity, 0)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-lg font-bold text-gray-900 pt-2 border-t">
-                <span>Total</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
-
-              {/* Método de Pago */}
-              <div className="pt-2 border-t">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Método de Pago
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPaymentMethod("efectivo");
-                      setAmountReceived(total);
-                    }}
-                    className={`px-4 py-2 rounded-lg border-2 transition-all ${
-                      paymentMethod === "efectivo"
-                        ? "border-green-500 bg-green-50 text-green-700 font-semibold"
-                        : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-                    }`}
-                  >
-                    💵 Efectivo
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPaymentMethod("fiado");
-                      setAmountReceived(0);
-                    }}
-                    className={`px-4 py-2 rounded-lg border-2 transition-all ${
-                      paymentMethod === "fiado"
-                        ? "border-orange-500 bg-orange-50 text-orange-700 font-semibold"
-                        : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-                    }`}
-                  >
-                    📋 Fiado
-                  </button>
-                </div>
-              </div>
-
-              {/* Monto Recibido */}
-              <div className="pt-3 border-t">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Entrega Recibida
-                </label>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
-                      $
-                    </span>
+                <>
+                  {/* Buscador */}
+                  <div className="relative mb-4">
+                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <input
-                      type="number"
-                      min="0"
-                      max={total}
-                      step="0.01"
-                      value={amountReceived === 0 ? "" : amountReceived}
-                      onChange={(e) => {
-                        const value =
-                          e.target.value === ""
-                            ? 0
-                            : parseFloat(e.target.value);
-                        setAmountReceived(Math.min(value, total));
-                      }}
-                      className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="0.00"
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Buscar productos por nombre..."
+                      className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setAmountReceived(0)}
-                    className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-semibold text-sm"
-                    title="Poner en cero"
-                  >
-                    ✕ 0
-                  </button>
+
+                  {/* Lista de Productos */}
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {filteredProducts.length === 0 ? (
+                      <p className="text-center py-8 text-gray-500">
+                        No se encontraron productos
+                      </p>
+                    ) : (
+                      filteredProducts.map((product) => {
+                        const isInCart = cart.some(
+                          (item) => item.id === product.id
+                        );
+                        const price = getProductPrice(product);
+
+                        return (
+                          <div
+                            key={product.id}
+                            className={`flex items-center justify-between p-4 rounded-lg border transition-all ${
+                              isInCart
+                                ? "border-blue-300 bg-blue-50"
+                                : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                            }`}
+                          >
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-medium text-gray-900">
+                                  {product.name}
+                                </h3>
+                                {isInCart && (
+                                  <span className="px-2 py-0.5 text-xs bg-blue-600 text-white rounded-full">
+                                    En carrito
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-3 mt-1">
+                                <span className="text-sm font-semibold text-gray-900">
+                                  ${price?.toFixed(2)}
+                                </span>
+                                <span
+                                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${getStockColor(
+                                    product.stock
+                                  )}`}
+                                >
+                                  Stock: {product.stock || 0}
+                                </span>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handleAddProduct(product)}
+                              disabled={(product.stock || 0) === 0}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                            >
+                              <FaPlus className="w-3 h-3" />
+                              Agregar
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Panel de Carrito */}
+          <div className="lg:col-span-1">
+            <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200 sticky top-6">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg flex items-center justify-center">
+                  <FaShoppingCart className="text-purple-600" />
                 </div>
-                <div className="flex justify-end mt-2">
-                  <button
-                    type="button"
-                    onClick={() => setAmountReceived(total)}
-                    className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold"
-                  >
-                    ✓ Pago completo
-                  </button>
-                </div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Resumen del Pedido
+                </h2>
               </div>
 
-              {/* Saldo Pendiente */}
-              {amountReceived < total && (
-                <div className="pt-3 bg-orange-50 -mx-6 px-6 py-3 border-t border-orange-200">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-orange-700">
-                      Saldo Pendiente:
-                    </span>
-                    <span className="text-lg font-bold text-orange-700">
-                      ${(total - amountReceived).toFixed(2)}
-                    </span>
+              <div className="space-y-3 min-h-[300px] max-h-[400px] overflow-y-auto mb-4">
+                {cart.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400">
+                    <FaShoppingCart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p>El carrito está vacío</p>
+                  </div>
+                ) : (
+                  cart.map((item) => {
+                    const price = getProductPrice(item);
+                    const subtotal = price * item.quantity;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="p-3 bg-gray-50 rounded-lg border border-gray-200"
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 text-sm">
+                              {item.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              ${price.toFixed(2)} c/u
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleRemoveFromCart(item.id)}
+                            className="text-red-500 hover:text-red-700 p-1"
+                            title="Eliminar del carrito"
+                          >
+                            <FaTrash className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleUpdateQuantity(item.id, -1)}
+                              className="w-7 h-7 flex items-center justify-center bg-white border border-gray-300 rounded hover:bg-gray-100"
+                              title="Disminuir cantidad"
+                            >
+                              <FaMinus className="w-3 h-3" />
+                            </button>
+                            <span className="w-8 text-center font-medium">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => handleUpdateQuantity(item.id, 1)}
+                              className="w-7 h-7 flex items-center justify-center bg-white border border-gray-300 rounded hover:bg-gray-100"
+                              disabled={item.quantity >= (item.stock || 0)}
+                              title="Aumentar cantidad"
+                            >
+                              <FaPlus className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <span className="font-semibold text-gray-900">
+                            ${subtotal.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="border-t-2 border-gray-200 pt-4 space-y-3">
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <FaBox className="text-purple-600" /> Productos
+                  </span>
+                  <span className="font-bold text-gray-900">{cart.length}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    📦 Unidades
+                  </span>
+                  <span className="font-bold text-gray-900">
+                    {cart.reduce((acc, item) => acc + item.quantity, 0)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xl font-bold pt-3 border-t-2 border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50 -mx-6 px-6 py-4 mt-3">
+                  <span className="flex items-center gap-2">
+                    <FaDollarSign className="text-green-600" /> TOTAL
+                  </span>
+                  <span className="text-green-600">${total.toFixed(2)}</span>
+                </div>
+
+                {/* Método de Pago */}
+                <div className="pt-3 border-t-2 border-gray-200 mt-3">
+                  <label className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <FaMoneyBillWave className="text-blue-600" /> Método de Pago
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMethod("efectivo");
+                        setAmountReceived(total);
+                      }}
+                      className={`px-4 py-3 rounded-lg border-2 transition-all font-semibold flex items-center justify-center gap-2 ${
+                        paymentMethod === "efectivo"
+                          ? "border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 text-green-700 shadow-md"
+                          : "border-gray-300 bg-white text-gray-700 hover:border-green-400 hover:bg-green-50"
+                      }`}
+                    >
+                      <FaMoneyBillWave /> Efectivo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMethod("fiado");
+                        setAmountReceived(0);
+                      }}
+                      className={`px-4 py-3 rounded-lg border-2 transition-all font-semibold flex items-center justify-center gap-2 ${
+                        paymentMethod === "fiado"
+                          ? "border-orange-500 bg-gradient-to-br from-orange-50 to-amber-50 text-orange-700 shadow-md"
+                          : "border-gray-300 bg-white text-gray-700 hover:border-orange-400 hover:bg-orange-50"
+                      }`}
+                    >
+                      <FaFileInvoice /> Fiado
+                    </button>
                   </div>
                 </div>
-              )}
 
-              {/* Indicador de pago completo */}
-              {amountReceived >= total && total > 0 && (
-                <div className="pt-3 bg-green-50 -mx-6 px-6 py-3 border-t border-green-200">
-                  <div className="flex items-center justify-center gap-2 text-green-700">
-                    <FaCheckCircle />
-                    <span className="text-sm font-semibold">Pago Completo</span>
+                {/* Monto Recibido */}
+                <div className="pt-3 border-t">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Entrega Recibida
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                        $
+                      </span>
+                      <input
+                        type="number"
+                        min="0"
+                        max={total}
+                        step="0.01"
+                        value={amountReceived === 0 ? "" : amountReceived}
+                        onChange={(e) => {
+                          const value =
+                            e.target.value === ""
+                              ? 0
+                              : parseFloat(e.target.value);
+                          setAmountReceived(Math.min(value, total));
+                        }}
+                        className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAmountReceived(0)}
+                      className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-semibold text-sm"
+                      title="Poner en cero"
+                    >
+                      ✕ 0
+                    </button>
+                  </div>
+                  <div className="flex justify-end mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setAmountReceived(total)}
+                      className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold"
+                    >
+                      ✓ Pago completo
+                    </button>
                   </div>
                 </div>
-              )}
 
-              <button
-                onClick={handleFinalizeOrder}
-                disabled={
-                  cart.length === 0 || !selectedCustomer || isSubmitting
-                }
-                className="w-full py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-              >
-                <FaCheckCircle className="w-4 h-4" />
-                {isSubmitting ? "Guardando..." : "Guardar Pedido"}
-              </button>
+                {/* Saldo Pendiente */}
+                {amountReceived < total && (
+                  <div className="pt-3 bg-orange-50 -mx-6 px-6 py-3 border-t border-orange-200">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-orange-700">
+                        Saldo Pendiente:
+                      </span>
+                      <span className="text-lg font-bold text-orange-700">
+                        ${(total - amountReceived).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Indicador de pago completo */}
+                {amountReceived >= total && total > 0 && (
+                  <div className="pt-3 bg-green-50 -mx-6 px-6 py-3 border-t border-green-200">
+                    <div className="flex items-center justify-center gap-2 text-green-700">
+                      <FaCheckCircle />
+                      <span className="text-sm font-semibold">
+                        Pago Completo
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleFinalizeOrder}
+                  disabled={
+                    cart.length === 0 || !selectedCustomer || isSubmitting
+                  }
+                  className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-lg"
+                >
+                  <FaCheckCircle className="w-5 h-5" />
+                  {isSubmitting ? "Guardando..." : "Guardar Pedido"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -20,6 +20,13 @@ import {
   FaCheckCircle,
   FaBan,
   FaPrint,
+  FaDollarSign,
+  FaTruck,
+  FaEye,
+  FaInbox,
+  FaMoneyBillWave,
+  FaFileInvoice,
+  FaBoxOpen,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 import OrderStatusChanger from "@/components/OrderStatusChanger";
@@ -670,7 +677,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       {/* Modal de Detalles */}
       <OrderDetailsModal
         isOpen={isOrderDetailsModalOpen}
@@ -685,42 +692,40 @@ export default function OrdersPage() {
         orderId={selectedOrderIdForRemito}
       />
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
+      {/* HEADER */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Gestión de Pedidos
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-3">
+            <FaBox className="text-purple-600" /> Gestión de Pedidos
           </h1>
-          <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            {totalCount} pedido{totalCount !== 1 ? "s" : ""} en total
+          <p className="text-gray-600 mt-1">
+            {totalCount} pedido{totalCount !== 1 ? "s" : ""} registrados
           </p>
         </div>
         <Link
           href="/dashboard/pedidos/nuevo"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm sm:text-base text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+          className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
         >
-          <FaPlus className="w-4 h-4" />
-          <span className="hidden sm:inline">Nuevo Pedido</span>
-          <span className="sm:hidden">Nuevo</span>
+          <FaPlus /> Nuevo Pedido
         </Link>
       </div>
 
-      {/* Filtros de Estado */}
-      <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs sm:text-sm font-semibold text-gray-700">
-            Filtrar por Estado
+      {/* FILTROS POR ESTADO */}
+      <div className="bg-white rounded-xl shadow-lg p-5 border border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <FaFilter className="text-purple-600" /> Filtrar por Estado
           </h2>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="inline-flex items-center gap-2 px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
           >
-            <FaFilter className="w-3 h-3" />
+            <FaFilter />
             {showFilters ? "Ocultar" : "Más"} Filtros
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+        <div className="flex flex-wrap gap-2">
           {(
             Object.keys(STATUS_CONFIG) as Array<keyof typeof STATUS_CONFIG>
           ).map((status) => {
@@ -733,9 +738,9 @@ export default function OrdersPage() {
                   setStatusFilter(status as any);
                   setCurrentPage(1);
                 }}
-                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all ${
+                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all shadow-sm ${
                   isActive
-                    ? config.activeColor
+                    ? config.activeColor + " shadow-md"
                     : `${config.color} hover:opacity-80`
                 }`}
               >
@@ -746,32 +751,31 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Filtros Avanzados */}
+      {/* FILTROS AVANZADOS */}
       {showFilters && (
-        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 space-y-4 animate-slideDown">
+        <div className="bg-white rounded-xl shadow-lg p-5 border border-gray-200 space-y-4 animate-slideDown">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs sm:text-sm font-semibold text-gray-700">
-              Filtros Avanzados
+            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <FaSearch className="text-blue-600" /> Filtros Avanzados
             </h2>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 text-xs text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors border border-red-200"
               >
-                <FaTimes className="w-3 h-3" />
-                <span className="hidden sm:inline">Limpiar Filtros</span>
-                <span className="sm:hidden">Limpiar</span>
+                <FaTimes />
+                Limpiar Filtros
               </button>
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Buscar Cliente
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                <FaUser className="text-blue-600" /> Buscar Cliente
               </label>
               <div className="relative">
-                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   value={searchQuery}
@@ -780,37 +784,45 @@ export default function OrdersPage() {
                     setCurrentPage(1);
                   }}
                   placeholder="Nombre del cliente..."
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Fecha del Pedido
+              <label
+                htmlFor="dateFilter"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+              >
+                <FaCalendarAlt className="text-green-600" /> Fecha del Pedido
               </label>
               <input
+                id="dateFilter"
                 type="date"
                 value={dateFilter}
                 onChange={(e) => {
                   setDateFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Día de Reparto
+              <label
+                htmlFor="deliveryDay"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+              >
+                <FaClock className="text-orange-600" /> Día de Reparto
               </label>
               <select
+                id="deliveryDay"
                 value={deliveryDayFilter}
                 onChange={(e) => {
                   setDeliveryDayFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
               >
                 <option value="todos">Todos los Días</option>
                 {DAYS_OF_WEEK.map((day) => (
@@ -824,31 +836,43 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Tabla de Pedidos - Desktop */}
-      <div className="hidden lg:block bg-white rounded-lg shadow-sm overflow-hidden">
+      {/* TABLA DE PEDIDOS - Desktop */}
+      <div className="hidden lg:block bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fecha
+                <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaCalendarAlt /> Fecha
+                  </div>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Cliente
+                <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaUser /> Cliente
+                  </div>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Día de Reparto
+                <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaTruck /> Día Reparto
+                  </div>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total
+                <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaDollarSign /> Total
+                  </div>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Pago
+                <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaMoneyBillWave /> Pago
+                  </div>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estado
+                <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaBox /> Estado
+                  </div>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
@@ -856,29 +880,42 @@ export default function OrdersPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
-                    <div className="flex justify-center items-center gap-2 text-gray-500">
-                      <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                      Cargando pedidos...
+                  <td colSpan={7} className="px-6 py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                      <span className="text-gray-500 font-medium">
+                        Cargando pedidos...
+                      </span>
                     </div>
                   </td>
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={7}
-                    className="px-6 py-12 text-center text-gray-500"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      <FaSearch className="w-8 h-8 text-gray-300" />
-                      <p>No se encontraron pedidos con los filtros aplicados</p>
-                      {hasActiveFilters && (
-                        <button
-                          onClick={clearFilters}
-                          className="mt-2 text-sm text-blue-600 hover:text-blue-700 underline"
+                  <td colSpan={7} className="px-6 py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <FaInbox className="text-6xl text-gray-300" />
+                      <span className="text-gray-500 font-medium">
+                        No se encontraron pedidos
+                      </span>
+                      {hasActiveFilters ? (
+                        <>
+                          <span className="text-gray-400 text-sm">
+                            Intenta con otros filtros
+                          </span>
+                          <button
+                            onClick={clearFilters}
+                            className="mt-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                          >
+                            Limpiar filtros
+                          </button>
+                        </>
+                      ) : (
+                        <Link
+                          href="/dashboard/pedidos/nuevo"
+                          className="mt-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium flex items-center gap-2"
                         >
-                          Limpiar filtros
-                        </button>
+                          <FaPlus /> Crear primer pedido
+                        </Link>
                       )}
                     </div>
                   </td>
@@ -889,23 +926,32 @@ export default function OrdersPage() {
                     key={order.id}
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(order.created_at).toLocaleDateString("es-AR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-800 flex items-center gap-2">
+                        <FaCalendarAlt className="text-gray-400 text-xs" />
+                        {new Date(order.created_at).toLocaleDateString(
+                          "es-AR",
+                          {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          }
+                        )}
+                      </div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="text-sm font-semibold text-gray-900">
                         {order.customers?.full_name ?? "Sin cliente"}
                       </div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                      {order.customers?.delivery_day ?? "N/A"}
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                        <FaClock />
+                        {order.customers?.delivery_day ?? "N/A"}
+                      </span>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="text-sm font-bold text-green-600">
                         $
                         {order.total_amount?.toLocaleString("es-AR", {
                           minimumFractionDigits: 2,
@@ -913,62 +959,67 @@ export default function OrdersPage() {
                         }) ?? "0.00"}
                       </div>
                       {((order as any).amount_pending || 0) > 0 && (
-                        <div className="text-xs text-orange-600 font-semibold mt-1">
+                        <div className="text-xs text-orange-600 font-semibold mt-1 flex items-center gap-1">
+                          <FaInfoCircle className="text-xs" />
                           Pendiente: $
                           {((order as any).amount_pending || 0).toFixed(2)}
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="space-y-1">
                         {(order as any).payment_method === "fiado" ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
-                            📋 Fiado
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 border border-orange-300">
+                            <FaFileInvoice /> Fiado
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                            💵 Efectivo
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-300">
+                            <FaMoneyBillWave /> Efectivo
                           </span>
                         )}
                         {((order as any).amount_pending || 0) === 0 &&
                           ((order as any).amount_paid || 0) > 0 && (
                             <div className="text-xs text-green-600 font-semibold flex items-center gap-1">
-                              <FaCheckCircle className="w-3 h-3" /> Pagado
+                              <FaCheckCircle /> Pagado
                             </div>
                           )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <OrderStatusChanger
                         order={order}
                         onStatusUpdate={fetchOrders}
                       />
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            setSelectedOrderIdForDetails(order.id);
-                            setIsOrderDetailsModalOpen(true);
-                          }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700 transition-all"
-                        >
-                          <FaInfoCircle /> Ver
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedOrderIdForRemito(order.id);
-                            setIsRemitoModalOpen(true);
-                          }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-600 text-white text-xs font-semibold rounded-lg hover:bg-gray-700 transition-all"
-                        >
-                          <FaPrint /> Remito
-                        </button>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              setSelectedOrderIdForDetails(order.id);
+                              setIsOrderDetailsModalOpen(true);
+                            }}
+                            title="Ver detalles del pedido"
+                            className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all flex items-center gap-1.5 shadow-sm"
+                          >
+                            <FaEye /> Ver
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedOrderIdForRemito(order.id);
+                              setIsRemitoModalOpen(true);
+                            }}
+                            title="Generar remito"
+                            className="px-3 py-1.5 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-xs font-semibold rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all flex items-center gap-1.5 shadow-sm"
+                          >
+                            <FaPrint />
+                          </button>
+                        </div>
                         <Link
                           href={`/dashboard/pedidos/${order.id}`}
-                          className="text-blue-600 hover:text-blue-700 hover:underline text-xs"
+                          className="text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium"
                         >
-                          Detalle Completo
+                          Ver Detalle Completo →
                         </Link>
                       </div>
                     </td>

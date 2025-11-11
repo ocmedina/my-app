@@ -1,99 +1,273 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabaseClient'
-import { useRouter, useParams } from 'next/navigation'
-import toast from 'react-hot-toast'
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter, useParams } from "next/navigation";
+import toast from "react-hot-toast";
+import {
+  FaEdit,
+  FaTimes,
+  FaSave,
+  FaTruck,
+  FaBuilding,
+  FaUser,
+  FaIdCard,
+  FaPhone,
+  FaEnvelope,
+  FaMapMarkerAlt,
+} from "react-icons/fa";
 
 export default function EditSupplierPage() {
-  const router = useRouter()
-  const params = useParams()
-  const id = params.id as string
-  
-  const [supplier, setSupplier] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [supplier, setSupplier] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     const fetchSupplier = async () => {
-      const { data, error } = await supabase.from('suppliers').select('*').eq('id', id).single();
+      const { data, error } = await supabase
+        .from("suppliers")
+        .select("*")
+        .eq("id", id)
+        .single();
       if (error) {
-        toast.error('Proveedor no encontrado.');
-        router.push('/dashboard/proveedores');
+        toast.error("Proveedor no encontrado.");
+        router.push("/dashboard/proveedores");
       } else {
         setSupplier(data);
       }
-    }
-    fetchSupplier()
-  }, [id, router])
+    };
+    fetchSupplier();
+  }, [id, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
-    const formData = new FormData(e.currentTarget)
-    
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+
     const supplierData = {
-      name: formData.get('name') as string,
-      contact_person: formData.get('contact_person') as string,
-      phone: formData.get('phone') as string,
-      email: formData.get('email') as string,
-      address: formData.get('address') as string,
-      cuit: formData.get('cuit') as string,
+      name: formData.get("name") as string,
+      contact_person: formData.get("contact_person") as string,
+      phone: formData.get("phone") as string,
+      email: formData.get("email") as string,
+      address: formData.get("address") as string,
+      cuit: formData.get("cuit") as string,
+    };
+
+    // Validación
+    if (!supplierData.name?.trim()) {
+      toast.error("El nombre del proveedor es obligatorio");
+      return;
     }
 
-    const { error } = await supabase.from('suppliers').update(supplierData).eq('id', id);
+    const loadingToast = toast.loading("Actualizando proveedor...");
+    setLoading(true);
+
+    const { error } = await supabase
+      .from("suppliers")
+      .update(supplierData)
+      .eq("id", id);
 
     if (error) {
-      toast.error(`Error al actualizar: ${error.message}`);
+      toast.error(`Error: ${error.message}`, { id: loadingToast });
     } else {
-      toast.success('Proveedor actualizado.');
-      router.push('/dashboard/proveedores');
+      toast.success("Proveedor actualizado exitosamente", { id: loadingToast });
+      router.push("/dashboard/proveedores");
       router.refresh();
     }
     setLoading(false);
+  };
+
+  if (!supplier) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+          <span className="text-gray-500 font-medium">
+            Cargando proveedor...
+          </span>
+        </div>
+      </div>
+    );
   }
 
-  if (!supplier) return <div>Cargando...</div>
-
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Editar Proveedor</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Nombre / Razón Social</label>
-          <input name="name" type="text" required defaultValue={supplier.name} className="mt-1 w-full p-2 border border-gray-300 rounded-md"/>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Persona de Contacto</label>
-            <input name="contact_person" type="text" defaultValue={supplier.contact_person} className="mt-1 w-full p-2 border border-gray-300 rounded-md"/>
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      {/* HEADER */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center gap-3">
+          <FaEdit className="text-orange-600" /> Editar Proveedor
+        </h1>
+        <p className="text-gray-600 mt-1">
+          Modificando:{" "}
+          <span className="font-semibold text-gray-800">{supplier.name}</span>
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-6">
+        {/* SECCIÓN 1: INFORMACIÓN BÁSICA */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+          <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <FaTruck className="text-orange-600" /> Información Básica
+          </h2>
+          <div className="space-y-4">
+            {/* Nombre */}
+            <div>
+              <label
+                htmlFor="name"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+              >
+                <FaBuilding className="text-orange-600" /> Nombre / Razón Social
+                *
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                defaultValue={supplier.name}
+                placeholder="Ej: Distribuidora San Juan S.A."
+                className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Este campo es obligatorio
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Persona de Contacto */}
+              <div>
+                <label
+                  htmlFor="contact_person"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                >
+                  <FaUser className="text-blue-600" /> Persona de Contacto
+                </label>
+                <input
+                  id="contact_person"
+                  name="contact_person"
+                  type="text"
+                  defaultValue={supplier.contact_person || ""}
+                  placeholder="Ej: Juan Pérez"
+                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                />
+              </div>
+
+              {/* CUIT */}
+              <div>
+                <label
+                  htmlFor="cuit"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                >
+                  <FaIdCard className="text-purple-600" /> CUIT / CUIL
+                </label>
+                <input
+                  id="cuit"
+                  name="cuit"
+                  type="text"
+                  defaultValue={supplier.cuit || ""}
+                  placeholder="Ej: 20-12345678-9"
+                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                />
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">CUIT / CUIL</label>
-            <input name="cuit" type="text" defaultValue={supplier.cuit} className="mt-1 w-full p-2 border border-gray-300 rounded-md"/>
+        </div>
+
+        {/* SECCIÓN 2: INFORMACIÓN DE CONTACTO */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+          <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <FaPhone className="text-green-600" /> Información de Contacto
+          </h2>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Teléfono */}
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                >
+                  <FaPhone className="text-green-600" /> Teléfono
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  defaultValue={supplier.phone || ""}
+                  placeholder="Ej: +54 9 264 123-4567"
+                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                >
+                  <FaEnvelope className="text-blue-600" /> Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  defaultValue={supplier.email || ""}
+                  placeholder="Ej: contacto@proveedor.com"
+                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Dirección */}
+            <div>
+              <label
+                htmlFor="address"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+              >
+                <FaMapMarkerAlt className="text-red-600" /> Dirección
+              </label>
+              <input
+                id="address"
+                name="address"
+                type="text"
+                defaultValue={supplier.address || ""}
+                placeholder="Ej: Av. Libertador 1234, San Juan Capital"
+                className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+              />
+            </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Teléfono</label>
-            <input name="phone" type="tel" defaultValue={supplier.phone} className="mt-1 w-full p-2 border border-gray-300 rounded-md"/>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input name="email" type="email" defaultValue={supplier.email} className="mt-1 w-full p-2 border border-gray-300 rounded-md"/>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Dirección</label>
-          <input name="address" type="text" defaultValue={supplier.address} className="mt-1 w-full p-2 border border-gray-300 rounded-md"/>
-        </div>
-        <div className="flex justify-end gap-4 pt-4 border-t">
-          <button type="button" onClick={() => router.back()} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
-          <button type="submit" disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:bg-gray-400">
-            {loading ? 'Guardando...' : 'Actualizar Proveedor'}
+
+        {/* BOTONES DE ACCIÓN */}
+        <div className="flex justify-end gap-3 pt-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-semibold flex items-center gap-2"
+          >
+            <FaTimes /> Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 transition-all font-semibold flex items-center gap-2 shadow-lg"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Guardando...
+              </>
+            ) : (
+              <>
+                <FaSave /> Actualizar Proveedor
+              </>
+            )}
           </button>
         </div>
       </form>
     </div>
-  )
+  );
 }

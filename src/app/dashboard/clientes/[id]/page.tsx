@@ -115,14 +115,21 @@ export default async function CustomerDetailPage({
                 <span className="text-gray-400">📱</span> {customer.phone}
               </p>
             )}
-            {/* --- CAMPO DE DIRECCIÓN AÑADIDO --- */}
             {customer.address && (
-              <p className="text-sm text-gray-500 flex items-center gap-2">
-                <span className="text-gray-400">
-                  <FaMapMarkerAlt />
-                </span>{" "}
-                {customer.address}
-              </p>
+              <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-700 flex items-center gap-2 font-medium">
+                  <FaMapMarkerAlt className="text-blue-500" />
+                  <span>Dirección:</span>
+                </p>
+                <p className="text-sm text-gray-600 ml-6 mt-1">
+                  {customer.address}
+                </p>
+                {customer.reference && (
+                  <p className="text-xs text-gray-500 ml-6 mt-1 italic">
+                    Ref: {customer.reference}
+                  </p>
+                )}
+              </div>
             )}
           </div>
           <div className="text-right bg-gray-50 px-6 py-4 rounded-lg border-2 border-gray-200">

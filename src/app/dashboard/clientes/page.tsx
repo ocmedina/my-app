@@ -1,10 +1,23 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import CustomerActions from "@/components/CustomerActions";
 import { supabase } from "@/lib/supabaseClient";
+import {
+  FaUsers,
+  FaPlus,
+  FaFilter,
+  FaUser,
+  FaPhone,
+  FaEnvelope,
+  FaUserTag,
+  FaDollarSign,
+  FaInbox,
+  FaExclamationTriangle,
+  FaSearch,
+} from "react-icons/fa";
 
 // 🔹 Tipos manuales para TypeScript
 type CustomerRow = {
@@ -25,6 +38,28 @@ function CustomersPageContent() {
     filterParam === "with_debt" ? "with_debt" : "all"
   );
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Obtener el rol del usuario una sola vez
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+        if (profile) {
+          setUserRole(profile.role);
+        }
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -96,124 +131,240 @@ function CustomersPageContent() {
     fetchCustomers();
   }, [debtFilter]);
 
+  // Filtrar clientes por término de búsqueda
+  const filteredCustomers = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return customers;
+    }
+
+    const search = searchTerm.toLowerCase();
+    return customers.filter(
+      (customer) =>
+        customer.full_name?.toLowerCase().includes(search) ||
+        customer.email?.toLowerCase().includes(search) ||
+        customer.phone?.toLowerCase().includes(search)
+    );
+  }, [customers, searchTerm]);
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Gestión de Clientes</h1>
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      {/* HEADER */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
+            <FaUsers className="text-blue-600" /> Gestión de Clientes
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Administra tu cartera de clientes y sus cuentas
+          </p>
+        </div>
         <Link
           href="/dashboard/clientes/new"
-          className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
+          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
         >
-          + Agregar Cliente
+          <FaPlus /> Agregar Cliente
         </Link>
       </div>
 
-      {/* --- FILTRO POR DEUDA --- */}
-      <div className="p-4 bg-white rounded-lg shadow-md mb-6">
-        <div className="flex items-center gap-4">
-          <label
-            htmlFor="debtFilter"
-            className="text-sm font-medium text-gray-700"
-          >
-            Filtrar por deuda:
-          </label>
-          <select
-            id="debtFilter"
-            value={debtFilter}
-            onChange={(e) => setDebtFilter(e.target.value)}
-            className="p-2 border border-gray-300 rounded-md min-w-[200px]"
-          >
-            <option value="all">Todos los clientes</option>
-            <option value="with_debt">🔴 Con fiados pendientes</option>
-            <option value="no_debt">✅ Sin fiados pendientes</option>
-          </select>
-          {debtFilter === "with_debt" && (
-            <span className="text-sm font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-full">
-              🔴 Mostrando solo clientes con fiados pendientes
-            </span>
-          )}
+      {/* BÚSQUEDA Y FILTROS */}
+      <div className="bg-white rounded-xl shadow-lg mb-6 p-4 border border-gray-200">
+        <div className="flex flex-col lg:flex-row gap-3">
+          {/* Barra de búsqueda */}
+          <div className="flex-1 relative">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre, teléfono o email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-24 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+            />
+            {searchTerm && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                  {filteredCustomers.length}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Filtro de deuda */}
+          <div className="flex items-center gap-2">
+            <FaFilter className="text-gray-400 text-sm" />
+            <select
+              id="debtFilter"
+              value={debtFilter}
+              onChange={(e) => setDebtFilter(e.target.value)}
+              className="px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm min-w-[180px]"
+            >
+              <option value="all">Todos</option>
+              <option value="with_debt">Con deudas</option>
+              <option value="no_debt">Sin deudas</option>
+            </select>
+            {debtFilter === "with_debt" && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg border border-red-200">
+                <FaExclamationTriangle className="text-xs" />
+                <span className="text-xs font-semibold whitespace-nowrap">
+                  Filtrado activo
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Nombre
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Teléfono
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tipo
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Fiados Pendientes
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {loading ? (
+      {/* TABLA DE CLIENTES */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
-                <td colSpan={6} className="text-center py-10 text-gray-500">
-                  Cargando...
-                </td>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaUser /> Nombre
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaPhone /> Teléfono
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaEnvelope /> Email
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaUserTag /> Tipo
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaDollarSign /> Fiados Pendientes
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Acciones
+                </th>
               </tr>
-            ) : customers.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="text-center py-10 text-gray-500">
-                  No hay clientes para mostrar.
-                </td>
-              </tr>
-            ) : (
-              customers.map((customer) => (
-                <tr
-                  key={customer.id}
-                  className={
-                    customer.debt && customer.debt > 0 ? "bg-red-50" : ""
-                  }
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <Link
-                      href={`/dashboard/clientes/${customer.id}`}
-                      className="hover:underline text-blue-600"
-                    >
-                      {customer.full_name}
-                    </Link>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {customer.phone}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {customer.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
-                    {customer.customer_type}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {customer.debt && customer.debt > 0 ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        🔴 ${customer.debt.toFixed(2)}
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-12">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      <span className="text-gray-500 font-medium">
+                        Cargando clientes...
                       </span>
-                    ) : (
-                      <span className="text-green-600 font-medium">$0.00</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <CustomerActions customerId={customer.id} />
+                    </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : filteredCustomers.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-12">
+                    <div className="flex flex-col items-center gap-3">
+                      <FaInbox className="text-6xl text-gray-300" />
+                      <span className="text-gray-500 font-medium">
+                        {searchTerm
+                          ? "No se encontraron clientes con ese criterio"
+                          : "No hay clientes para mostrar"}
+                      </span>
+                      {searchTerm && (
+                        <span className="text-gray-400 text-sm">
+                          Intenta con otro término de búsqueda
+                        </span>
+                      )}
+                      {debtFilter !== "all" && !searchTerm && (
+                        <span className="text-gray-400 text-sm">
+                          Intenta cambiar el filtro
+                        </span>
+                      )}
+                      {debtFilter === "all" && !searchTerm && (
+                        <Link
+                          href="/dashboard/clientes/new"
+                          className="mt-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium flex items-center gap-2"
+                        >
+                          <FaPlus /> Agregar primer cliente
+                        </Link>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredCustomers.map((customer) => (
+                  <tr
+                    key={customer.id}
+                    className={`hover:bg-gray-50 transition-colors ${
+                      customer.debt && customer.debt > 0
+                        ? "bg-red-50/30 border-l-4 border-red-400"
+                        : ""
+                    }`}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Link
+                        href={`/dashboard/clientes/${customer.id}`}
+                        className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-2"
+                      >
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                          {customer.full_name?.charAt(0).toUpperCase()}
+                        </div>
+                        {customer.full_name}
+                      </Link>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <FaPhone className="text-gray-400" />
+                        {customer.phone || "—"}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <FaEnvelope className="text-gray-400" />
+                        {customer.email || "—"}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${
+                          customer.customer_type === "mayorista"
+                            ? "bg-purple-100 text-purple-800 border border-purple-300"
+                            : "bg-blue-100 text-blue-800 border border-blue-300"
+                        }`}
+                      >
+                        <FaUserTag />
+                        {customer.customer_type === "mayorista"
+                          ? "Mayorista"
+                          : "Minorista"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {customer.debt && customer.debt > 0 ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-2 border-red-400">
+                            <FaExclamationTriangle />${customer.debt.toFixed(2)}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-sm font-bold text-green-600">
+                          <FaDollarSign />
+                          0.00
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <CustomerActions
+                        customerId={customer.id}
+                        userRole={userRole}
+                      />
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

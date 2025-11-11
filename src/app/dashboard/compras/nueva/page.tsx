@@ -6,7 +6,22 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { User } from "@supabase/supabase-js";
 import { Database } from "@/lib/database.types";
-import { FaTimes, FaShoppingCart, FaPlus, FaBoxOpen } from "react-icons/fa";
+import {
+  FaTimes,
+  FaShoppingCart,
+  FaPlus,
+  FaBoxOpen,
+  FaSearch,
+  FaTruck,
+  FaFileInvoice,
+  FaSave,
+  FaDollarSign,
+  FaBoxes,
+  FaTag,
+  FaCubes,
+  FaBarcode,
+  FaTrash,
+} from "react-icons/fa";
 
 type Supplier = Database["public"]["Tables"]["suppliers"]["Row"];
 type Product = Database["public"]["Tables"]["products"]["Row"];
@@ -243,6 +258,7 @@ function ProductSearch({
 }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -268,38 +284,78 @@ function ProductSearch({
     (p) => !cartProductIds.includes(p.id)
   );
 
-  return (
-    <div className="flex gap-2">
-      <select
-        onChange={(e) => {
-          const product = products.find((p) => p.id === e.target.value);
-          if (product) {
-            onProductSelect(product);
-            e.target.value = ""; // Reset select
-          }
-        }}
-        className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        disabled={loading}
-      >
-        <option value="">
-          {loading
-            ? "Cargando productos..."
-            : "Seleccionar producto existente..."}
-        </option>
-        {availableProducts.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name} (Stock actual: {p.stock})
-          </option>
-        ))}
-      </select>
+  // Filtrar productos por búsqueda
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return availableProducts;
+    }
 
-      <button
-        onClick={onNewProductClick}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2 whitespace-nowrap"
-        title="Crear nuevo producto"
-      >
-        <FaPlus /> Nuevo
-      </button>
+    const search = searchTerm.toLowerCase();
+    return availableProducts.filter(
+      (p) =>
+        p.name?.toLowerCase().includes(search) ||
+        p.sku?.toLowerCase().includes(search) ||
+        p.category?.toLowerCase().includes(search)
+    );
+  }, [availableProducts, searchTerm]);
+
+  return (
+    <div className="space-y-3">
+      {/* Barra de búsqueda */}
+      <div className="relative">
+        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Buscar por nombre, SKU o categoría..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+        />
+        {searchTerm && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+              {filteredProducts.length}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Select y botón nuevo */}
+      <div className="flex gap-2">
+        <select
+          onChange={(e) => {
+            const product = products.find((p) => p.id === e.target.value);
+            if (product) {
+              onProductSelect(product);
+              e.target.value = "";
+              setSearchTerm("");
+            }
+          }}
+          className="flex-1 px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+          disabled={loading}
+        >
+          <option value="">
+            {loading
+              ? "Cargando productos..."
+              : filteredProducts.length === 0
+              ? "No hay productos disponibles"
+              : `Seleccionar producto (${filteredProducts.length} disponibles)...`}
+          </option>
+          {filteredProducts.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name} {p.sku ? `[${p.sku}]` : ""} - Stock: {p.stock}
+            </option>
+          ))}
+        </select>
+
+        <button
+          onClick={onNewProductClick}
+          className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium flex items-center gap-2 whitespace-nowrap shadow-md text-sm"
+          title="Crear nuevo producto"
+        >
+          <FaPlus /> Nuevo
+        </button>
+      </div>
     </div>
   );
 }
@@ -543,58 +599,83 @@ export default function NewPurchasePage() {
 
   return (
     <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Registrar Factura de Compra
-          </h1>
+      <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+        {/* HEADER */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-3">
+              <FaShoppingCart className="text-green-600" /> Registrar Compra
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Agrega productos al carrito y registra la factura
+            </p>
+          </div>
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+            className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-semibold flex items-center gap-2"
           >
-            Cancelar
+            <FaTimes /> Cancelar
           </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Proveedor <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={selectedSupplier}
-                  onChange={(e) => setSelectedSupplier(e.target.value)}
-                  required
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Seleccionar...</option>
-                  {suppliers.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name} {s.debt > 0 && `(Deuda: $${s.debt.toFixed(2)})`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nº de Factura/Remito
-                </label>
-                <input
-                  type="text"
-                  value={invoiceNumber}
-                  onChange={(e) => setInvoiceNumber(e.target.value)}
-                  placeholder="Opcional"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+          {/* COLUMNA PRINCIPAL */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* INFORMACIÓN DE LA COMPRA */}
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+              <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <FaTruck className="text-green-600" /> Información de la Compra
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="supplier"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    <FaTruck className="text-orange-600" /> Proveedor *
+                  </label>
+                  <select
+                    id="supplier"
+                    value={selectedSupplier}
+                    onChange={(e) => setSelectedSupplier(e.target.value)}
+                    required
+                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                  >
+                    <option value="">Seleccionar proveedor...</option>
+                    {suppliers.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}{" "}
+                        {s.debt > 0 && `(Deuda: $${s.debt.toFixed(2)})`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="invoice"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    <FaFileInvoice className="text-blue-600" /> Nº de
+                    Factura/Remito
+                  </label>
+                  <input
+                    id="invoice"
+                    type="text"
+                    value={invoiceNumber}
+                    onChange={(e) => setInvoiceNumber(e.target.value)}
+                    placeholder="Ej: 0001-00001234"
+                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  />
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Agregar Producto al Carrito
-              </label>
+            {/* AGREGAR PRODUCTOS */}
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+              <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <FaBoxes className="text-blue-600" /> Agregar Productos al
+                Carrito
+              </h2>
               <ProductSearch
                 onProductSelect={handleAddProduct}
                 cartProductIds={cartProductIds}
@@ -602,50 +683,66 @@ export default function NewPurchasePage() {
               />
             </div>
 
-            <div className="border-t pt-4">
+            {/* CARRITO */}
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
               {cart.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">
-                  <FaShoppingCart className="mx-auto text-4xl mb-2" />
-                  <p>No hay productos en el carrito</p>
-                  <p className="text-sm">
-                    Selecciona productos existentes o crea uno nuevo
+                <div className="text-center py-16">
+                  <FaShoppingCart className="mx-auto text-6xl text-gray-300 mb-3" />
+                  <p className="text-gray-500 font-medium">
+                    No hay productos en el carrito
+                  </p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Busca y selecciona productos para agregarlos
                   </p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="min-w-full">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                       <tr>
-                        <th className="text-left text-sm font-medium text-gray-700 p-3">
-                          Producto
+                        <th className="text-left text-xs font-bold text-gray-700 uppercase p-3">
+                          <div className="flex items-center gap-2">
+                            <FaTag /> Producto
+                          </div>
                         </th>
-                        <th className="text-left text-sm font-medium text-gray-700 p-3">
-                          Cantidad
+                        <th className="text-left text-xs font-bold text-gray-700 uppercase p-3">
+                          <div className="flex items-center gap-2">
+                            <FaCubes /> Cantidad
+                          </div>
                         </th>
-                        <th className="text-left text-sm font-medium text-gray-700 p-3">
-                          Costo Unit. <span className="text-red-500">*</span>
+                        <th className="text-left text-xs font-bold text-gray-700 uppercase p-3">
+                          <div className="flex items-center gap-2">
+                            <FaDollarSign /> Costo Unit. *
+                          </div>
                         </th>
-                        <th className="text-left text-sm font-medium text-gray-700 p-3">
-                          Subtotal
+                        <th className="text-left text-xs font-bold text-gray-700 uppercase p-3">
+                          <div className="flex items-center gap-2">
+                            <FaDollarSign /> Subtotal
+                          </div>
                         </th>
                         <th className="w-10"></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-gray-200 bg-white">
                       {cart.map((item) => {
                         const subtotal =
                           item.quantity * (parseFloat(item.cost_price) || 0);
                         return (
                           <tr
                             key={item.product.id}
-                            className="hover:bg-gray-50"
+                            className="hover:bg-gray-50 transition-colors"
                           >
                             <td className="p-3">
                               <div>
-                                <p className="font-medium">
+                                <p className="font-semibold text-gray-800">
                                   {item.product.name}
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                {item.product.sku && (
+                                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                                    <FaBarcode /> {item.product.sku}
+                                  </p>
+                                )}
+                                <p className="text-xs text-blue-600 font-medium mt-0.5">
                                   Stock actual: {item.product.stock}
                                 </p>
                               </div>
@@ -662,28 +759,33 @@ export default function NewPurchasePage() {
                                     e.target.value
                                   )
                                 }
-                                className="w-20 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-20 px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all font-medium"
                               />
                             </td>
                             <td className="p-3">
-                              <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={item.cost_price}
-                                onChange={(e) =>
-                                  handleCartChange(
-                                    item.product.id,
-                                    "cost_price",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="0.00"
-                                required
-                                className="w-28 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                              />
+                              <div className="relative">
+                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                                  $
+                                </span>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  value={item.cost_price}
+                                  onChange={(e) =>
+                                    handleCartChange(
+                                      item.product.id,
+                                      "cost_price",
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="0.00"
+                                  required
+                                  className="w-32 pl-7 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all font-medium"
+                                />
+                              </div>
                             </td>
-                            <td className="p-3 font-medium">
+                            <td className="p-3 font-bold text-green-600 text-lg">
                               ${subtotal.toFixed(2)}
                             </td>
                             <td className="p-3">
@@ -691,10 +793,10 @@ export default function NewPurchasePage() {
                                 onClick={() =>
                                   handleRemoveFromCart(item.product.id)
                                 }
-                                className="text-red-500 hover:text-red-700 transition-colors p-1"
+                                className="p-2 text-red-500 hover:text-white hover:bg-red-500 rounded-lg transition-all"
                                 title="Eliminar producto"
                               >
-                                <FaTimes />
+                                <FaTrash />
                               </button>
                             </td>
                           </tr>
@@ -707,68 +809,112 @@ export default function NewPurchasePage() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-md space-y-4 h-fit sticky top-6">
-            <h2 className="text-xl font-bold text-gray-800">
-              Resumen de Compra
+          {/* PANEL DE RESUMEN */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 space-y-6 h-fit sticky top-6">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <FaFileInvoice className="text-green-600" /> Resumen de Compra
             </h2>
 
-            <div className="space-y-2 py-4 border-y">
-              <div className="flex justify-between text-gray-600">
-                <span>Productos:</span>
-                <span>{cart.length}</span>
+            <div className="space-y-3 py-4 border-y border-gray-200">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600 flex items-center gap-2">
+                  <FaBoxes className="text-blue-600" /> Productos:
+                </span>
+                <span className="font-bold text-lg">{cart.length}</span>
               </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Unidades totales:</span>
-                <span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600 flex items-center gap-2">
+                  <FaCubes className="text-purple-600" /> Unidades totales:
+                </span>
+                <span className="font-bold text-lg">
                   {cart.reduce((sum, item) => sum + item.quantity, 0)}
                 </span>
               </div>
             </div>
 
-            <div className="flex justify-between font-bold text-2xl text-gray-800">
-              <span>Total Factura:</span>
-              <span>${totalAmount.toFixed(2)}</span>
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border-2 border-green-200">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-gray-700">Total Factura:</span>
+                <span className="font-bold text-3xl text-green-600">
+                  ${totalAmount.toFixed(2)}
+                </span>
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Monto Pagado (opcional)
+              <label
+                htmlFor="amountPaid"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+              >
+                <FaDollarSign className="text-green-600" /> Monto Pagado
+                (opcional)
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                max={totalAmount}
-                value={amountPaid}
-                onChange={(e) => setAmountPaid(e.target.value)}
-                placeholder="0.00"
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                  $
+                </span>
+                <input
+                  id="amountPaid"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max={totalAmount}
+                  value={amountPaid}
+                  onChange={(e) => setAmountPaid(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full pl-8 pr-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                />
+              </div>
             </div>
 
             <div
-              className={`flex justify-between font-bold text-lg ${
+              className={`rounded-lg p-4 border-2 ${
                 totalAmount - (parseFloat(amountPaid) || 0) > 0
-                  ? "text-red-600"
-                  : "text-green-600"
+                  ? "bg-red-50 border-red-200"
+                  : "bg-green-50 border-green-200"
               }`}
             >
-              <span>Deuda Generada:</span>
-              <span>
-                ${(totalAmount - (parseFloat(amountPaid) || 0)).toFixed(2)}
-              </span>
+              <div className="flex justify-between items-center">
+                <span
+                  className={`font-bold ${
+                    totalAmount - (parseFloat(amountPaid) || 0) > 0
+                      ? "text-red-700"
+                      : "text-green-700"
+                  }`}
+                >
+                  Deuda Generada:
+                </span>
+                <span
+                  className={`font-bold text-2xl ${
+                    totalAmount - (parseFloat(amountPaid) || 0) > 0
+                      ? "text-red-600"
+                      : "text-green-600"
+                  }`}
+                >
+                  ${(totalAmount - (parseFloat(amountPaid) || 0)).toFixed(2)}
+                </span>
+              </div>
             </div>
 
             <button
               onClick={handleFinalizePurchase}
               disabled={loading || cart.length === 0}
-              className="w-full py-3 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all shadow-lg flex items-center justify-center gap-2"
             >
-              {loading ? "Procesando..." : "Finalizar Compra y Agregar Stock"}
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Procesando...
+                </>
+              ) : (
+                <>
+                  <FaSave /> Finalizar Compra y Agregar Stock
+                </>
+              )}
             </button>
 
             {cart.length === 0 && (
-              <p className="text-xs text-center text-gray-500">
+              <p className="text-xs text-center text-gray-500 bg-gray-50 rounded-lg py-2">
                 Agrega productos para continuar
               </p>
             )}

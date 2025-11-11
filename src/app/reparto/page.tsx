@@ -84,6 +84,7 @@ function AddCustomerModal({
     phone: "",
     email: "",
     address: "",
+    reference: "",
     customer_type: "minorista" as "minorista" | "mayorista",
     delivery_day: "",
   });
@@ -117,6 +118,7 @@ function AddCustomerModal({
           phone: formData.phone.trim() || null,
           email: formData.email.trim() || null,
           address: formData.address.trim() || null,
+          reference: formData.reference.trim() || null,
           customer_type: formData.customer_type,
           delivery_day: formData.delivery_day || null,
           is_active: true,
@@ -134,6 +136,7 @@ function AddCustomerModal({
         phone: "",
         email: "",
         address: "",
+        reference: "",
         customer_type: "minorista",
         delivery_day: "",
       });
@@ -251,13 +254,14 @@ function AddCustomerModal({
             </div>
           </div>
 
-          {/* Tercera fila: Dirección y DNI */}
+          {/* Tercera fila: Dirección y Referencia */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
                 htmlFor="address"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1"
               >
+                <FaMapMarkerAlt className="text-gray-400" />
                 Dirección
               </label>
               <input
@@ -268,7 +272,27 @@ function AddCustomerModal({
                   setFormData({ ...formData, address: e.target.value })
                 }
                 className="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                placeholder="Ej: Calle 123, Mendoza"
+                placeholder="Ej: Av. Corrientes 1234, CABA"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="reference"
+                className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1"
+              >
+                <FaInfoCircle className="text-gray-400" />
+                Referencia
+              </label>
+              <input
+                type="text"
+                id="reference"
+                value={formData.reference}
+                onChange={(e) =>
+                  setFormData({ ...formData, reference: e.target.value })
+                }
+                className="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                placeholder="Ej: Entre Callao y Rodríguez Peña"
               />
             </div>
           </div>
@@ -527,6 +551,19 @@ function DeliveryConfirmationModal({
             <p className="text-xl font-bold text-gray-800">
               {order.customers.full_name}
             </p>
+            {order.customers.address && (
+              <div className="mt-3 text-sm text-gray-600">
+                <div className="flex items-center justify-center gap-2">
+                  <FaMapMarkerAlt className="text-purple-500" />
+                  <span>{order.customers.address}</span>
+                </div>
+                {order.customers.reference && (
+                  <p className="text-xs italic text-gray-500 mt-1">
+                    Ref: {order.customers.reference}
+                  </p>
+                )}
+              </div>
+            )}
             <p className="text-3xl font-bold text-green-600 mt-2">
               ${order.total_amount.toFixed(2)}
             </p>
@@ -955,11 +992,19 @@ function OrderDetailsModal({
                     </div>
                   )}
                   {(orderData.customers as Customer).address && (
-                    <div className="flex items-start gap-2">
-                      <FaMapMarkerAlt className="text-purple-600 mt-1" />
-                      <span className="font-medium text-gray-700">
-                        {(orderData.customers as Customer).address}
-                      </span>
+                    <div className="space-y-1">
+                      <div className="flex items-start gap-2">
+                        <FaMapMarkerAlt className="text-purple-600 mt-1" />
+                        <span className="font-medium text-gray-700">
+                          {(orderData.customers as Customer).address}
+                        </span>
+                      </div>
+                      {(orderData.customers as Customer).reference && (
+                        <div className="ml-6 text-sm text-gray-600 italic">
+                          <FaInfoCircle className="inline mr-1 text-gray-400" />
+                          Ref: {(orderData.customers as Customer).reference}
+                        </div>
+                      )}
                     </div>
                   )}
                   <div>
@@ -2143,6 +2188,19 @@ export default function RepartoPage() {
                         <p className="font-semibold text-gray-800">
                           {order.customers.full_name}
                         </p>
+                        {order.customers.address && (
+                          <div className="text-xs text-gray-600 mt-1 flex items-start gap-1">
+                            <FaMapMarkerAlt className="text-gray-400 mt-0.5" />
+                            <div>
+                              <span>{order.customers.address}</span>
+                              {order.customers.reference && (
+                                <span className="block italic text-gray-500">
+                                  Ref: {order.customers.reference}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
                         <p className="text-xs text-gray-500 mt-1">
                           {new Date(order.created_at).toLocaleTimeString(
                             "es-AR",
@@ -2282,6 +2340,19 @@ export default function RepartoPage() {
                         <p className="font-semibold text-gray-800">
                           {order.customers.full_name}
                         </p>
+                        {order.customers.address && (
+                          <div className="text-xs text-gray-600 mt-1 flex items-start gap-1">
+                            <FaMapMarkerAlt className="text-gray-400 mt-0.5" />
+                            <div>
+                              <span>{order.customers.address}</span>
+                              {order.customers.reference && (
+                                <span className="block italic text-gray-500">
+                                  Ref: {order.customers.reference}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
                         <p className="text-xs text-gray-500 mt-1">
                           {new Date(order.created_at).toLocaleString("es-AR", {
                             day: "2-digit",

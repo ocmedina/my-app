@@ -7,6 +7,10 @@ import {
   FaDolly,
   FaCashRegister,
   FaArrowRight,
+  FaStore,
+  FaTruck,
+  FaChartPie,
+  FaBalanceScale,
 } from "react-icons/fa";
 import QuickActionsHeader from "@/components/QuickActionsHeader";
 
@@ -98,7 +102,7 @@ async function getDashboardData() {
     .eq("is_active", true);
 
   const { count: totalOrders } = await supabase
-    .from("orders")
+    .from("orders" as any)
     .select("*", { count: "exact", head: true });
 
   const { data: salesThisMonth } = await supabase
@@ -111,8 +115,22 @@ async function getDashboardData() {
     salesThisMonth?.reduce((sum, sale) => sum + (sale.total_amount || 0), 0) ??
     0;
 
+  // Obtener pedidos entregados del mes (ventas de reparto)
+  const { data: ordersThisMonth } = await supabase
+    .from("orders" as any)
+    .select("total_amount")
+    .eq("status", "entregado")
+    .gte("created_at", startOfMonth)
+    .lt("created_at", startOfNextMonth);
+
+  const totalOrderSales =
+    ordersThisMonth?.reduce(
+      (sum: number, order: any) => sum + (order.total_amount || 0),
+      0
+    ) ?? 0;
+
   const { data: pendingOrders } = await supabase
-    .from("orders")
+    .from("orders" as any)
     .select("id, customers ( id, full_name ), created_at")
     .eq("status", "pendiente")
     .order("created_at", { ascending: false })
@@ -134,14 +152,14 @@ async function getDashboardData() {
 
   // Total de deuda pendiente (cuenta corriente)
   const { data: customersWithDebt } = await supabase
-    .from("customers")
+    .from("customers" as any)
     .select("debt")
     .eq("is_active", true)
     .gt("debt", 0);
 
   const totalDebt =
     customersWithDebt?.reduce(
-      (sum, customer) => sum + (customer.debt || 0),
+      (sum: number, customer: any) => sum + (customer.debt || 0),
       0
     ) ?? 0;
   const customersWithDebtCount = customersWithDebt?.length ?? 0;
@@ -151,6 +169,7 @@ async function getDashboardData() {
     clientCount: clientCount ?? 0,
     totalOrders: totalOrders ?? 0,
     totalSales,
+    totalOrderSales,
     totalDebt,
     customersWithDebtCount,
     pendingOrders: pendingOrders ?? [],
@@ -166,6 +185,7 @@ export default async function DashboardPage() {
     clientCount,
     totalOrders,
     totalSales,
+    totalOrderSales,
     totalDebt,
     customersWithDebtCount,
     pendingOrders,
@@ -212,6 +232,171 @@ export default async function DashboardPage() {
           icon={<FaUsers />}
           note="Registrados"
         />
+      </div>
+
+      {/* Balance: Ventas Local vs Reparto */}
+      <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 p-6 rounded-xl shadow-lg border-2 border-purple-200">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
+            <FaBalanceScale className="text-white text-xl" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-gray-800">
+              Balance de Ventas del Mes
+            </h3>
+            <p className="text-sm text-gray-600">{currentMonth}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Ventas Local */}
+          <div className="bg-white rounded-xl p-5 shadow-md border-2 border-green-200">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <FaStore className="text-green-600 text-lg" />
+              </div>
+              <h4 className="font-bold text-gray-800">Ventas Local</h4>
+            </div>
+            <p className="text-3xl font-bold text-green-600 mb-2">
+              $
+              {totalSales.toLocaleString("es-AR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 h-full rounded-full"
+                  style={{
+                    width: `${
+                      totalSales + totalOrderSales > 0
+                        ? (totalSales / (totalSales + totalOrderSales)) * 100
+                        : 0
+                    }%`,
+                  }}
+                />
+              </div>
+              <span className="text-sm font-bold text-gray-700">
+                {totalSales + totalOrderSales > 0
+                  ? (
+                      (totalSales / (totalSales + totalOrderSales)) *
+                      100
+                    ).toFixed(1)
+                  : 0}
+                %
+              </span>
+            </div>
+          </div>
+
+          {/* Ventas Reparto */}
+          <div className="bg-white rounded-xl p-5 shadow-md border-2 border-blue-200">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <FaTruck className="text-blue-600 text-lg" />
+              </div>
+              <h4 className="font-bold text-gray-800">Ventas Reparto</h4>
+            </div>
+            <p className="text-3xl font-bold text-blue-600 mb-2">
+              $
+              {totalOrderSales.toLocaleString("es-AR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full rounded-full"
+                  style={{
+                    width: `${
+                      totalSales + totalOrderSales > 0
+                        ? (totalOrderSales / (totalSales + totalOrderSales)) *
+                          100
+                        : 0
+                    }%`,
+                  }}
+                />
+              </div>
+              <span className="text-sm font-bold text-gray-700">
+                {totalSales + totalOrderSales > 0
+                  ? (
+                      (totalOrderSales / (totalSales + totalOrderSales)) *
+                      100
+                    ).toFixed(1)
+                  : 0}
+                %
+              </span>
+            </div>
+          </div>
+
+          {/* Total Combinado */}
+          <div className="bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl p-5 shadow-md text-white">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                <FaChartPie className="text-white text-lg" />
+              </div>
+              <h4 className="font-bold">Total General</h4>
+            </div>
+            <p className="text-3xl font-bold mb-2">
+              $
+              {(totalSales + totalOrderSales).toLocaleString("es-AR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center gap-1">
+                <FaStore className="text-xs" />
+                {totalSales > 0
+                  ? Math.round(
+                      (totalSales / (totalSales + totalOrderSales)) * 100
+                    )
+                  : 0}
+                %
+              </span>
+              <span>+</span>
+              <span className="flex items-center gap-1">
+                <FaTruck className="text-xs" />
+                {totalOrderSales > 0
+                  ? Math.round(
+                      (totalOrderSales / (totalSales + totalOrderSales)) * 100
+                    )
+                  : 0}
+                %
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Indicador de dominancia */}
+        {totalSales + totalOrderSales > 0 && (
+          <div className="mt-4 p-4 bg-white rounded-lg border border-purple-200">
+            <p className="text-sm text-gray-700">
+              <span className="font-bold">
+                {totalSales > totalOrderSales ? (
+                  <span className="text-green-600">
+                    🏪 Las ventas locales dominan este mes
+                  </span>
+                ) : totalOrderSales > totalSales ? (
+                  <span className="text-blue-600">
+                    🚚 Las ventas de reparto dominan este mes
+                  </span>
+                ) : (
+                  <span className="text-purple-600">
+                    ⚖️ Las ventas están equilibradas
+                  </span>
+                )}
+              </span>
+              {" - "}
+              Diferencia: $
+              {Math.abs(totalSales - totalOrderSales).toLocaleString("es-AR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Tarjeta de Cuenta Corriente */}
@@ -265,7 +450,7 @@ export default async function DashboardPage() {
           <div className="p-4">
             {pendingOrders.length > 0 ? (
               <ul className="space-y-3">
-                {pendingOrders.map((order) => (
+                {pendingOrders.map((order: any) => (
                   <li
                     key={order.id}
                     className="flex justify-between items-center pb-3 border-b border-gray-100 last:border-0 last:pb-0"
@@ -275,7 +460,10 @@ export default async function DashboardPage() {
                         {order.customers?.full_name ?? "Cliente N/A"}
                       </p>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {new Date(order.created_at).toLocaleDateString("es-ES")}
+                        {order.created_at &&
+                          new Date(order.created_at).toLocaleDateString(
+                            "es-ES"
+                          )}
                       </p>
                     </div>
                     <Link
@@ -350,7 +538,7 @@ export default async function DashboardPage() {
           <div className="p-4">
             {recentSales.length > 0 ? (
               <ul className="space-y-3">
-                {recentSales.map((sale) => (
+                {recentSales.map((sale: any) => (
                   <li
                     key={sale.id}
                     className="flex justify-between items-center pb-3 border-b border-gray-100 last:border-0 last:pb-0"
@@ -360,13 +548,14 @@ export default async function DashboardPage() {
                         {sale.customers?.full_name ?? "Cliente N/A"}
                       </p>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {new Date(sale.created_at).toLocaleDateString("es-ES")}
+                        {sale.created_at &&
+                          new Date(sale.created_at).toLocaleDateString("es-ES")}
                       </p>
                     </div>
                     <div className="text-right ml-4">
                       <p className="text-sm font-semibold text-gray-900">
                         $
-                        {sale.total_amount.toLocaleString("es-AR", {
+                        {sale.total_amount?.toLocaleString("es-AR", {
                           minimumFractionDigits: 2,
                         })}
                       </p>

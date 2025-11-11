@@ -1,78 +1,66 @@
 // src/components/CustomerActions.tsx
-'use client'
+"use client";
 
-import { supabase } from '@/lib/supabaseClient'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import toast from "react-hot-toast";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
-export default function CustomerActions({ customerId }: { customerId: string }) {
-  const router = useRouter()
-  const [userRole, setUserRole] = useState<string | null>(null)
+interface CustomerActionsProps {
+  customerId: string;
+  userRole?: string | null;
+}
 
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single()
-        if (profile) {
-          setUserRole(profile.role)
-        }
-      }
-    }
-    fetchUserRole()
-  }, [])
+export default function CustomerActions({
+  customerId,
+  userRole,
+}: CustomerActionsProps) {
+  const router = useRouter();
 
-  // 👇 --- ESTA ES LA FUNCIÓN QUE CAMBIAMOS --- 👇
   const handleDelete = async () => {
-    // 1. Mensaje de confirmación actualizado
-    if (!confirm('¿Estás seguro de que quieres DESACTIVAR este cliente? Ya no aparecerá en las listas.')) {
-      return
+    if (
+      !confirm(
+        "¿Estás seguro de que quieres DESACTIVAR este cliente? Ya no aparecerá en las listas."
+      )
+    ) {
+      return;
     }
 
-    // 2. En lugar de .delete(), usamos .update()
+    const loadingToast = toast.loading("Desactivando cliente...");
+
     const { error } = await supabase
-      .from('customers')
-      .update({ is_active: false }) // <-- La lógica del borrado suave
-      .match({ id: customerId })
+      .from("customers")
+      .update({ is_active: false })
+      .match({ id: customerId });
 
-    // 3. Mensajes de alerta actualizados
     if (error) {
-      alert(`Error al desactivar el cliente: ${error.message}`)
+      toast.error(`Error: ${error.message}`, { id: loadingToast });
     } else {
-      alert('Cliente desactivado exitosamente.')
-      router.refresh()
+      toast.success("Cliente desactivado exitosamente", { id: loadingToast });
+      router.refresh();
     }
-  }
+  };
 
-  // No mostramos nada hasta saber el rol
-  if (userRole === null) {
-    return null
+  // Si no es administrador, mostrar mensaje o nada
+  if (userRole !== "administrador") {
+    return <span className="text-gray-400 text-xs">Sin permisos</span>;
   }
 
   return (
-    <>
-      {/* Mostramos los botones SOLO si el rol es 'administrador' */}
-      {userRole === 'administrador' && (
-        <>
-          <Link
-            href={`/dashboard/clientes/edit/${customerId}`}
-            className="text-indigo-600 hover:text-indigo-900"
-          >
-            Editar
-          </Link>
-          <button
-            onClick={handleDelete}
-            className="text-red-600 hover:text-red-900 ml-4 font-medium"
-          >
-            Borrar
-          </button>
-        </>
-      )}
-    </>
-  )
+    <div className="flex items-center gap-2">
+      <Link
+        href={`/dashboard/clientes/edit/${customerId}`}
+        className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all font-medium text-xs flex items-center gap-1.5 shadow-sm"
+      >
+        <FaEdit /> Editar
+      </Link>
+      <button
+        onClick={handleDelete}
+        className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all font-medium text-xs flex items-center gap-1.5 shadow-sm"
+      >
+        <FaTrash /> Borrar
+      </button>
+    </div>
+  );
 }

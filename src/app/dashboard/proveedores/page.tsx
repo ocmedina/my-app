@@ -1,102 +1,316 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { supabase } from '@/lib/supabaseClient'
-import toast from 'react-hot-toast'
-import SupplierActions from '@/components/SupplierActions'
-import { FaPlus } from 'react-icons/fa'
+import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
+import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
+import SupplierActions from "@/components/SupplierActions";
+import {
+  FaPlus,
+  FaTruck,
+  FaSearch,
+  FaFilter,
+  FaUser,
+  FaPhone,
+  FaDollarSign,
+  FaInbox,
+  FaExclamationTriangle,
+  FaShoppingCart,
+  FaBuilding,
+  FaUserTie,
+} from "react-icons/fa";
 
 export default function SuppliersPage() {
-  const [suppliers, setSuppliers] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debtFilter, setDebtFilter] = useState("all");
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   const fetchSuppliers = async () => {
-    setLoading(true)
+    setLoading(true);
     const { data, error } = await supabase
-      .from('suppliers')
-      .select('*')
-      .eq('is_active', true)
-      .order('name', { ascending: true })
+      .from("suppliers")
+      .select("*")
+      .eq("is_active", true)
+      .order("name", { ascending: true });
 
     if (error) {
-      toast.error('Error al cargar los proveedores.')
+      toast.error("Error al cargar los proveedores.");
     } else {
-      setSuppliers(data || [])
+      setSuppliers(data || []);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
+
+  // Obtener el rol del usuario una sola vez
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+        if (profile) {
+          setUserRole(profile.role);
+        }
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
-    fetchSuppliers()
+    fetchSuppliers();
 
     // Recargar cuando la página se vuelve visible
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        fetchSuppliers()
+      if (document.visibilityState === "visible") {
+        fetchSuppliers();
       }
-    }
+    };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     // Limpiar el event listener cuando el componente se desmonte
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  // Filtrar proveedores por búsqueda y deuda
+  const filteredSuppliers = useMemo(() => {
+    let filtered = suppliers;
+
+    // Filtrar por deuda
+    if (debtFilter === "with_debt") {
+      filtered = filtered.filter((s) => (s.debt || 0) > 0);
+    } else if (debtFilter === "no_debt") {
+      filtered = filtered.filter((s) => (s.debt || 0) === 0);
     }
-  }, [])
+
+    // Filtrar por búsqueda
+    if (searchTerm.trim()) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (supplier) =>
+          supplier.name?.toLowerCase().includes(search) ||
+          supplier.contact_person?.toLowerCase().includes(search) ||
+          supplier.phone?.toLowerCase().includes(search)
+      );
+    }
+
+    return filtered;
+  }, [suppliers, searchTerm, debtFilter]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Gestión de Proveedores</h1>
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      {/* HEADER */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center gap-3">
+            <FaTruck className="text-orange-600" /> Gestión de Proveedores
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Administra tus proveedores y compras
+          </p>
+        </div>
         <div className="flex gap-2">
-          <Link href="/dashboard/compras/nueva" className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2">
-            <FaPlus /> Registrar Compra
+          <Link
+            href="/dashboard/compras/nueva"
+            className="px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 text-sm"
+          >
+            <FaShoppingCart /> Registrar Compra
           </Link>
-          <Link href="/dashboard/proveedores/nuevo" className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
+          <Link
+            href="/dashboard/proveedores/nuevo"
+            className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 text-sm"
+          >
             <FaPlus /> Agregar Proveedor
           </Link>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contacto</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teléfono</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deuda Actual</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {loading ? (
-              <tr><td colSpan={5} className="text-center py-10">Cargando...</td></tr>
-            ) : suppliers.length === 0 ? (
-              <tr><td colSpan={5} className="text-center py-10 text-gray-500">No hay proveedores registrados</td></tr>
-            ) : (
-              suppliers.map((supplier) => (
-                <tr key={supplier.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <Link href={`/dashboard/proveedores/${supplier.id}`} className="hover:underline text-blue-600">
-                      {supplier.name}
-                    </Link>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{supplier.contact_person || 'N/A'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{supplier.phone || 'N/A'}</td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${supplier.debt > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    ${(supplier.debt || 0).toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <SupplierActions supplierId={supplier.id} onUpdate={fetchSuppliers} />
+      {/* BÚSQUEDA Y FILTROS */}
+      <div className="bg-white rounded-xl shadow-lg mb-6 p-4 border border-gray-200">
+        <div className="flex flex-col lg:flex-row gap-3">
+          {/* Barra de búsqueda */}
+          <div className="flex-1 relative">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre, contacto o teléfono..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-24 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
+            />
+            {searchTerm && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
+                  {filteredSuppliers.length}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Filtro de deuda */}
+          <div className="flex items-center gap-2">
+            <FaFilter className="text-gray-400 text-sm" />
+            <select
+              value={debtFilter}
+              onChange={(e) => setDebtFilter(e.target.value)}
+              aria-label="Filtrar por estado de deuda"
+              className="px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm min-w-[180px]"
+            >
+              <option value="all">Todos</option>
+              <option value="with_debt">Con deudas</option>
+              <option value="no_debt">Sin deudas</option>
+            </select>
+            {debtFilter === "with_debt" && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg border border-red-200">
+                <FaExclamationTriangle className="text-xs" />
+                <span className="text-xs font-semibold whitespace-nowrap">
+                  Filtrado activo
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* TABLA DE PROVEEDORES */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaBuilding /> Nombre
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaUserTie /> Contacto
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaPhone /> Teléfono
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
+                    <FaDollarSign /> Deuda Actual
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-12">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+                      <span className="text-gray-500 font-medium">
+                        Cargando proveedores...
+                      </span>
+                    </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : filteredSuppliers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-12">
+                    <div className="flex flex-col items-center gap-3">
+                      <FaInbox className="text-6xl text-gray-300" />
+                      <span className="text-gray-500 font-medium">
+                        {searchTerm
+                          ? "No se encontraron proveedores con ese criterio"
+                          : "No hay proveedores registrados"}
+                      </span>
+                      {searchTerm && (
+                        <span className="text-gray-400 text-sm">
+                          Intenta con otro término de búsqueda
+                        </span>
+                      )}
+                      {!searchTerm && suppliers.length === 0 && (
+                        <Link
+                          href="/dashboard/proveedores/nuevo"
+                          className="mt-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium flex items-center gap-2"
+                        >
+                          <FaPlus /> Agregar primer proveedor
+                        </Link>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredSuppliers.map((supplier) => (
+                  <tr
+                    key={supplier.id}
+                    className={`hover:bg-gray-50 transition-colors ${
+                      supplier.debt && supplier.debt > 0
+                        ? "bg-red-50/30 border-l-4 border-red-400"
+                        : ""
+                    }`}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Link
+                        href={`/dashboard/proveedores/${supplier.id}`}
+                        className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-2"
+                      >
+                        <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-600 rounded-full flex items-center justify-center text-white font-bold">
+                          {supplier.name?.charAt(0).toUpperCase()}
+                        </div>
+                        {supplier.name}
+                      </Link>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <FaUser className="text-gray-400" />
+                        {supplier.contact_person || "—"}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <FaPhone className="text-gray-400" />
+                        {supplier.phone || "—"}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {supplier.debt && supplier.debt > 0 ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-2 border-red-400">
+                            <FaExclamationTriangle />${supplier.debt.toFixed(2)}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-sm font-bold text-green-600">
+                          <FaDollarSign />
+                          0.00
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <SupplierActions
+                        supplierId={supplier.id}
+                        onUpdate={fetchSuppliers}
+                        userRole={userRole}
+                      />
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  )
+  );
 }
