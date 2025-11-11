@@ -651,7 +651,7 @@ function RemitoModal({
       setLoading(true);
       const fetchFullOrder = async () => {
         try {
-          const { data: order, error } = await supabase
+          const { data: order, error } = await (supabase as any)
             .from("orders")
             .select("*, customers(*), order_items(*, products(*))")
             .eq("id", orderId)
@@ -865,7 +865,7 @@ function OrderDetailsModal({
       setLoading(true);
       const fetchFullOrder = async () => {
         try {
-          const { data: order, error } = await supabase
+          const { data: order, error } = await (supabase as any)
             .from("orders")
             .select("*, customers(*), order_items(*, products(*))")
             .eq("id", orderId)
@@ -1123,7 +1123,7 @@ function EditOrderModal({
       setLoading(true);
       const fetchFullOrder = async () => {
         try {
-          const { data: order, error } = await supabase
+          const { data: order, error } = await (supabase as any)
             .from("orders")
             .select("*, customers(*), order_items(*, products(*))")
             .eq("id", orderId)
@@ -1186,7 +1186,7 @@ function EditOrderModal({
       const newTotal = calculateNewTotal();
 
       // 1. Actualizar el total del pedido
-      const { error: orderError } = await supabase
+      const { error: orderError } = await (supabase as any)
         .from("orders")
         .update({ total_amount: newTotal })
         .eq("id", orderId);
@@ -1199,7 +1199,7 @@ function EditOrderModal({
 
         if (quantityDiff !== 0) {
           // Actualizar cantidad en order_items
-          const { error: itemError } = await supabase
+          const { error: itemError } = await (supabase as any)
             .from("order_items")
             .update({ quantity: item.quantity })
             .eq("id", item.id);
@@ -1246,7 +1246,7 @@ function EditOrderModal({
         }
 
         // Eliminar item
-        await supabase.from("order_items").delete().eq("id", removedItem.id);
+        await (supabase as any).from("order_items").delete().eq("id", removedItem.id);
       }
 
       toast.dismiss(loadingToast);
@@ -1483,7 +1483,7 @@ export default function RepartoPage() {
       tomorrowDate.setDate(tomorrowDate.getDate() + 1);
       const tomorrow = tomorrowDate.toISOString().split("T")[0];
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("orders")
         .select(
           "id, total_amount, status, created_at, customer_id, profile_id, customers(full_name)"
@@ -1503,7 +1503,7 @@ export default function RepartoPage() {
   // Fetch all orders history
   const fetchAllOrdersHistory = useCallback(async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("orders")
         .select(
           "id, total_amount, status, created_at, customer_id, profile_id, customers(full_name)"
@@ -1683,7 +1683,7 @@ export default function RepartoPage() {
       }
 
       // 2. Crear el pedido
-      const { data: orderData, error: orderError } = await supabase
+      const { data: orderData, error: orderError } = await (supabase as any)
         .from("orders")
         .insert({
           customer_id: selectedCustomer.id,
@@ -1707,13 +1707,13 @@ export default function RepartoPage() {
             : item.price_minorista,
       }));
 
-      const { error: itemsError } = await supabase
+      const { error: itemsError } = await (supabase as any)
         .from("order_items")
         .insert(orderItems);
 
       if (itemsError) {
         // Rollback: eliminar el pedido creado
-        await supabase.from("orders").delete().eq("id", orderData.id);
+        await (supabase as any).from("orders").delete().eq("id", orderData.id);
         throw itemsError;
       }
 
@@ -1761,8 +1761,12 @@ export default function RepartoPage() {
     amountPaid: number,
     paymentMethod: string
   ) => {
-    const order = dailyOrders.find((o) => o.id === orderId);
-    if (!order) return;
+    // Buscar el pedido en ambas listas (diarios y historial)
+    const order = dailyOrders.find((o) => o.id === orderId) || allOrders.find((o) => o.id === orderId);
+    if (!order) {
+      toast.error("No se encontró el pedido");
+      return;
+    }
 
     const total = order.total_amount;
     const debtGenerated = total - amountPaid;
@@ -1809,7 +1813,7 @@ export default function RepartoPage() {
       await supabase.from("payments").insert(movements);
 
       // 3. Marcar pedido como 'entregado'
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("orders")
         .update({ status: "entregado" })
         .eq("id", orderId);
@@ -1833,7 +1837,7 @@ export default function RepartoPage() {
   const handleCancelOrder = async (orderId: string) => {
     try {
       // 1. Obtener los items del pedido para devolver el stock
-      const { data: orderItems, error: itemsError } = await supabase
+      const { data: orderItems, error: itemsError } = await (supabase as any)
         .from("order_items")
         .select("product_id, quantity")
         .eq("order_id", orderId);
@@ -1860,7 +1864,7 @@ export default function RepartoPage() {
       }
 
       // 3. Marcar el pedido como 'cancelado'
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("orders")
         .update({ status: "cancelado" })
         .eq("id", orderId);
