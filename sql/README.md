@@ -1,6 +1,7 @@
 # 📋 COMANDOS SQL PARA FRONTSTOCK
 
 ## 🎯 Resumen
+
 Este documento contiene todos los comandos SQL necesarios para que funcionen las nuevas funcionalidades implementadas en el dashboard de FrontStock.
 
 ---
@@ -8,11 +9,13 @@ Este documento contiene todos los comandos SQL necesarios para que funcionen las
 ## ✅ Funcionalidades que Requieren SQL
 
 ### 1. **Sistema de Pedidos/Reparto**
+
 - Tabla `orders` para gestionar pedidos
 - Tabla `order_items` para items de pedidos
 - Usado en: Dashboard principal (balance Local vs Reparto), página de gráficos
 
 ### 2. **Análisis de Ventas (Gráficos)**
+
 - Consultas que combinan ventas locales (`sales`) y pedidos (`orders`)
 - Filtrado por estado "entregado" para incluir solo pedidos completados
 - Top productos considerando ambos canales de venta
@@ -41,6 +44,7 @@ npx supabase db push --db-url "tu_connection_string"
 Si prefieres ejecutar por partes, sigue este orden:
 
 #### 1️⃣ Crear tabla ORDERS
+
 ```sql
 CREATE TABLE IF NOT EXISTS orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -62,6 +66,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_delivery_date ON orders(delivery_date);
 ```
 
 #### 2️⃣ Crear tabla ORDER_ITEMS
+
 ```sql
 CREATE TABLE IF NOT EXISTS order_items (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -78,6 +83,7 @@ CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id)
 ```
 
 #### 3️⃣ Configurar RLS (Row Level Security)
+
 ```sql
 -- ORDERS
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
@@ -97,6 +103,7 @@ CREATE POLICY "Users can delete order_items" ON order_items FOR DELETE TO authen
 ```
 
 #### 4️⃣ Función para updated_at automático
+
 ```sql
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -114,12 +121,13 @@ CREATE TRIGGER update_orders_updated_at
 ```
 
 #### 5️⃣ Verificar columnas existentes
+
 ```sql
 -- Verificar customer_type en customers
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns 
+    SELECT 1 FROM information_schema.columns
     WHERE table_name = 'customers' AND column_name = 'customer_type'
   ) THEN
     ALTER TABLE customers ADD COLUMN customer_type TEXT DEFAULT 'minorista';
@@ -130,7 +138,7 @@ END $$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns 
+    SELECT 1 FROM information_schema.columns
     WHERE table_name = 'sales' AND column_name = 'payment_method'
   ) THEN
     ALTER TABLE sales ADD COLUMN payment_method TEXT DEFAULT 'Efectivo';
@@ -139,6 +147,7 @@ END $$;
 ```
 
 #### 6️⃣ Permisos
+
 ```sql
 GRANT ALL ON orders TO authenticated;
 GRANT ALL ON order_items TO authenticated;
@@ -153,14 +162,14 @@ Después de ejecutar los comandos, verifica que todo esté correcto:
 
 ```sql
 -- Ver estructura de las tablas
-SELECT table_name, column_name, data_type 
-FROM information_schema.columns 
+SELECT table_name, column_name, data_type
+FROM information_schema.columns
 WHERE table_name IN ('orders', 'order_items')
 ORDER BY table_name, ordinal_position;
 
 -- Verificar políticas RLS
-SELECT tablename, policyname, cmd 
-FROM pg_policies 
+SELECT tablename, policyname, cmd
+FROM pg_policies
 WHERE tablename IN ('orders', 'order_items');
 
 -- Contar registros (deben estar en 0 si es nueva instalación)
@@ -184,16 +193,21 @@ SELECT 'Order Items', COUNT(*) FROM order_items;
 ## 🐛 Solución de Problemas
 
 ### Error: "relation orders already exists"
+
 ✅ Esto es normal, significa que la tabla ya existe. Continúa con los siguientes pasos.
 
 ### Error: "permission denied for table orders"
+
 ❌ Ejecuta los comandos GRANT del paso 6.
 
 ### Error: "column customer_type does not exist"
+
 ❌ Ejecuta el bloque DO $$ del paso 5 para agregar las columnas faltantes.
 
 ### Los gráficos no muestran datos de pedidos
+
 ❌ Verifica que:
+
 - Las tablas `orders` y `order_items` existan
 - Tengas pedidos con status "entregado"
 - Las políticas RLS estén configuradas correctamente
@@ -203,29 +217,31 @@ SELECT 'Order Items', COUNT(*) FROM order_items;
 ## 📊 Estructura de Datos
 
 ### Tabla `orders`
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| id | UUID | ID único del pedido |
-| customer_id | UUID | Referencia al cliente |
-| created_at | TIMESTAMP | Fecha de creación |
-| updated_at | TIMESTAMP | Fecha de última actualización |
-| total_amount | DECIMAL | Monto total del pedido |
-| status | TEXT | Estado: pendiente/en_proceso/entregado/cancelado |
-| payment_method | TEXT | Método de pago: Efectivo/Fiado |
-| notes | TEXT | Notas adicionales |
-| delivery_date | DATE | Fecha de entrega programada |
-| created_by | UUID | Usuario que creó el pedido |
+
+| Campo          | Tipo      | Descripción                                      |
+| -------------- | --------- | ------------------------------------------------ |
+| id             | UUID      | ID único del pedido                              |
+| customer_id    | UUID      | Referencia al cliente                            |
+| created_at     | TIMESTAMP | Fecha de creación                                |
+| updated_at     | TIMESTAMP | Fecha de última actualización                    |
+| total_amount   | DECIMAL   | Monto total del pedido                           |
+| status         | TEXT      | Estado: pendiente/en_proceso/entregado/cancelado |
+| payment_method | TEXT      | Método de pago: Efectivo/Fiado                   |
+| notes          | TEXT      | Notas adicionales                                |
+| delivery_date  | DATE      | Fecha de entrega programada                      |
+| created_by     | UUID      | Usuario que creó el pedido                       |
 
 ### Tabla `order_items`
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| id | UUID | ID único del item |
-| order_id | UUID | Referencia al pedido |
-| product_id | UUID | Referencia al producto |
-| quantity | INTEGER | Cantidad |
-| unit_price | DECIMAL | Precio unitario |
-| subtotal | DECIMAL | Subtotal (quantity * unit_price) |
-| created_at | TIMESTAMP | Fecha de creación |
+
+| Campo      | Tipo      | Descripción                       |
+| ---------- | --------- | --------------------------------- |
+| id         | UUID      | ID único del item                 |
+| order_id   | UUID      | Referencia al pedido              |
+| product_id | UUID      | Referencia al producto            |
+| quantity   | INTEGER   | Cantidad                          |
+| unit_price | DECIMAL   | Precio unitario                   |
+| subtotal   | DECIMAL   | Subtotal (quantity \* unit_price) |
+| created_at | TIMESTAMP | Fecha de creación                 |
 
 ---
 
@@ -234,11 +250,13 @@ SELECT 'Order Items', COUNT(*) FROM order_items;
 Después de ejecutar estos comandos SQL, tendrás funcionando:
 
 ✅ **Dashboard Principal**
+
 - Sección "Balance Local vs Reparto"
 - Tarjetas con ventas locales y de reparto
 - Indicador de dominancia de canal
 
 ✅ **Página de Gráficos**
+
 - Evolución de ventas diarias (Local vs Reparto)
 - Gráfico de torta con distribución
 - Métodos de pago
@@ -247,6 +265,7 @@ Después de ejecutar estos comandos SQL, tendrás funcionando:
 - Selector de rango: 7 días / 30 días / 1 año
 
 ✅ **Gestión de Pedidos**
+
 - Crear nuevos pedidos
 - Ver detalle de pedidos
 - Editar pedidos
@@ -258,6 +277,7 @@ Después de ejecutar estos comandos SQL, tendrás funcionando:
 ## 📞 Soporte
 
 Si tienes problemas ejecutando estos comandos:
+
 1. Verifica que estés en el proyecto correcto de Supabase
 2. Asegúrate de tener permisos de administrador
 3. Revisa los logs del SQL Editor para ver errores específicos
