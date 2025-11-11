@@ -538,9 +538,11 @@ function ProductSearchModal({
 
   // Scroll automático al elemento seleccionado cuando cambia el índice
   useEffect(() => {
-    const selectedElement = document.querySelector(`[data-product-index="${selectedIndex}"]`);
+    const selectedElement = document.querySelector(
+      `[data-product-index="${selectedIndex}"]`
+    );
     if (selectedElement) {
-      selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      selectedElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [selectedIndex]);
 
