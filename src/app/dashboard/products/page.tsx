@@ -18,6 +18,10 @@ import {
   FaChevronRight,
   FaChartBar,
   FaInbox,
+  FaFilter,
+  FaExclamationTriangle,
+  FaCheckCircle,
+  FaBan,
 } from "react-icons/fa";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
@@ -30,6 +34,13 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [stockFilter, setStockFilter] = useState("all"); // all, sin_stock, stock_bajo, con_stock
+  const [stats, setStats] = useState({
+    sinStock: 0,
+    stockBajo: 0,
+    conStock: 0,
+    total: 0,
+  });
 
   // Obtener rol del usuario una sola vez
   useEffect(() => {
@@ -49,6 +60,32 @@ export default function ProductsPage() {
       }
     };
     fetchUserRole();
+  }, []);
+
+  // Obtener estadísticas de stock
+  useEffect(() => {
+    const fetchStats = async () => {
+      const { data: allProducts } = await supabase
+        .from("products")
+        .select("stock")
+        .eq("is_active", true);
+
+      if (allProducts) {
+        const sinStock = allProducts.filter((p) => p.stock === 0).length;
+        const stockBajo = allProducts.filter(
+          (p) => p.stock > 0 && p.stock <= 10
+        ).length;
+        const conStock = allProducts.filter((p) => p.stock > 10).length;
+
+        setStats({
+          sinStock,
+          stockBajo,
+          conStock,
+          total: allProducts.length,
+        });
+      }
+    };
+    fetchStats();
   }, []);
 
   useEffect(() => {
@@ -71,6 +108,15 @@ export default function ProductsPage() {
         );
       }
 
+      // Filtrar por stock
+      if (stockFilter === "sin_stock") {
+        query = query.eq("stock", 0);
+      } else if (stockFilter === "stock_bajo") {
+        query = query.gt("stock", 0).lte("stock", 10);
+      } else if (stockFilter === "con_stock") {
+        query = query.gt("stock", 10);
+      }
+
       const { data, error, count } = await query.range(from, to);
 
       if (error) {
@@ -88,12 +134,12 @@ export default function ProductsPage() {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, stockFilter]);
 
-  // Resetear a página 1 cuando se busca
+  // Resetear a página 1 cuando se busca o cambia el filtro
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, stockFilter]);
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -125,23 +171,147 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* BUSCADOR */}
-      <div className="bg-white rounded-xl shadow-lg mb-6 p-6 border border-gray-200">
-        <div className="relative">
-          <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
-          <input
-            type="text"
-            placeholder="Buscar productos por nombre o SKU..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 font-medium"
-          />
+      {/* ESTADÍSTICAS DE STOCK */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {/* Total de productos */}
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-5 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium opacity-90">Total Productos</p>
+              <p className="text-3xl font-bold mt-1">{stats.total}</p>
+            </div>
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <FaBoxes className="text-2xl" />
+            </div>
+          </div>
         </div>
-        {searchTerm && (
-          <div className="mt-3 text-sm text-gray-600 flex items-center gap-2">
-            <FaSearch className="text-blue-500" />
-            Buscando:{" "}
-            <span className="font-semibold text-blue-600">"{searchTerm}"</span>
+
+        {/* Sin stock */}
+        <button
+          onClick={() => setStockFilter("sin_stock")}
+          className={`bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-5 text-white hover:shadow-xl transition-all ${
+            stockFilter === "sin_stock" ? "ring-4 ring-red-300" : ""
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium opacity-90">Sin Stock</p>
+              <p className="text-3xl font-bold mt-1">{stats.sinStock}</p>
+            </div>
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <FaBan className="text-2xl" />
+            </div>
+          </div>
+        </button>
+
+        {/* Stock bajo */}
+        <button
+          onClick={() => setStockFilter("stock_bajo")}
+          className={`bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-5 text-white hover:shadow-xl transition-all ${
+            stockFilter === "stock_bajo" ? "ring-4 ring-yellow-300" : ""
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium opacity-90">Stock Bajo (1-10)</p>
+              <p className="text-3xl font-bold mt-1">{stats.stockBajo}</p>
+            </div>
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <FaExclamationTriangle className="text-2xl" />
+            </div>
+          </div>
+        </button>
+
+        {/* Con stock */}
+        <button
+          onClick={() => setStockFilter("con_stock")}
+          className={`bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-5 text-white hover:shadow-xl transition-all ${
+            stockFilter === "con_stock" ? "ring-4 ring-green-300" : ""
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium opacity-90">Con Stock (&gt;10)</p>
+              <p className="text-3xl font-bold mt-1">{stats.conStock}</p>
+            </div>
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <FaCheckCircle className="text-2xl" />
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* BUSCADOR Y FILTROS */}
+      <div className="bg-white rounded-xl shadow-lg mb-6 p-6 border border-gray-200">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Barra de búsqueda */}
+          <div className="flex-1 relative">
+            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
+            <input
+              type="text"
+              placeholder="Buscar productos por nombre o SKU..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 font-medium"
+            />
+          </div>
+
+          {/* Filtro de stock */}
+          <div className="flex items-center gap-3">
+            <FaFilter className="text-gray-400 text-lg" />
+            <select
+              value={stockFilter}
+              onChange={(e) => setStockFilter(e.target.value)}
+              aria-label="Filtrar por stock"
+              className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 font-medium min-w-[200px]"
+            >
+              <option value="all">📦 Todos los productos</option>
+              <option value="sin_stock">❌ Sin stock (0)</option>
+              <option value="stock_bajo">⚠️ Stock bajo (1-10)</option>
+              <option value="con_stock">✅ Con stock (&gt;10)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Indicadores de búsqueda/filtro activos */}
+        {(searchTerm || stockFilter !== "all") && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {searchTerm && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg border border-blue-200 text-sm font-medium">
+                <FaSearch />
+                <span>Búsqueda: "{searchTerm}"</span>
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="ml-1 text-blue-600 hover:text-blue-800"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            {stockFilter !== "all" && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg border border-purple-200 text-sm font-medium">
+                <FaFilter />
+                <span>
+                  Filtro:{" "}
+                  {stockFilter === "sin_stock"
+                    ? "Sin stock"
+                    : stockFilter === "stock_bajo"
+                    ? "Stock bajo"
+                    : "Con stock"}
+                </span>
+                <button
+                  onClick={() => setStockFilter("all")}
+                  className="ml-1 text-purple-600 hover:text-purple-800"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            {totalCount > 0 && (
+              <div className="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg border border-green-200 text-sm font-semibold">
+                {totalCount} resultado{totalCount !== 1 ? "s" : ""}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -169,6 +339,11 @@ export default function ProductsPage() {
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
+                    <FaDollarSign /> Precio Mayorista
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-2">
                     <FaCubes /> Stock
                   </div>
                 </th>
@@ -180,7 +355,7 @@ export default function ProductsPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-12">
+                  <td colSpan={6} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                       <span className="text-gray-500 font-medium">
@@ -191,7 +366,7 @@ export default function ProductsPage() {
                 </tr>
               ) : products.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-12">
+                  <td colSpan={6} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <FaInbox className="text-6xl text-gray-300" />
                       <span className="text-gray-500 font-medium">
@@ -229,10 +404,19 @@ export default function ProductsPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-semibold text-gray-900">
-                        {product.name}
-                      </span>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-gray-900">
+                          {product.name}
+                        </span>
+                        {product.description && (
+                          <span className="text-xs text-gray-500 mt-0.5 italic">
+                            {product.description.length > 50
+                              ? product.description.substring(0, 50) + "..."
+                              : product.description}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1 text-sm font-bold text-green-600">
@@ -241,17 +425,28 @@ export default function ProductsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1 text-sm font-bold text-blue-600">
+                        <FaDollarSign />
+                        {product.price_mayorista?.toFixed(2)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                          product.stock <= 10
-                            ? "bg-red-100 text-red-800 border border-red-300"
-                            : product.stock <= 50
-                            ? "bg-yellow-100 text-yellow-800 border border-yellow-300"
-                            : "bg-green-100 text-green-800 border border-green-300"
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${
+                          product.stock === 0
+                            ? "bg-red-100 text-red-800 border-2 border-red-400"
+                            : product.stock <= 10
+                            ? "bg-yellow-100 text-yellow-800 border-2 border-yellow-400"
+                            : "bg-green-100 text-green-800 border-2 border-green-400"
                         }`}
                       >
-                        <FaCubes />
-                        {product.stock} unidades
+                        {product.stock === 0 ? (
+                          <><FaBan /> Sin stock</>
+                        ) : product.stock <= 10 ? (
+                          <><FaExclamationTriangle /> {product.stock} uds</>
+                        ) : (
+                          <><FaCheckCircle /> {product.stock} uds</>
+                        )}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

@@ -15,6 +15,15 @@ interface Update {
 
 const UPDATES: Update[] = [
   {
+    id: "2025-11-13-filtros-stock",
+    date: "13 Nov 2025",
+    title: "📊 Filtros y Estadísticas de Stock en Productos",
+    description:
+      "Panel de estadísticas visuales con tarjetas clickeables para filtrar productos sin stock, stock bajo (1-10) y con stock (>10). Tabla mejorada mostrando precio mayorista, descripciones y badges coloridos según nivel de stock. Sistema completo de filtros con indicadores activos.",
+    icon: "📊",
+    isNew: true,
+  },
+  {
     id: "2025-11-13-pago-proveedores",
     date: "13 Nov 2025",
     title: "💰 Pago Directo a Proveedores desde Ventas",
