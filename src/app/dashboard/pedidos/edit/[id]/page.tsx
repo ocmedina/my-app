@@ -329,7 +329,7 @@ export default function EditOrderPage({
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Método de Pago
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => {
@@ -347,6 +347,20 @@ export default function EditOrderPage({
             <button
               type="button"
               onClick={() => {
+                setPaymentMethod("transferencia");
+                setAmountReceived(calculateTotal());
+              }}
+              className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                paymentMethod === "transferencia"
+                  ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold"
+                  : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+              }`}
+            >
+              🏦 Transferencia
+            </button>
+            <button
+              type="button"
+              onClick={() => {
                 setPaymentMethod("fiado");
                 setAmountReceived(0);
               }}
@@ -357,6 +371,20 @@ export default function EditOrderPage({
               }`}
             >
               📋 Fiado
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentMethod("mixto");
+                setAmountReceived(0);
+              }}
+              className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                paymentMethod === "mixto"
+                  ? "border-purple-500 bg-purple-50 text-purple-700 font-semibold"
+                  : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+              }`}
+            >
+              💳 Mixto
             </button>
           </div>
         </div>

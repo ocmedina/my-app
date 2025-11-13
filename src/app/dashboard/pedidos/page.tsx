@@ -96,16 +96,6 @@ const STATUS_CONFIG = {
     color: "bg-yellow-100 text-yellow-700",
     activeColor: "bg-yellow-600 text-white",
   },
-  confirmado: {
-    label: "Confirmado",
-    color: "bg-blue-100 text-blue-700",
-    activeColor: "bg-blue-600 text-white",
-  },
-  enviado: {
-    label: "Enviado",
-    color: "bg-purple-100 text-purple-700",
-    activeColor: "bg-purple-600 text-white",
-  },
   entregado: {
     label: "Entregado",
     color: "bg-green-100 text-green-700",
@@ -180,16 +170,6 @@ function OrderDetailsModal({
         label: "Pendiente",
         color: "bg-yellow-100 text-yellow-800",
         icon: <FaClock />,
-      },
-      confirmado: {
-        label: "Confirmado",
-        color: "bg-blue-100 text-blue-800",
-        icon: <FaCheckCircle />,
-      },
-      enviado: {
-        label: "Enviado",
-        color: "bg-purple-100 text-purple-800",
-        icon: <FaBox />,
       },
       entregado: {
         label: "Entregado",
@@ -275,6 +255,15 @@ function OrderDetailsModal({
                     {(orderData as any).payment_method === "fiado" ? (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">
                         📋 Fiado
+                      </span>
+                    ) : (orderData as any).payment_method ===
+                      "transferencia" ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                        🏦 Transferencia
+                      </span>
+                    ) : (orderData as any).payment_method === "mixto" ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                        💳 Mixto
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
@@ -624,7 +613,7 @@ export default function OrdersPage() {
       .from("orders")
       .select(
         `
-        id, created_at, total_amount, status,
+        id, created_at, total_amount, status, payment_method, amount_paid, amount_pending,
         customers ( id, full_name, delivery_day ),
         order_items ( quantity, products ( id, name, stock ) )
       `,
@@ -972,6 +961,15 @@ export default function OrdersPage() {
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 border border-orange-300">
                             <FaFileInvoice /> Fiado
                           </span>
+                        ) : (order as any).payment_method ===
+                          "transferencia" ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-300">
+                            <FaDollarSign /> Transferencia
+                          </span>
+                        ) : (order as any).payment_method === "mixto" ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-300">
+                            <FaDollarSign /> Mixto
+                          </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-300">
                             <FaMoneyBillWave /> Efectivo
@@ -1089,6 +1087,14 @@ export default function OrdersPage() {
                   {(order as any).payment_method === "fiado" ? (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
                       📋 Fiado
+                    </span>
+                  ) : (order as any).payment_method === "transferencia" ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                      🏦 Transferencia
+                    </span>
+                  ) : (order as any).payment_method === "mixto" ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                      💳 Mixto
                     </span>
                   ) : (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">

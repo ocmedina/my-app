@@ -41,10 +41,12 @@ export default function NewOrderPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [customerSearchQuery, setCustomerSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"efectivo" | "fiado">(
-    "efectivo"
-  );
+  const [paymentMethod, setPaymentMethod] = useState<
+    "efectivo" | "fiado" | "transferencia" | "mixto"
+  >("efectivo");
   const [amountReceived, setAmountReceived] = useState<number>(0);
+  const [amountCash, setAmountCash] = useState<number>(0);
+  const [amountTransfer, setAmountTransfer] = useState<number>(0);
 
   useEffect(() => {
     async function loadInitialData() {
@@ -96,6 +98,12 @@ export default function NewOrderPage() {
     }, 0);
     setTotal(newTotal);
   }, [cart, selectedCustomer]);
+
+  useEffect(() => {
+    if (paymentMethod === "mixto") {
+      setAmountReceived(amountCash + amountTransfer);
+    }
+  }, [amountCash, amountTransfer, paymentMethod]);
 
   useEffect(() => {
     if (searchQuery.trim() === "") {
@@ -212,24 +220,31 @@ export default function NewOrderPage() {
         })
       );
 
+      const orderPayload = {
+        customer_id: selectedCustomer.id,
+        profile_id: currentUser.id,
+        total_amount: total,
+        status: "pendiente",
+        payment_method: paymentMethod,
+        amount_paid: amountReceived,
+        amount_pending: total - amountReceived,
+        created_at: argentinaTime.toISOString(),
+      };
+
+      console.log("🔍 Guardando pedido con:", orderPayload);
+
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
-        .insert({
-          customer_id: selectedCustomer.id,
-          profile_id: currentUser.id,
-          total_amount: total,
-          status: "pendiente",
-          payment_method: paymentMethod,
-          amount_paid: amountReceived,
-          amount_pending: total - amountReceived,
-          created_at: argentinaTime.toISOString(),
-        })
+        .insert(orderPayload)
         .select()
         .single();
 
       if (orderError || !orderData) {
+        console.error("❌ Error al crear pedido:", orderError);
         throw new Error(orderError?.message || "Error al crear el pedido");
       }
+
+      console.log("✅ Pedido guardado:", orderData);
 
       const orderItems = cart.map((item) => ({
         order_id: orderData.id,
@@ -579,6 +594,8 @@ export default function NewOrderPage() {
                       onClick={() => {
                         setPaymentMethod("efectivo");
                         setAmountReceived(total);
+                        setAmountCash(0);
+                        setAmountTransfer(0);
                       }}
                       className={`px-4 py-3 rounded-lg border-2 transition-all font-semibold flex items-center justify-center gap-2 ${
                         paymentMethod === "efectivo"
@@ -591,8 +608,26 @@ export default function NewOrderPage() {
                     <button
                       type="button"
                       onClick={() => {
+                        setPaymentMethod("transferencia");
+                        setAmountReceived(total);
+                        setAmountCash(0);
+                        setAmountTransfer(0);
+                      }}
+                      className={`px-4 py-3 rounded-lg border-2 transition-all font-semibold flex items-center justify-center gap-2 ${
+                        paymentMethod === "transferencia"
+                          ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 text-blue-700 shadow-md"
+                          : "border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50"
+                      }`}
+                    >
+                      <FaDollarSign /> Transferencia
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
                         setPaymentMethod("fiado");
                         setAmountReceived(0);
+                        setAmountCash(0);
+                        setAmountTransfer(0);
                       }}
                       className={`px-4 py-3 rounded-lg border-2 transition-all font-semibold flex items-center justify-center gap-2 ${
                         paymentMethod === "fiado"
@@ -602,55 +637,148 @@ export default function NewOrderPage() {
                     >
                       <FaFileInvoice /> Fiado
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMethod("mixto");
+                        setAmountReceived(0);
+                        setAmountCash(0);
+                        setAmountTransfer(0);
+                      }}
+                      className={`px-4 py-3 rounded-lg border-2 transition-all font-semibold flex items-center justify-center gap-2 ${
+                        paymentMethod === "mixto"
+                          ? "border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 text-purple-700 shadow-md"
+                          : "border-gray-300 bg-white text-gray-700 hover:border-purple-400 hover:bg-purple-50"
+                      }`}
+                    >
+                      <FaDollarSign /> Mixto
+                    </button>
                   </div>
                 </div>
 
                 {/* Monto Recibido */}
-                <div className="pt-3 border-t">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Entrega Recibida
-                  </label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
-                        $
-                      </span>
-                      <input
-                        type="number"
-                        min="0"
-                        max={total}
-                        step="0.01"
-                        value={amountReceived === 0 ? "" : amountReceived}
-                        onChange={(e) => {
-                          const value =
-                            e.target.value === ""
-                              ? 0
-                              : parseFloat(e.target.value);
-                          setAmountReceived(Math.min(value, total));
-                        }}
-                        className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="0.00"
-                      />
+                {paymentMethod === "mixto" ? (
+                  <div className="pt-3 border-t space-y-3">
+                    <label className="block text-sm font-bold text-gray-800">
+                      💰 Desglose de Pago Mixto
+                    </label>
+
+                    {/* Efectivo */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        💵 Efectivo
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                            $
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={amountCash === 0 ? "" : amountCash}
+                            onChange={(e) => {
+                              const value =
+                                e.target.value === ""
+                                  ? 0
+                                  : parseFloat(e.target.value);
+                              setAmountCash(value);
+                            }}
+                            className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setAmountReceived(0)}
-                      className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-semibold text-sm"
-                      title="Poner en cero"
-                    >
-                      ✕ 0
-                    </button>
+
+                    {/* Transferencia */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        🏦 Transferencia
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                            $
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={amountTransfer === 0 ? "" : amountTransfer}
+                            onChange={(e) => {
+                              const value =
+                                e.target.value === ""
+                                  ? 0
+                                  : parseFloat(e.target.value);
+                              setAmountTransfer(value);
+                            }}
+                            className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Total Recibido */}
+                    <div className="bg-purple-50 -mx-6 px-6 py-3 border-y border-purple-200">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-semibold text-purple-700">
+                          💳 Total Recibido:
+                        </span>
+                        <span className="text-lg font-bold text-purple-700">
+                          ${(amountCash + amountTransfer).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-end mt-2">
-                    <button
-                      type="button"
-                      onClick={() => setAmountReceived(total)}
-                      className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold"
-                    >
-                      ✓ Pago completo
-                    </button>
+                ) : (
+                  <div className="pt-3 border-t">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Entrega Recibida
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                          $
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={amountReceived === 0 ? "" : amountReceived}
+                          onChange={(e) => {
+                            const value =
+                              e.target.value === ""
+                                ? 0
+                                : parseFloat(e.target.value);
+                            setAmountReceived(value);
+                          }}
+                          className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setAmountReceived(0)}
+                        className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-semibold text-sm"
+                        title="Poner en cero"
+                      >
+                        ✕ 0
+                      </button>
+                    </div>
+                    <div className="flex justify-end mt-2">
+                      <button
+                        type="button"
+                        onClick={() => setAmountReceived(total)}
+                        className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold"
+                      >
+                        ✓ Pago completo
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Saldo Pendiente */}
                 {amountReceived < total && (

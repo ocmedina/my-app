@@ -500,6 +500,8 @@ function DeliveryConfirmationModal({
   const [isDelivering, setIsDelivering] = useState(false);
   const [amountPaid, setAmountPaid] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("efectivo");
+  const [amountCash, setAmountCash] = useState("");
+  const [amountTransfer, setAmountTransfer] = useState("");
 
   useEffect(() => {
     if (order) {
@@ -511,10 +513,14 @@ function DeliveryConfirmationModal({
   useEffect(() => {
     if (paymentMethod === "cuenta_corriente") {
       setAmountPaid("0.00");
+    } else if (paymentMethod === "mixto") {
+      const cash = parseFloat(amountCash) || 0;
+      const transfer = parseFloat(amountTransfer) || 0;
+      setAmountPaid((cash + transfer).toFixed(2));
     } else if (order) {
       setAmountPaid(order.total_amount.toFixed(2));
     }
-  }, [paymentMethod, order]);
+  }, [paymentMethod, order, amountCash, amountTransfer]);
 
   if (!isOpen || !order) return null;
 
@@ -574,30 +580,78 @@ function DeliveryConfirmationModal({
             </label>
             <select
               value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
+              onChange={(e) => {
+                setPaymentMethod(e.target.value);
+                if (e.target.value === "mixto") {
+                  setAmountCash("");
+                  setAmountTransfer("");
+                }
+              }}
               className="mt-1 w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50"
             >
               <option value="efectivo">💵 Efectivo</option>
               <option value="transferencia">🏦 Transferencia</option>
               <option value="mercado_pago">📱 Mercado Pago</option>
+              <option value="mixto">💳 Mixto</option>
               <option value="cuenta_corriente">
                 📋 Cuenta Corriente (Fiado)
               </option>
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Monto Recibido
-            </label>
-            <input
-              type="number"
-              value={amountPaid}
-              onChange={(e) => setAmountPaid(e.target.value)}
-              step="0.01"
-              min="0"
-              className="mt-1 w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50"
-            />
-          </div>
+          {paymentMethod === "mixto" ? (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  💵 Efectivo
+                </label>
+                <input
+                  type="number"
+                  value={amountCash}
+                  onChange={(e) => setAmountCash(e.target.value)}
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  className="mt-1 w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  🏦 Transferencia
+                </label>
+                <input
+                  type="number"
+                  value={amountTransfer}
+                  onChange={(e) => setAmountTransfer(e.target.value)}
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  className="mt-1 w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50"
+                />
+              </div>
+              <div className="bg-purple-50 p-3 rounded-xl border-2 border-purple-200">
+                <label className="block text-sm font-medium text-purple-700">
+                  💰 Total Recibido
+                </label>
+                <div className="text-2xl font-bold text-purple-700 mt-1">
+                  ${amountPaid}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Monto Recibido
+              </label>
+              <input
+                type="number"
+                value={amountPaid}
+                onChange={(e) => setAmountPaid(e.target.value)}
+                step="0.01"
+                min="0"
+                className="mt-1 w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50"
+              />
+            </div>
+          )}
           {pending > 0 && (
             <div className="flex justify-between font-bold text-red-600 p-3 bg-red-50 rounded-lg border border-red-200">
               <span>Saldo Pendiente (Deuda):</span>
@@ -1491,7 +1545,6 @@ export default function RepartoPage() {
         .select(
           "id, total_amount, status, created_at, customer_id, profile_id, customers(full_name)"
         )
-        .eq("profile_id", userId)
         .gte("created_at", `${today}T00:00:00-03:00`)
         .lt("created_at", `${tomorrow}T00:00:00-03:00`)
         .order("created_at", { ascending: false });
@@ -1511,7 +1564,6 @@ export default function RepartoPage() {
         .select(
           "id, total_amount, status, created_at, customer_id, profile_id, customers(full_name)"
         )
-        .eq("profile_id", userId)
         .order("created_at", { ascending: false })
         .limit(100);
 
@@ -1817,10 +1869,15 @@ export default function RepartoPage() {
 
       await supabase.from("payments").insert(movements);
 
-      // 3. Marcar pedido como 'entregado'
+      // 3. Marcar pedido como 'entregado' y actualizar método de pago
       const { error } = await (supabase as any)
         .from("orders")
-        .update({ status: "entregado" })
+        .update({
+          status: "entregado",
+          payment_method: paymentMethod,
+          amount_paid: amountPaid,
+          amount_pending: total - amountPaid,
+        })
         .eq("id", orderId);
 
       if (error) throw error;
