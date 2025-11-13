@@ -15,6 +15,24 @@ interface Update {
 
 const UPDATES: Update[] = [
   {
+    id: "2025-11-13-fix-compras-precios",
+    date: "13 Nov 2025",
+    title: "🔧 Corrección: Creación de Productos en Compras",
+    description:
+      "Corregido error al crear productos desde nueva compra. Ahora permite ingresar precio minorista y mayorista por separado. Eliminados campos obsoletos (categoría en texto) y adaptado a la estructura correcta de la base de datos. Generación automática de SKU si no se proporciona.",
+    icon: "🔧",
+    isNew: true,
+  },
+  {
+    id: "2025-11-13-fix-pedidos-metodo-pago",
+    date: "13 Nov 2025",
+    title: "🐛 Corrección: Método de Pago en Detalle de Pedido",
+    description:
+      "Solucionado problema donde el detalle del pedido mostraba siempre 'efectivo' independientemente del método de pago real. Ahora muestra correctamente: efectivo, transferencia, mixto o fiado con sus respectivos badges de colores.",
+    icon: "🐛",
+    isNew: true,
+  },
+  {
     id: "2025-11-13-filtros-stock",
     date: "13 Nov 2025",
     title: "📊 Filtros y Estadísticas de Stock en Productos",

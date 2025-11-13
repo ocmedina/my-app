@@ -44,9 +44,8 @@ function NewProductModal({
   const [formData, setFormData] = useState({
     name: "",
     sku: "",
-    cost_price: "",
-    sale_price: "",
-    category: "",
+    price_minorista: "",
+    price_mayorista: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -66,24 +65,33 @@ function NewProductModal({
         .from("products")
         .insert({
           name: formData.name.trim(),
-          sku: formData.sku.trim() || null,
-          cost_price: parseFloat(formData.cost_price) || 0,
-          sale_price: parseFloat(formData.sale_price) || 0,
-          category: formData.category.trim() || null,
+          sku: formData.sku.trim() || `PROD-${Date.now()}`,
+          price_minorista: parseFloat(formData.price_minorista) || 0,
+          price_mayorista: parseFloat(formData.price_mayorista) || 0,
           stock: 0, // Comienza en 0, se sumará con la compra
-          is_active: true,
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error("No se recibió información del producto creado");
+      }
 
       toast.success("Producto creado exitosamente", { id: toastId });
       onProductCreated(data);
       handleClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating product:", error);
-      toast.error("Error al crear el producto", { id: toastId });
+      const errorMessage =
+        error?.message ||
+        error?.error_description ||
+        "Error desconocido al crear el producto";
+      toast.error(errorMessage, { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -93,9 +101,8 @@ function NewProductModal({
     setFormData({
       name: "",
       sku: "",
-      cost_price: "",
-      sale_price: "",
-      category: "",
+      price_minorista: "",
+      price_mayorista: "",
     });
     onClose();
   };
@@ -157,20 +164,21 @@ function NewProductModal({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Precio Costo
+                  Precio Minorista <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.cost_price}
+                  value={formData.price_minorista}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      cost_price: e.target.value,
+                      price_minorista: e.target.value,
                     }))
                   }
                   placeholder="0.00"
+                  required
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   disabled={loading}
                 />
@@ -178,40 +186,25 @@ function NewProductModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Precio Venta
+                  Precio Mayorista <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.sale_price}
+                  value={formData.price_mayorista}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      sale_price: e.target.value,
+                      price_mayorista: e.target.value,
                     }))
                   }
                   placeholder="0.00"
+                  required
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   disabled={loading}
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Categoría
-              </label>
-              <input
-                type="text"
-                value={formData.category}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, category: e.target.value }))
-                }
-                placeholder="Ej: Lubricantes, Filtros, etc."
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                disabled={loading}
-              />
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
