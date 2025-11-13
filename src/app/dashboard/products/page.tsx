@@ -213,7 +213,9 @@ export default function ProductsPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium opacity-90">Stock Bajo (1-10)</p>
+              <p className="text-sm font-medium opacity-90">
+                Stock Bajo (1-10)
+              </p>
               <p className="text-3xl font-bold mt-1">{stats.stockBajo}</p>
             </div>
             <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
@@ -231,7 +233,9 @@ export default function ProductsPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium opacity-90">Con Stock (&gt;10)</p>
+              <p className="text-sm font-medium opacity-90">
+                Con Stock (&gt;10)
+              </p>
               <p className="text-3xl font-bold mt-1">{stats.conStock}</p>
             </div>
             <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
@@ -441,11 +445,17 @@ export default function ProductsPage() {
                         }`}
                       >
                         {product.stock === 0 ? (
-                          <><FaBan /> Sin stock</>
+                          <>
+                            <FaBan /> Sin stock
+                          </>
                         ) : product.stock <= 10 ? (
-                          <><FaExclamationTriangle /> {product.stock} uds</>
+                          <>
+                            <FaExclamationTriangle /> {product.stock} uds
+                          </>
                         ) : (
-                          <><FaCheckCircle /> {product.stock} uds</>
+                          <>
+                            <FaCheckCircle /> {product.stock} uds
+                          </>
                         )}
                       </span>
                     </td>
