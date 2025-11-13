@@ -19,6 +19,9 @@ async function getOrderDetails(orderId: string) {
       created_at,
       total_amount,
       status,
+      payment_method,
+      amount_paid,
+      amount_pending,
       customers ( full_name, customer_type ),
       profiles ( full_name ),
       order_items (
