@@ -173,11 +173,13 @@ export default function SuppliersPage() {
               <option value="with_credit">Créditos a favor</option>
             </select>
             {(debtFilter === "with_debt" || debtFilter === "with_credit") && (
-              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
-                debtFilter === "with_debt"
-                  ? "bg-red-50 text-red-600 border-red-200"
-                  : "bg-green-50 text-green-600 border-green-200"
-              }`}>
+              <div
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
+                  debtFilter === "with_debt"
+                    ? "bg-red-50 text-red-600 border-red-200"
+                    : "bg-green-50 text-green-600 border-green-200"
+                }`}
+              >
                 <FaExclamationTriangle className="text-xs" />
                 <span className="text-xs font-semibold whitespace-nowrap">
                   Filtrado activo
@@ -261,68 +263,70 @@ export default function SuppliersPage() {
                 filteredSuppliers.map((supplier) => {
                   const debt = supplier.debt || 0;
                   return (
-                  <tr
-                    key={supplier.id}
-                    className={`hover:bg-gray-50 transition-colors ${
-                      debt > 0
-                        ? "bg-red-50/30 border-l-4 border-red-400"
-                        : debt < 0
-                        ? "bg-green-50/30 border-l-4 border-green-400"
-                        : ""
-                    }`}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Link
-                        href={`/dashboard/proveedores/${supplier.id}`}
-                        className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-2"
-                      >
-                        <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-600 rounded-full flex items-center justify-center text-white font-bold">
-                          {supplier.name?.charAt(0).toUpperCase()}
-                        </div>
-                        {supplier.name}
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <FaUser className="text-gray-400" />
-                        {supplier.contact_person || "—"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <FaPhone className="text-gray-400" />
-                        {supplier.phone || "—"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {debt > 0 ? (
+                    <tr
+                      key={supplier.id}
+                      className={`hover:bg-gray-50 transition-colors ${
+                        debt > 0
+                          ? "bg-red-50/30 border-l-4 border-red-400"
+                          : debt < 0
+                          ? "bg-green-50/30 border-l-4 border-green-400"
+                          : ""
+                      }`}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Link
+                          href={`/dashboard/proveedores/${supplier.id}`}
+                          className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-2"
+                        >
+                          <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-600 rounded-full flex items-center justify-center text-white font-bold">
+                            {supplier.name?.charAt(0).toUpperCase()}
+                          </div>
+                          {supplier.name}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-2 border-red-400">
-                            <FaExclamationTriangle />Deuda: ${debt.toFixed(2)}
-                          </span>
+                          <FaUser className="text-gray-400" />
+                          {supplier.contact_person || "—"}
                         </div>
-                      ) : debt < 0 ? (
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-2 border-green-400">
-                            <FaDollarSign />A favor: ${Math.abs(debt).toFixed(2)}
-                          </span>
+                          <FaPhone className="text-gray-400" />
+                          {supplier.phone || "—"}
                         </div>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-sm font-bold text-gray-600">
-                          <FaDollarSign />
-                          0.00
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <SupplierActions
-                        supplierId={supplier.id}
-                        onUpdate={fetchSuppliers}
-                        userRole={userRole}
-                      />
-                    </td>
-                  </tr>
-                );
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {debt > 0 ? (
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-2 border-red-400">
+                              <FaExclamationTriangle />
+                              Deuda: ${debt.toFixed(2)}
+                            </span>
+                          </div>
+                        ) : debt < 0 ? (
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-2 border-green-400">
+                              <FaDollarSign />A favor: $
+                              {Math.abs(debt).toFixed(2)}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-sm font-bold text-gray-600">
+                            <FaDollarSign />
+                            0.00
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <SupplierActions
+                          supplierId={supplier.id}
+                          onUpdate={fetchSuppliers}
+                          userRole={userRole}
+                        />
+                      </td>
+                    </tr>
+                  );
                 })
               )}
             </tbody>
