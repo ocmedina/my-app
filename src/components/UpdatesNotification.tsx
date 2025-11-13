@@ -15,13 +15,40 @@ interface Update {
 
 const UPDATES: Update[] = [
   {
+    id: "2025-11-13-pago-proveedores",
+    date: "13 Nov 2025",
+    title: "💰 Pago Directo a Proveedores desde Ventas",
+    description:
+      "Nueva funcionalidad que permite pagar directamente a proveedores desde una venta. El dinero de la venta se envía al proveedor para reducir su deuda. Soporta pagos mayores a la deuda (crédito a favor) y se registra automáticamente en el historial del proveedor.",
+    icon: "💰",
+    isNew: true,
+  },
+  {
+    id: "2025-11-13-creditos-favor",
+    date: "13 Nov 2025",
+    title: "✅ Sistema de Créditos a Favor",
+    description:
+      "Los proveedores ahora pueden tener créditos a favor (deuda negativa) cuando se les paga más de lo que se les debe. Visualización mejorada con colores: rojo para deudas, verde para créditos a favor. Incluye filtro específico para ver proveedores con crédito.",
+    icon: "✅",
+    isNew: true,
+  },
+  {
+    id: "2025-11-13-historial-pagos",
+    date: "13 Nov 2025",
+    title: "📋 Historial de Pagos a Proveedores",
+    description:
+      "Nueva tabla supplier_payments que registra todos los pagos realizados a proveedores. El historial en la gestión de proveedores ahora muestra tanto compras como pagos con notas descriptivas, fechas y montos diferenciados por colores.",
+    icon: "📋",
+    isNew: true,
+  },
+  {
     id: "2025-11-11-rediseno-completo",
     date: "11 Nov 2025",
     title: "🎨 Rediseño Completo de la Aplicación",
     description:
       "Renovación total del diseño con gradientes modernos, tarjetas con sombras, iconos coloridos, mejoras en la experiencia de usuario y una interfaz más intuitiva y profesional en todas las secciones.",
     icon: "🎨",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-11-atajos-teclado",
@@ -30,7 +57,7 @@ const UPDATES: Update[] = [
     description:
       "Corrección en la navegación con flechas (↑↓) en el buscador de productos (F10). Ahora el selector se mantiene visible y hace scroll automático al producto seleccionado.",
     icon: "⌨️",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-11-notificaciones",
@@ -39,16 +66,16 @@ const UPDATES: Update[] = [
     description:
       "Nueva campanita flotante que te notifica sobre todas las actualizaciones y mejoras implementadas en FrontStock. ¡Nunca te pierdas una novedad!",
     icon: "🔔",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-11-graficos",
     date: "11 Nov 2025",
-    title: "� Dashboard de Análisis Completo",
+    title: "📊 Dashboard de Análisis Completo",
     description:
       "Nueva página de gráficos con 6 visualizaciones: evolución diaria, balance Local vs Reparto, métodos de pago, top productos, tendencia mensual y selector de rangos.",
     icon: "📊",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-11-balance",
@@ -57,7 +84,7 @@ const UPDATES: Update[] = [
     description:
       "Nuevo panel en el dashboard principal que muestra el balance entre ventas del local y ventas de reparto/pedidos con indicador de dominancia.",
     icon: "⚖️",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-11-busqueda",
@@ -66,7 +93,7 @@ const UPDATES: Update[] = [
     description:
       "Barra de búsqueda en nuevo pedido para encontrar clientes rápidamente por nombre o tipo (mayorista/minorista).",
     icon: "🔍",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-11-fix-datepicker",
@@ -75,7 +102,7 @@ const UPDATES: Update[] = [
     description:
       "Solucionado el problema donde el selector de fechas causaba que la página saltara hacia arriba al navegar entre fechas en ventas.",
     icon: "🐛",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-10-detalle-pedido",

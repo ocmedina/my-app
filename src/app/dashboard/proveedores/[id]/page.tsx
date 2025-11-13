@@ -2,7 +2,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Database } from '@/lib/database.types';
-import { FaMoneyBillWave, FaReceipt, FaArrowLeft } from 'react-icons/fa';
+import { FaMoneyBillWave, FaReceipt, FaArrowLeft, FaExclamationTriangle, FaCheckCircle } from 'react-icons/fa';
 import RegisterSupplierPayment from '@/components/RegisterSupplierPayment';
 
 export const dynamic = 'force-dynamic';
@@ -89,10 +89,28 @@ export default async function SupplierDetailPage({ params }: { params: { id: str
             )}
           </div>
           
-          <div className="text-right bg-gray-50 px-6 py-4 rounded-lg border-2 border-gray-200">
-            <p className="text-sm text-gray-500 font-medium uppercase">Deuda Actual</p>
-            <p className={`text-4xl font-bold mt-2 ${supplier.debt > 0 ? 'text-red-600' : 'text-green-600'}`}>
-              ${(supplier.debt || 0).toFixed(2)}
+          <div className={`text-right px-6 py-4 rounded-lg border-2 ${
+            (supplier.debt || 0) > 0 
+              ? 'bg-red-50 border-red-400' 
+              : (supplier.debt || 0) < 0 
+              ? 'bg-green-50 border-green-400' 
+              : 'bg-gray-50 border-gray-200'
+          }`}>
+            <p className="text-sm font-medium uppercase text-gray-700 flex items-center justify-end gap-2">
+              {(supplier.debt || 0) > 0 ? (
+                <><FaExclamationTriangle className="text-red-600" /> Deuda Pendiente</>
+              ) : (supplier.debt || 0) < 0 ? (
+                <><FaCheckCircle className="text-green-600" /> Crédito a Favor</>
+              ) : 'Saldo'}
+            </p>
+            <p className={`text-4xl font-bold mt-2 ${
+              (supplier.debt || 0) > 0 
+                ? 'text-red-600' 
+                : (supplier.debt || 0) < 0 
+                ? 'text-green-600' 
+                : 'text-gray-600'
+            }`}>
+              ${Math.abs(supplier.debt || 0).toFixed(2)}
             </p>
           </div>
         </div>
@@ -133,8 +151,10 @@ export default async function SupplierDetailPage({ params }: { params: { id: str
                           minute: '2-digit'
                         })}
                       </p>
-                      {'comment' in item && item.comment && (
-                        <p className="text-xs text-gray-400 italic mt-1">{item.comment}</p>
+                      {(('comment' in item && item.comment) || ('notes' in item && item.notes)) && (
+                        <p className="text-xs text-gray-400 italic mt-1">
+                          {'notes' in item ? item.notes : 'comment' in item ? item.comment : ''}
+                        </p>
                       )}
                     </div>
                   </div>

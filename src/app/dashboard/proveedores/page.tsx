@@ -90,6 +90,8 @@ export default function SuppliersPage() {
       filtered = filtered.filter((s) => (s.debt || 0) > 0);
     } else if (debtFilter === "no_debt") {
       filtered = filtered.filter((s) => (s.debt || 0) === 0);
+    } else if (debtFilter === "with_credit") {
+      filtered = filtered.filter((s) => (s.debt || 0) < 0);
     }
 
     // Filtrar por búsqueda
@@ -168,9 +170,14 @@ export default function SuppliersPage() {
               <option value="all">Todos</option>
               <option value="with_debt">Con deudas</option>
               <option value="no_debt">Sin deudas</option>
+              <option value="with_credit">Créditos a favor</option>
             </select>
-            {debtFilter === "with_debt" && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg border border-red-200">
+            {(debtFilter === "with_debt" || debtFilter === "with_credit") && (
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
+                debtFilter === "with_debt"
+                  ? "bg-red-50 text-red-600 border-red-200"
+                  : "bg-green-50 text-green-600 border-green-200"
+              }`}>
                 <FaExclamationTriangle className="text-xs" />
                 <span className="text-xs font-semibold whitespace-nowrap">
                   Filtrado activo
@@ -251,12 +258,16 @@ export default function SuppliersPage() {
                   </td>
                 </tr>
               ) : (
-                filteredSuppliers.map((supplier) => (
+                filteredSuppliers.map((supplier) => {
+                  const debt = supplier.debt || 0;
+                  return (
                   <tr
                     key={supplier.id}
                     className={`hover:bg-gray-50 transition-colors ${
-                      supplier.debt && supplier.debt > 0
+                      debt > 0
                         ? "bg-red-50/30 border-l-4 border-red-400"
+                        : debt < 0
+                        ? "bg-green-50/30 border-l-4 border-green-400"
                         : ""
                     }`}
                   >
@@ -284,14 +295,20 @@ export default function SuppliersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {supplier.debt && supplier.debt > 0 ? (
+                      {debt > 0 ? (
                         <div className="flex items-center gap-2">
                           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-2 border-red-400">
-                            <FaExclamationTriangle />${supplier.debt.toFixed(2)}
+                            <FaExclamationTriangle />Deuda: ${debt.toFixed(2)}
+                          </span>
+                        </div>
+                      ) : debt < 0 ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-2 border-green-400">
+                            <FaDollarSign />A favor: ${Math.abs(debt).toFixed(2)}
                           </span>
                         </div>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-sm font-bold text-green-600">
+                        <span className="inline-flex items-center gap-1 text-sm font-bold text-gray-600">
                           <FaDollarSign />
                           0.00
                         </span>
@@ -305,7 +322,8 @@ export default function SuppliersPage() {
                       />
                     </td>
                   </tr>
-                ))
+                );
+                })
               )}
             </tbody>
           </table>

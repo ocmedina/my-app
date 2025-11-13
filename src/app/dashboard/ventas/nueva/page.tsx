@@ -24,6 +24,14 @@ type SaleTab = {
   useMixedPayment: boolean;
   paymentMethods: Array<{ method: string; amount: string }>;
   showPaymentPanel: boolean;
+  payToSupplier: boolean;
+  selectedSupplierId: string | null;
+};
+
+type Supplier = {
+  id: string;
+  name: string;
+  debt: number;
 };
 
 // --- COMPONENTE INTERNO: BUSCADOR DE PRODUCTOS ---
@@ -255,6 +263,11 @@ function PaymentModal({
   handleUpdatePaymentMethod,
   getTotalPaidFromMixed,
   loading,
+  payToSupplier,
+  setPayToSupplier,
+  selectedSupplierId,
+  setSelectedSupplierId,
+  suppliers,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -281,6 +294,11 @@ function PaymentModal({
   ) => void;
   getTotalPaidFromMixed: () => number;
   loading: boolean;
+  payToSupplier: boolean;
+  setPayToSupplier: (value: boolean) => void;
+  selectedSupplierId: string | null;
+  setSelectedSupplierId: (id: string | null) => void;
+  suppliers: Supplier[];
 }) {
   if (!isOpen) return null;
 
@@ -460,6 +478,68 @@ function PaymentModal({
                 </div>
               </div>
             </>
+          )}
+
+          {/* Pago directo a proveedor */}
+          {paymentMethod !== "cuenta_corriente" && (
+            <div className="border-t pt-4 space-y-3">
+              <div className="flex items-center gap-3 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <input
+                  type="checkbox"
+                  id="payToSupplier"
+                  checked={payToSupplier}
+                  onChange={(e) => {
+                    setPayToSupplier(e.target.checked);
+                    if (!e.target.checked) {
+                      setSelectedSupplierId(null);
+                    }
+                  }}
+                  className="w-5 h-5 text-yellow-600 rounded focus:ring-2 focus:ring-yellow-500"
+                />
+                <label
+                  htmlFor="payToSupplier"
+                  className="flex-1 cursor-pointer"
+                >
+                  <div className="font-semibold text-gray-900">
+                    💸 Pagar directo a proveedor
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    El monto recibido se usará para reducir deuda con proveedor
+                  </div>
+                </label>
+              </div>
+
+              {payToSupplier && (
+                <div className="animate-slideDown">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Seleccionar Proveedor
+                  </label>
+                  <select
+                    value={selectedSupplierId || ""}
+                    onChange={(e) =>
+                      setSelectedSupplierId(e.target.value || null)
+                    }
+                    className="w-full p-3 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-lg bg-yellow-50"
+                    required
+                  >
+                    <option value="">Seleccione un proveedor...</option>
+                    {suppliers
+                      .filter((s) => (s.debt || 0) > 0)
+                      .map((supplier) => (
+                        <option key={supplier.id} value={supplier.id}>
+                          {supplier.name} - Deuda: $
+                          {(supplier.debt || 0).toFixed(2)}
+                        </option>
+                      ))}
+                  </select>
+                  {suppliers.filter((s) => (s.debt || 0) > 0).length === 0 && (
+                    <p className="text-sm text-gray-500 mt-2">
+                      No hay proveedores con deuda pendiente
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Indicadores de deuda/cambio */}
@@ -744,6 +824,7 @@ function ProductSearchModal({
 
 export default function NewSalePage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -763,6 +844,8 @@ export default function NewSalePage() {
         { method: "transferencia", amount: "" },
       ],
       showPaymentPanel: false,
+      payToSupplier: false,
+      selectedSupplierId: null,
     },
   ]);
   const [activeTabId, setActiveTabId] = useState(1);
@@ -783,6 +866,8 @@ export default function NewSalePage() {
   const useMixedPayment = activeTab.useMixedPayment;
   const paymentMethods = activeTab.paymentMethods;
   const showPaymentPanel = activeTab.showPaymentPanel;
+  const payToSupplier = activeTab.payToSupplier;
+  const selectedSupplierId = activeTab.selectedSupplierId;
 
   // Funciones para actualizar el estado de la pestaña activa
   const updateActiveTab = (updates: Partial<SaleTab>) => {
@@ -827,6 +912,14 @@ export default function NewSalePage() {
     updateActiveTab({ showPaymentPanel });
   };
 
+  const setPayToSupplier = (payToSupplier: boolean) => {
+    updateActiveTab({ payToSupplier });
+  };
+
+  const setSelectedSupplierId = (selectedSupplierId: string | null) => {
+    updateActiveTab({ selectedSupplierId });
+  };
+
   // Funciones para manejo de pestañas
   const addNewTab = () => {
     const defaultCustomer =
@@ -848,6 +941,8 @@ export default function NewSalePage() {
         { method: "transferencia", amount: "" },
       ],
       showPaymentPanel: false,
+      payToSupplier: false,
+      selectedSupplierId: null,
     };
 
     setTabs([...tabs, newTab]);
@@ -921,6 +1016,25 @@ export default function NewSalePage() {
             defaultCustomer = customersData[0];
           }
           setSelectedCustomer(defaultCustomer || null);
+        }
+
+        // Cargar proveedores
+        const { data: suppliersData, error: suppliersError } = await supabase
+          .from("suppliers")
+          .select("*")
+          .eq("is_active", true)
+          .order("name");
+
+        if (suppliersError) {
+          console.error("Error cargando proveedores:", suppliersError);
+        } else if (suppliersData) {
+          // Mapear los datos al formato esperado
+          const mappedSuppliers = suppliersData.map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            debt: s.debt || s.balance || s.total_debt || 0,
+          }));
+          setSuppliers(mappedSuppliers);
         }
 
         const {
@@ -1231,7 +1345,67 @@ export default function NewSalePage() {
         if (paymentsError) throw paymentsError;
       }
 
-      toast.success("¡Venta registrada exitosamente!");
+      // 6. Si el pago va directo a proveedor, registrar el pago y reducir su deuda
+      if (payToSupplier && selectedSupplierId && paid > 0) {
+        // Obtener deuda actual del proveedor
+        const { data: supplierData, error: supplierError } = await supabase
+          .from("suppliers")
+          .select("debt")
+          .eq("id", selectedSupplierId)
+          .single();
+
+        if (supplierError) throw supplierError;
+
+        const currentSupplierDebt = (supplierData?.debt as number) || 0;
+        // Permitir valores negativos (crédito a favor)
+        const newSupplierDebt = currentSupplierDebt - paid;
+
+        // Actualizar deuda del proveedor (puede quedar negativa = a favor)
+        const { error: supplierUpdateError } = await supabase
+          .from("suppliers")
+          .update({ debt: newSupplierDebt })
+          .eq("id", selectedSupplierId);
+
+        if (supplierUpdateError) throw supplierUpdateError;
+
+        // Registrar el pago en supplier_payments
+        const { error: supplierPaymentError } = await supabase
+          .from("supplier_payments")
+          .insert({
+            supplier_id: selectedSupplierId,
+            amount: paid,
+            notes: `Pago directo de venta ${saleData.id.substring(
+              0,
+              8
+            )} - Cliente: ${selectedCustomer.full_name}`,
+            created_at: argentinaTime.toISOString(),
+          });
+
+        if (supplierPaymentError) throw supplierPaymentError;
+
+        // Mensaje según el resultado
+        if (newSupplierDebt > 0) {
+          toast.success(
+            `¡Venta registrada! Pagado $${paid.toFixed(
+              2
+            )} a proveedor. Deuda restante: $${newSupplierDebt.toFixed(2)}`
+          );
+        } else if (newSupplierDebt === 0) {
+          toast.success(
+            `¡Venta registrada! Deuda con proveedor saldada completamente ($${paid.toFixed(
+              2
+            )})`
+          );
+        } else {
+          toast.success(
+            `¡Venta registrada! Deuda saldada. Crédito a favor: $${Math.abs(
+              newSupplierDebt
+            ).toFixed(2)}`
+          );
+        }
+      } else {
+        toast.success("¡Venta registrada exitosamente!");
+      }
 
       // Si hay solo una pestaña, resetear su contenido
       if (tabs.length === 1) {
@@ -1744,6 +1918,11 @@ export default function NewSalePage() {
         handleUpdatePaymentMethod={handleUpdatePaymentMethod}
         getTotalPaidFromMixed={getTotalPaidFromMixed}
         loading={loading}
+        payToSupplier={payToSupplier}
+        setPayToSupplier={setPayToSupplier}
+        selectedSupplierId={selectedSupplierId}
+        setSelectedSupplierId={setSelectedSupplierId}
+        suppliers={suppliers}
       />
 
       {/* Modal de Búsqueda de Productos */}
