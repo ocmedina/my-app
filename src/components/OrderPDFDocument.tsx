@@ -15,32 +15,41 @@ Font.register({
 
 const styles = StyleSheet.create({
   page: { fontFamily: 'Roboto', fontSize: 10, padding: 40, backgroundColor: '#fff' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 },
-  logo: { width: 60, height: 60, objectFit: 'contain' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 25, paddingBottom: 15, borderBottomWidth: 2, borderBottomColor: '#333' },
+  logo: { width: 70, height: 70, objectFit: 'contain' },
   companyInfo: { textAlign: 'right' },
-  companyName: { fontSize: 16, fontWeight: 'bold', color: '#222' },
-  companyAddress: { fontSize: 9, color: '#666' },
-  title: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: '#333', marginBottom: 20 },
-  metaInfo: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#f5f5f5', padding: 12, borderRadius: 5, marginBottom: 20, fontSize: 9 },
-  metaLabel: { fontWeight: 'bold' },
-  table: { width: '100%' },
-  tableHeader: { flexDirection: 'row', backgroundColor: '#f5f5f5', borderBottomWidth: 1, borderBottomColor: '#ddd', padding: 8 },
-  tableRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#eee', alignItems: 'center', minHeight: 24 },
-  thProduct: { width: '55%', fontWeight: 'bold' },
-  thQty: { width: '15%', fontWeight: 'bold', textAlign: 'center' },
-  thPrice: { width: '15%', fontWeight: 'bold', textAlign: 'right' },
-  thTotal: { width: '15%', fontWeight: 'bold', textAlign: 'right' },
-  tdProduct: { width: '55%', padding: 8 },
-  tdQty: { width: '15%', padding: 8, textAlign: 'center' },
-  tdPrice: { width: '15%', padding: 8, textAlign: 'right' },
-  tdTotal: { width: '15%', padding: 8, textAlign: 'right' },
-  summaryContainer: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 20 },
-  summaryBox: { width: 220 },
-  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 },
-  summaryLabel: { color: '#555' },
-  summaryTotal: { fontWeight: 'bold', fontSize: 14 },
-  footer: { position: 'absolute', bottom: 30, left: 40, right: 40, textAlign: 'center', fontSize: 9, color: '#888', borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 10 },
-  thankYou: { fontStyle: 'italic' }
+  companyName: { fontSize: 18, fontWeight: 'bold', color: '#111', marginBottom: 4 },
+  companyAddress: { fontSize: 9, color: '#555', lineHeight: 1.4 },
+  title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', color: '#111', marginBottom: 25, textTransform: 'uppercase', letterSpacing: 1 },
+  metaInfo: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#f8f8f8', padding: 14, borderRadius: 4, marginBottom: 20, fontSize: 9 },
+  metaInfoItem: { flexDirection: 'column' },
+  metaLabel: { fontWeight: 'bold', fontSize: 8, color: '#666', marginBottom: 3, textTransform: 'uppercase' },
+  metaValue: { fontSize: 10, color: '#111' },
+  customerSection: { marginBottom: 20 },
+  customerTitle: { fontSize: 11, fontWeight: 'bold', color: '#111', marginBottom: 10, textTransform: 'uppercase', borderBottomWidth: 1, borderBottomColor: '#ddd', paddingBottom: 4 },
+  customerInfoBox: { backgroundColor: '#fafafa', padding: 14, borderRadius: 4, borderWidth: 1, borderColor: '#e0e0e0' },
+  customerRow: { flexDirection: 'row', marginBottom: 6 },
+  customerLabel: { fontSize: 9, fontWeight: 'bold', color: '#555', width: 80 },
+  customerValue: { fontSize: 9, color: '#111', flex: 1 },
+  table: { width: '100%', marginTop: 10 },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#333', padding: 10, borderRadius: 2 },
+  tableHeaderText: { fontWeight: 'bold', color: '#fff', fontSize: 9, textTransform: 'uppercase' },
+  tableRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#eee', alignItems: 'center', minHeight: 28 },
+  thProduct: { width: '50%' },
+  thQty: { width: '15%', textAlign: 'center' },
+  thPrice: { width: '17.5%', textAlign: 'right' },
+  thTotal: { width: '17.5%', textAlign: 'right' },
+  tdProduct: { width: '50%', padding: 8, fontSize: 9 },
+  tdQty: { width: '15%', padding: 8, textAlign: 'center', fontSize: 9 },
+  tdPrice: { width: '17.5%', padding: 8, textAlign: 'right', fontSize: 9 },
+  tdTotal: { width: '17.5%', padding: 8, textAlign: 'right', fontSize: 9, fontWeight: 'bold' },
+  summaryContainer: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 25 },
+  summaryBox: { width: 200, backgroundColor: '#f8f8f8', padding: 12, borderRadius: 4 },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5 },
+  summaryLabel: { color: '#555', fontSize: 10 },
+  summaryTotal: { fontWeight: 'bold', fontSize: 16, color: '#111' },
+  footer: { position: 'absolute', bottom: 30, left: 40, right: 40, textAlign: 'center', fontSize: 9, color: '#999', borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 12 },
+  thankYou: { fontWeight: 'bold', fontSize: 10, color: '#555' }
 })
 
 export default function OrderPDFDocument({ order }: { order: any }) {
@@ -77,31 +86,66 @@ export default function OrderPDFDocument({ order }: { order: any }) {
           </View>
         </View>
 
-        <Text style={styles.title}>REMITO DE PEDIDO</Text>
+        <Text style={styles.title}>Remito de Pedido</Text>
 
-        {/* 🔹 Datos del pedido */}
+        {/* Datos del pedido */}
         <View style={styles.metaInfo}>
-          <View>
-            <Text style={styles.metaLabel}>Cliente:</Text>
-            <Text>{order.customers?.full_name ?? 'N/A'}</Text>
+          <View style={styles.metaInfoItem}>
+            <Text style={styles.metaLabel}>Número de Pedido</Text>
+            <Text style={styles.metaValue}>{order.id?.substring(0, 8).toUpperCase()}</Text>
           </View>
-          <View style={{ textAlign: 'right' }}>
-            <Text style={styles.metaLabel}>Pedido Nº:</Text>
-            <Text>{order.id?.substring(0, 8).toUpperCase()}</Text>
+          <View style={styles.metaInfoItem}>
+            <Text style={styles.metaLabel}>Fecha de Emisión</Text>
+            <Text style={styles.metaValue}>{new Date(order.created_at).toLocaleDateString()}</Text>
           </View>
-          <View style={{ textAlign: 'right' }}>
-            <Text style={styles.metaLabel}>Fecha:</Text>
-            <Text>{new Date(order.created_at).toLocaleDateString()}</Text>
+          <View style={styles.metaInfoItem}>
+            <Text style={styles.metaLabel}>Hora</Text>
+            <Text style={styles.metaValue}>{new Date(order.created_at).toLocaleTimeString()}</Text>
           </View>
         </View>
 
-        {/* 🔹 Tabla de productos */}
+        {/* Información del Cliente */}
+        <View style={styles.customerSection}>
+          <Text style={styles.customerTitle}>Información del Cliente</Text>
+          <View style={styles.customerInfoBox}>
+            <View style={styles.customerRow}>
+              <Text style={styles.customerLabel}>Nombre:</Text>
+              <Text style={styles.customerValue}>{order.customers?.full_name ?? 'N/A'}</Text>
+            </View>
+            {order.customers?.customer_type && (
+              <View style={styles.customerRow}>
+                <Text style={styles.customerLabel}>Tipo Cliente:</Text>
+                <Text style={styles.customerValue}>{order.customers.customer_type}</Text>
+              </View>
+            )}
+            {order.customers?.phone && (
+              <View style={styles.customerRow}>
+                <Text style={styles.customerLabel}>Teléfono:</Text>
+                <Text style={styles.customerValue}>{order.customers.phone}</Text>
+              </View>
+            )}
+            {order.customers?.address && (
+              <View style={styles.customerRow}>
+                <Text style={styles.customerLabel}>Dirección:</Text>
+                <Text style={styles.customerValue}>{order.customers.address}</Text>
+              </View>
+            )}
+            {order.customers?.reference && (
+              <View style={styles.customerRow}>
+                <Text style={styles.customerLabel}>Referencia:</Text>
+                <Text style={styles.customerValue}>{order.customers.reference}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Tabla de productos */}
         <View style={styles.table}>
           <View style={styles.tableHeader}>
-            <Text style={styles.thProduct}>Producto</Text>
-            <Text style={styles.thQty}>Cant.</Text>
-            <Text style={styles.thPrice}>P. Unit.</Text>
-            <Text style={styles.thTotal}>Subtotal</Text>
+            <Text style={[styles.tableHeaderText, styles.thProduct]}>Producto</Text>
+            <Text style={[styles.tableHeaderText, styles.thQty]}>Cantidad</Text>
+            <Text style={[styles.tableHeaderText, styles.thPrice]}>Precio Unit.</Text>
+            <Text style={[styles.tableHeaderText, styles.thTotal]}>Subtotal</Text>
           </View>
           {(order.order_items || []).map((item: any, index: number) => (
             <View key={index} style={styles.tableRow}>
@@ -113,19 +157,20 @@ export default function OrderPDFDocument({ order }: { order: any }) {
           ))}
         </View>
 
-        {/* 🔹 Total */}
+        {/* Total */}
         <View style={styles.summaryContainer}>
           <View style={styles.summaryBox}>
-            <View style={[styles.summaryRow, { marginTop: 10 }]}>
-              <Text style={[styles.summaryLabel, styles.summaryTotal]}>TOTAL</Text>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>TOTAL A PAGAR</Text>
               <Text style={styles.summaryTotal}>${order.total_amount?.toFixed(2)}</Text>
             </View>
           </View>
         </View>
 
-        {/* 🔹 Pie */}
+        {/* Pie */}
         <View style={styles.footer}>
-          <Text style={styles.thankYou}>¡Gracias por tu pedido!</Text>
+          <Text style={styles.thankYou}>¡Gracias por su compra!</Text>
+          <Text style={{ fontSize: 8, marginTop: 4 }}>Este documento es un comprobante de pedido</Text>
         </View>
       </Page>
     </Document>

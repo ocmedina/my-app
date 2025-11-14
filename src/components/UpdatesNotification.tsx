@@ -15,13 +15,22 @@ interface Update {
 
 const UPDATES: Update[] = [
   {
+    id: "2025-11-14-remitos-mejorados",
+    date: "14 Nov 2025",
+    title: "🧾 Remitos con Información Completa del Cliente",
+    description:
+      "Los remitos (A4 y térmicos) ahora incluyen información completa del cliente: dirección, referencia para entregas, teléfono y tipo de cliente. Diseño profesional rediseñado con mejor jerarquía visual, logo del negocio y secciones claramente delimitadas para facilitar las entregas.",
+    icon: "🧾",
+    isNew: true,
+  },
+  {
     id: "2025-11-13-fix-compras-precios",
     date: "13 Nov 2025",
     title: "🔧 Corrección: Creación de Productos en Compras",
     description:
       "Corregido error al crear productos desde nueva compra. Ahora permite ingresar precio minorista y mayorista por separado. Eliminados campos obsoletos (categoría en texto) y adaptado a la estructura correcta de la base de datos. Generación automática de SKU si no se proporciona.",
     icon: "🔧",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-13-fix-pedidos-metodo-pago",
@@ -30,7 +39,7 @@ const UPDATES: Update[] = [
     description:
       "Solucionado problema donde el detalle del pedido mostraba siempre 'efectivo' independientemente del método de pago real. Ahora muestra correctamente: efectivo, transferencia, mixto o fiado con sus respectivos badges de colores.",
     icon: "🐛",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-13-filtros-stock",
@@ -39,7 +48,7 @@ const UPDATES: Update[] = [
     description:
       "Panel de estadísticas visuales con tarjetas clickeables para filtrar productos sin stock, stock bajo (1-10) y con stock (>10). Tabla mejorada mostrando precio mayorista, descripciones y badges coloridos según nivel de stock. Sistema completo de filtros con indicadores activos.",
     icon: "📊",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-13-pago-proveedores",
@@ -48,7 +57,7 @@ const UPDATES: Update[] = [
     description:
       "Nueva funcionalidad que permite pagar directamente a proveedores desde una venta. El dinero de la venta se envía al proveedor para reducir su deuda. Soporta pagos mayores a la deuda (crédito a favor) y se registra automáticamente en el historial del proveedor.",
     icon: "💰",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-13-creditos-favor",
@@ -57,7 +66,7 @@ const UPDATES: Update[] = [
     description:
       "Los proveedores ahora pueden tener créditos a favor (deuda negativa) cuando se les paga más de lo que se les debe. Visualización mejorada con colores: rojo para deudas, verde para créditos a favor. Incluye filtro específico para ver proveedores con crédito.",
     icon: "✅",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-13-historial-pagos",
@@ -66,7 +75,7 @@ const UPDATES: Update[] = [
     description:
       "Nueva tabla supplier_payments que registra todos los pagos realizados a proveedores. El historial en la gestión de proveedores ahora muestra tanto compras como pagos con notas descriptivas, fechas y montos diferenciados por colores.",
     icon: "📋",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-11-rediseno-completo",

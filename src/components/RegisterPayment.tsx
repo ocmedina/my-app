@@ -28,50 +28,105 @@ export default function RegisterPayment({
       return;
     }
 
-    setLoading(true);
-
-    // 1. Calcular la nueva deuda
-    const newDebt = currentDebt - paymentAmount;
-
-    // 2. Actualizar la deuda del cliente en la tabla 'customers'
-    const { error: updateError } = await supabase
-      .from("customers")
-      .update({ debt: newDebt })
-      .eq("id", customerId);
-
-    if (updateError) {
-      alert(`Error al actualizar la deuda: ${updateError.message}`);
-      setLoading(false);
+    if (paymentAmount > currentDebt) {
+      alert(
+        `El monto no puede ser mayor a la deuda actual ($${currentDebt.toFixed(
+          2
+        )})`
+      );
       return;
     }
 
-    // Obtener timestamp en zona horaria Argentina
-    const now = new Date();
-    const argentinaTime = new Date(
-      now.toLocaleString("en-US", {
-        timeZone: "America/Argentina/Buenos_Aires",
-      })
-    );
+    setLoading(true);
 
-    // 3. Registrar el movimiento en la tabla 'payments'
-    const { error: paymentError } = await supabase.from("payments").insert({
-      customer_id: customerId,
-      type: "pago",
-      amount: paymentAmount,
-      comment: comment || "Pago a cuenta",
-      created_at: argentinaTime.toISOString(),
-    });
+    try {
+      // Obtener timestamp en zona horaria Argentina
+      const now = new Date();
+      const argentinaTime = new Date(
+        now.toLocaleString("en-US", {
+          timeZone: "America/Argentina/Buenos_Aires",
+        })
+      );
 
-    if (paymentError) {
-      alert(`Error al registrar el pago: ${paymentError.message}`);
-    } else {
+      // 1. Obtener pedidos fiados pendientes del cliente
+      const { data: orders } = await supabase
+        .from("orders")
+        .select("id, amount_pending")
+        .eq("customer_id", customerId)
+        .eq("payment_method", "fiado")
+        .not("status", "eq", "cancelado")
+        .gt("amount_pending", 0)
+        .order("created_at", { ascending: true }); // Más antiguos primero
+
+      // 2. Obtener ventas en cuenta corriente pendientes
+      const { data: sales } = await supabase
+        .from("sales")
+        .select("id, amount_pending")
+        .eq("customer_id", customerId)
+        .eq("payment_method", "cuenta_corriente")
+        .gt("amount_pending", 0)
+        .order("created_at", { ascending: true });
+
+      // 3. Distribuir el pago entre pedidos y ventas
+      let remainingAmount = paymentAmount;
+
+      // Primero pagar pedidos fiados
+      if (orders && orders.length > 0) {
+        for (const order of orders) {
+          if (remainingAmount <= 0) break;
+
+          const orderPending = order.amount_pending || 0;
+          const paymentForOrder = Math.min(remainingAmount, orderPending);
+          const newPending = orderPending - paymentForOrder;
+
+          await supabase
+            .from("orders")
+            .update({ amount_pending: newPending })
+            .eq("id", order.id);
+
+          remainingAmount -= paymentForOrder;
+        }
+      }
+
+      // Luego pagar ventas en cuenta corriente si queda saldo
+      if (sales && sales.length > 0 && remainingAmount > 0) {
+        for (const sale of sales) {
+          if (remainingAmount <= 0) break;
+
+          const salePending = sale.amount_pending || 0;
+          const paymentForSale = Math.min(remainingAmount, salePending);
+          const newPending = salePending - paymentForSale;
+
+          await supabase
+            .from("sales")
+            .update({ amount_pending: newPending })
+            .eq("id", sale.id);
+
+          remainingAmount -= paymentForSale;
+        }
+      }
+
+      // 4. Registrar el movimiento en la tabla 'payments'
+      const { error: paymentError } = await supabase.from("payments").insert({
+        customer_id: customerId,
+        type: "pago",
+        amount: paymentAmount,
+        comment: comment || "Pago a cuenta",
+        created_at: argentinaTime.toISOString(),
+      });
+
+      if (paymentError) throw paymentError;
+
       alert("¡Pago registrado exitosamente!");
       setAmount("");
       setComment("");
       router.refresh(); // Recarga la página para mostrar los datos actualizados
+    } catch (error: any) {
+      console.error("Error al registrar pago:", error);
+      alert(`Error al registrar el pago: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

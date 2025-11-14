@@ -22,7 +22,7 @@ async function getOrderDetails(orderId: string) {
       payment_method,
       amount_paid,
       amount_pending,
-      customers ( full_name, customer_type ),
+      customers ( full_name, customer_type, phone, address, reference ),
       profiles ( full_name ),
       order_items (
         quantity,
