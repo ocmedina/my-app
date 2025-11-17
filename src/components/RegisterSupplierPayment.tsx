@@ -41,10 +41,8 @@ export default function RegisterSupplierPayment({
       .from("supplier_payments")
       .insert({
         supplier_id: supplierId,
-        profile_id: user?.id,
         amount: paymentAmount,
-        payment_method: "transferencia", // Puedes hacerlo un <select>
-        comment: comment || "Pago a cuenta",
+        notes: comment || "Pago a cuenta",
         created_at: argentinaTime.toISOString(),
       });
 
