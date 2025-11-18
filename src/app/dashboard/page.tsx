@@ -167,15 +167,17 @@ async function getDashboardData() {
     .eq("is_cancelled", false);
 
   // Sumar deuda total
-  const totalOrdersDebt = ordersWithDebt?.reduce(
-    (sum: number, order: any) => sum + (order.amount_pending || 0),
-    0
-  ) ?? 0;
+  const totalOrdersDebt =
+    ordersWithDebt?.reduce(
+      (sum: number, order: any) => sum + (order.amount_pending || 0),
+      0
+    ) ?? 0;
 
-  const totalSalesDebt = salesWithDebt?.reduce(
-    (sum: number, sale: any) => sum + (sale.amount_pending || 0),
-    0
-  ) ?? 0;
+  const totalSalesDebt =
+    salesWithDebt?.reduce(
+      (sum: number, sale: any) => sum + (sale.amount_pending || 0),
+      0
+    ) ?? 0;
 
   const totalDebt = totalOrdersDebt + totalSalesDebt;
 

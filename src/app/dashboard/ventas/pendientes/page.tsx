@@ -28,7 +28,9 @@ type VentaPendiente = {
 export default function VentasPendientesPage() {
   const [ventas, setVentas] = useState<VentaPendiente[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedVenta, setSelectedVenta] = useState<VentaPendiente | null>(null);
+  const [selectedVenta, setSelectedVenta] = useState<VentaPendiente | null>(
+    null
+  );
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentComment, setPaymentComment] = useState("");
@@ -128,7 +130,9 @@ export default function VentasPendientesPage() {
 
     if (amount > selectedVenta.amount_pending) {
       alert(
-        `El monto no puede ser mayor al saldo pendiente ($${selectedVenta.amount_pending.toFixed(2)})`
+        `El monto no puede ser mayor al saldo pendiente ($${selectedVenta.amount_pending.toFixed(
+          2
+        )})`
       );
       return;
     }
@@ -163,7 +167,8 @@ export default function VentasPendientesPage() {
         customer_id: selectedVenta.customer_id,
         type: "pago",
         amount: amount,
-        comment: paymentComment || `Pago de venta #${selectedVenta.id.slice(0, 8)}`,
+        comment:
+          paymentComment || `Pago de venta #${selectedVenta.id.slice(0, 8)}`,
         created_at: argentinaTime.toISOString(),
       });
 
@@ -205,14 +210,18 @@ export default function VentasPendientesPage() {
             <FaArrowLeft /> Volver a Ventas
           </Link>
           <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2 sm:gap-3">
-            <FaExclamationTriangle className="text-purple-600 text-xl sm:text-2xl" /> Ventas Pendientes de Pago
+            <FaExclamationTriangle className="text-purple-600 text-xl sm:text-2xl" />{" "}
+            Ventas Pendientes de Pago
           </h1>
           <p className="text-gray-600 mt-1 text-sm sm:text-base">
-            Ventas en cuenta corriente con saldo pendiente ({ventas.length} ventas)
+            Ventas en cuenta corriente con saldo pendiente ({ventas.length}{" "}
+            ventas)
           </p>
         </div>
         <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-purple-200 w-full lg:w-auto">
-          <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Pendiente</p>
+          <p className="text-xs sm:text-sm text-gray-600 mb-1">
+            Total Pendiente
+          </p>
           <p className="text-2xl sm:text-3xl font-bold text-purple-600">
             ${totalPendiente.toFixed(2)}
           </p>
@@ -280,12 +289,18 @@ export default function VentasPendientesPage() {
                     </div>
                   </div>
                   <div className="bg-red-50 rounded-lg p-3 border-2 border-red-200">
-                    <p className="text-xs text-red-700 font-semibold mb-1">SALDO PENDIENTE</p>
+                    <p className="text-xs text-red-700 font-semibold mb-1">
+                      SALDO PENDIENTE
+                    </p>
                     <p className="text-2xl font-bold text-red-600">
                       ${venta.amount_pending.toFixed(2)}
                     </p>
                     <p className="text-xs text-red-600 mt-1">
-                      {((venta.amount_pending / venta.total_amount) * 100).toFixed(0)}% del total
+                      {(
+                        (venta.amount_pending / venta.total_amount) *
+                        100
+                      ).toFixed(0)}
+                      % del total
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -312,118 +327,135 @@ export default function VentasPendientesPage() {
           {/* Vista de tabla para desktop */}
           <div className="hidden lg:block bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
             <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gradient-to-r from-purple-50 to-pink-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center gap-2">
-                      <FaCalendarAlt /> Fecha
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center gap-2">
-                      <FaUser /> Cliente
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center gap-2">
-                      <FaFileInvoice /> Vendedor
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Total Venta
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Pagado
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center justify-end gap-2">
-                      <FaDollarSign /> Pendiente
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {ventas.map((venta) => (
-                  <tr key={venta.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {new Date(venta.created_at).toLocaleDateString("es-AR")}
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gradient-to-r from-purple-50 to-pink-50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      <div className="flex items-center gap-2">
+                        <FaCalendarAlt /> Fecha
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(venta.created_at).toLocaleTimeString("es-AR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      <div className="flex items-center gap-2">
+                        <FaUser /> Cliente
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Link
-                        href={`/dashboard/clientes/${venta.customer_id}`}
-                        className="text-sm font-medium text-purple-600 hover:text-purple-800 hover:underline"
-                      >
-                        {venta.customer_name}
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{venta.profile_name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm font-semibold text-gray-900">
-                        ${venta.total_amount.toFixed(2)}
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      <div className="flex items-center gap-2">
+                        <FaFileInvoice /> Vendedor
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm text-green-600 font-medium">
-                        ${venta.amount_paid.toFixed(2)}
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Total Venta
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Pagado
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      <div className="flex items-center justify-end gap-2">
+                        <FaDollarSign /> Pendiente
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm font-bold text-red-600">
-                        ${venta.amount_pending.toFixed(2)}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {((venta.amount_pending / venta.total_amount) * 100).toFixed(0)}% pendiente
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleOpenPayment(venta)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors"
-                        >
-                          <FaDollarSign /> Pagar
-                        </button>
-                        <Link
-                          href={`/dashboard/ventas/${venta.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-600 text-white text-xs font-semibold rounded-lg hover:bg-purple-700 transition-colors"
-                        >
-                          <FaFileInvoice /> Detalle
-                        </Link>
-                      </div>
-                    </td>
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Acciones
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot className="bg-gradient-to-r from-purple-50 to-pink-50">
-                <tr>
-                  <td colSpan={5} className="px-6 py-4 text-right font-bold text-gray-700">
-                    TOTAL PENDIENTE:
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="text-lg font-bold text-red-600">
-                      ${totalPendiente.toFixed(2)}
-                    </div>
-                  </td>
-                  <td></td>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {ventas.map((venta) => (
+                    <tr
+                      key={venta.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {new Date(venta.created_at).toLocaleDateString(
+                            "es-AR"
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(venta.created_at).toLocaleTimeString(
+                            "es-AR",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <Link
+                          href={`/dashboard/clientes/${venta.customer_id}`}
+                          className="text-sm font-medium text-purple-600 hover:text-purple-800 hover:underline"
+                        >
+                          {venta.customer_name}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {venta.profile_name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="text-sm font-semibold text-gray-900">
+                          ${venta.total_amount.toFixed(2)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="text-sm text-green-600 font-medium">
+                          ${venta.amount_paid.toFixed(2)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="text-sm font-bold text-red-600">
+                          ${venta.amount_pending.toFixed(2)}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {(
+                            (venta.amount_pending / venta.total_amount) *
+                            100
+                          ).toFixed(0)}
+                          % pendiente
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => handleOpenPayment(venta)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                          >
+                            <FaDollarSign /> Pagar
+                          </button>
+                          <Link
+                            href={`/dashboard/ventas/${venta.id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-600 text-white text-xs font-semibold rounded-lg hover:bg-purple-700 transition-colors"
+                          >
+                            <FaFileInvoice /> Detalle
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-gradient-to-r from-purple-50 to-pink-50">
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="px-6 py-4 text-right font-bold text-gray-700"
+                    >
+                      TOTAL PENDIENTE:
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="text-lg font-bold text-red-600">
+                        ${totalPendiente.toFixed(2)}
+                      </div>
+                    </td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
-        </div>
         </>
       )}
 
@@ -433,7 +465,9 @@ export default function VentasPendientesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Total de Ventas</p>
-              <p className="text-2xl font-bold text-gray-800">{ventas.length}</p>
+              <p className="text-2xl font-bold text-gray-800">
+                {ventas.length}
+              </p>
             </div>
             <FaFileInvoice className="text-4xl text-purple-400" />
           </div>
@@ -479,12 +513,15 @@ export default function VentasPendientesPage() {
                 Vendedor: {selectedVenta.profile_name}
               </p>
               <div className="mt-3 bg-purple-50 rounded-lg p-3 border border-purple-200">
-                <p className="text-xs text-purple-700 font-semibold mb-1">SALDO PENDIENTE</p>
+                <p className="text-xs text-purple-700 font-semibold mb-1">
+                  SALDO PENDIENTE
+                </p>
                 <p className="text-2xl font-bold text-purple-600">
                   ${selectedVenta.amount_pending.toFixed(2)}
                 </p>
                 <p className="text-xs text-gray-600 mt-1">
-                  Total: ${selectedVenta.total_amount.toFixed(2)} | Pagado: ${selectedVenta.amount_paid.toFixed(2)}
+                  Total: ${selectedVenta.total_amount.toFixed(2)} | Pagado: $
+                  {selectedVenta.amount_paid.toFixed(2)}
                 </p>
               </div>
             </div>

@@ -122,7 +122,7 @@ export default function RegisterPayment({
       alert("¡Pago registrado exitosamente!");
       setAmount("");
       setComment("");
-      
+
       if (onSuccess) {
         onSuccess();
       } else {
@@ -138,10 +138,7 @@ export default function RegisterPayment({
 
   return (
     <div className="bg-white rounded-lg">
-      <form
-        onSubmit={handleRegisterPayment}
-        className="space-y-4"
-      >
+      <form onSubmit={handleRegisterPayment} className="space-y-4">
         <div>
           <label
             htmlFor="amount"

@@ -30,7 +30,9 @@ type DebtDetail = {
 export default function DeudoresPage() {
   const [deudores, setDeudores] = useState<DebtDetail[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCustomer, setSelectedCustomer] = useState<DebtDetail | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<DebtDetail | null>(
+    null
+  );
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
@@ -139,10 +141,12 @@ export default function DeudoresPage() {
             <FaArrowLeft /> Volver a Clientes
           </Link>
           <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent flex items-center gap-2 sm:gap-3">
-            <FaExclamationTriangle className="text-red-600 text-xl sm:text-2xl" /> Clientes Deudores
+            <FaExclamationTriangle className="text-red-600 text-xl sm:text-2xl" />{" "}
+            Clientes Deudores
           </h1>
           <p className="text-gray-600 mt-1 text-sm sm:text-base">
-            Todos los clientes con deudas pendientes ({deudores.length} clientes)
+            Todos los clientes con deudas pendientes ({deudores.length}{" "}
+            clientes)
           </p>
         </div>
         <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-red-200 w-full lg:w-auto">

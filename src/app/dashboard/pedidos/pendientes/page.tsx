@@ -30,7 +30,9 @@ type PedidoPendiente = {
 export default function PedidosPendientesPage() {
   const [pedidos, setPedidos] = useState<PedidoPendiente[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPedido, setSelectedPedido] = useState<PedidoPendiente | null>(null);
+  const [selectedPedido, setSelectedPedido] = useState<PedidoPendiente | null>(
+    null
+  );
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentComment, setPaymentComment] = useState("");
@@ -139,7 +141,9 @@ export default function PedidosPendientesPage() {
 
     if (amount > selectedPedido.amount_pending) {
       alert(
-        `El monto no puede ser mayor al saldo pendiente ($${selectedPedido.amount_pending.toFixed(2)})`
+        `El monto no puede ser mayor al saldo pendiente ($${selectedPedido.amount_pending.toFixed(
+          2
+        )})`
       );
       return;
     }
@@ -174,7 +178,8 @@ export default function PedidosPendientesPage() {
         customer_id: selectedPedido.customer_id,
         type: "pago",
         amount: amount,
-        comment: paymentComment || `Pago de pedido #${selectedPedido.id.slice(0, 8)}`,
+        comment:
+          paymentComment || `Pago de pedido #${selectedPedido.id.slice(0, 8)}`,
         created_at: argentinaTime.toISOString(),
       });
 
@@ -216,14 +221,18 @@ export default function PedidosPendientesPage() {
             <FaArrowLeft /> Volver a Pedidos
           </Link>
           <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center gap-2 sm:gap-3">
-            <FaExclamationTriangle className="text-orange-600 text-xl sm:text-2xl" /> Pedidos con Saldo Pendiente
+            <FaExclamationTriangle className="text-orange-600 text-xl sm:text-2xl" />{" "}
+            Pedidos con Saldo Pendiente
           </h1>
           <p className="text-gray-600 mt-1 text-sm sm:text-base">
-            Todos los pedidos con deuda pendiente de cobro ({pedidos.length} pedidos)
+            Todos los pedidos con deuda pendiente de cobro ({pedidos.length}{" "}
+            pedidos)
           </p>
         </div>
         <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-orange-200 w-full lg:w-auto">
-          <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Pendiente</p>
+          <p className="text-xs sm:text-sm text-gray-600 mb-1">
+            Total Pendiente
+          </p>
           <p className="text-2xl sm:text-3xl font-bold text-orange-600">
             ${totalPendiente.toFixed(2)}
           </p>
@@ -298,12 +307,18 @@ export default function PedidosPendientesPage() {
                     </div>
                   </div>
                   <div className="bg-red-50 rounded-lg p-3 border-2 border-red-200">
-                    <p className="text-xs text-red-700 font-semibold mb-1">SALDO PENDIENTE</p>
+                    <p className="text-xs text-red-700 font-semibold mb-1">
+                      SALDO PENDIENTE
+                    </p>
                     <p className="text-2xl font-bold text-red-600">
                       ${pedido.amount_pending.toFixed(2)}
                     </p>
                     <p className="text-xs text-red-600 mt-1">
-                      {((pedido.amount_pending / pedido.total_amount) * 100).toFixed(0)}% del total
+                      {(
+                        (pedido.amount_pending / pedido.total_amount) *
+                        100
+                      ).toFixed(0)}
+                      % del total
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -330,130 +345,147 @@ export default function PedidosPendientesPage() {
           {/* Vista de tabla para desktop */}
           <div className="hidden lg:block bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
             <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gradient-to-r from-orange-50 to-red-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center gap-2">
-                      <FaCalendarAlt /> Fecha
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center gap-2">
-                      <FaUser /> Cliente
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center gap-2">
-                      <FaShoppingCart /> Vendedor
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Total Pedido
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Pagado
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center justify-end gap-2">
-                      <FaDollarSign /> Pendiente
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {pedidos.map((pedido) => (
-                  <tr key={pedido.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {new Date(pedido.created_at).toLocaleDateString("es-AR")}
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gradient-to-r from-orange-50 to-red-50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      <div className="flex items-center gap-2">
+                        <FaCalendarAlt /> Fecha
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(pedido.created_at).toLocaleTimeString("es-AR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      <div className="flex items-center gap-2">
+                        <FaUser /> Cliente
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Link
-                        href={`/dashboard/clientes/${pedido.customer_id}`}
-                        className="text-sm font-medium text-orange-600 hover:text-orange-800 hover:underline"
-                      >
-                        {pedido.customer_name}
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{pedido.profile_name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(
-                          pedido.status
-                        )}`}
-                      >
-                        {getStatusLabel(pedido.status)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm font-semibold text-gray-900">
-                        ${pedido.total_amount.toFixed(2)}
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      <div className="flex items-center gap-2">
+                        <FaShoppingCart /> Vendedor
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm text-green-600 font-medium">
-                        ${pedido.amount_paid.toFixed(2)}
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Estado
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Total Pedido
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Pagado
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      <div className="flex items-center justify-end gap-2">
+                        <FaDollarSign /> Pendiente
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm font-bold text-red-600">
-                        ${pedido.amount_pending.toFixed(2)}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {((pedido.amount_pending / pedido.total_amount) * 100).toFixed(0)}% pendiente
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleOpenPayment(pedido)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors"
-                        >
-                          <FaDollarSign /> Pagar
-                        </button>
-                        <Link
-                          href={`/dashboard/pedidos/${pedido.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-600 text-white text-xs font-semibold rounded-lg hover:bg-orange-700 transition-colors"
-                        >
-                          <FaShoppingCart /> Detalle
-                        </Link>
-                      </div>
-                    </td>
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Acciones
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot className="bg-gradient-to-r from-orange-50 to-red-50">
-                <tr>
-                  <td colSpan={6} className="px-6 py-4 text-right font-bold text-gray-700">
-                    TOTAL PENDIENTE:
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="text-lg font-bold text-red-600">
-                      ${totalPendiente.toFixed(2)}
-                    </div>
-                  </td>
-                  <td></td>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {pedidos.map((pedido) => (
+                    <tr
+                      key={pedido.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {new Date(pedido.created_at).toLocaleDateString(
+                            "es-AR"
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(pedido.created_at).toLocaleTimeString(
+                            "es-AR",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <Link
+                          href={`/dashboard/clientes/${pedido.customer_id}`}
+                          className="text-sm font-medium text-orange-600 hover:text-orange-800 hover:underline"
+                        >
+                          {pedido.customer_name}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {pedido.profile_name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(
+                            pedido.status
+                          )}`}
+                        >
+                          {getStatusLabel(pedido.status)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="text-sm font-semibold text-gray-900">
+                          ${pedido.total_amount.toFixed(2)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="text-sm text-green-600 font-medium">
+                          ${pedido.amount_paid.toFixed(2)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="text-sm font-bold text-red-600">
+                          ${pedido.amount_pending.toFixed(2)}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {(
+                            (pedido.amount_pending / pedido.total_amount) *
+                            100
+                          ).toFixed(0)}
+                          % pendiente
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => handleOpenPayment(pedido)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                          >
+                            <FaDollarSign /> Pagar
+                          </button>
+                          <Link
+                            href={`/dashboard/pedidos/${pedido.id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-600 text-white text-xs font-semibold rounded-lg hover:bg-orange-700 transition-colors"
+                          >
+                            <FaShoppingCart /> Detalle
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-gradient-to-r from-orange-50 to-red-50">
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-6 py-4 text-right font-bold text-gray-700"
+                    >
+                      TOTAL PENDIENTE:
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="text-lg font-bold text-red-600">
+                        ${totalPendiente.toFixed(2)}
+                      </div>
+                    </td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
-        </div>
         </>
       )}
 
@@ -463,7 +495,9 @@ export default function PedidosPendientesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Total de Pedidos</p>
-              <p className="text-2xl font-bold text-gray-800">{pedidos.length}</p>
+              <p className="text-2xl font-bold text-gray-800">
+                {pedidos.length}
+              </p>
             </div>
             <FaShoppingCart className="text-4xl text-orange-400" />
           </div>
@@ -474,7 +508,8 @@ export default function PedidosPendientesPage() {
             <div>
               <p className="text-sm text-gray-600 mb-1">Total en Pedidos</p>
               <p className="text-2xl font-bold text-gray-800">
-                ${pedidos.reduce((sum, p) => sum + p.total_amount, 0).toFixed(2)}
+                $
+                {pedidos.reduce((sum, p) => sum + p.total_amount, 0).toFixed(2)}
               </p>
             </div>
             <FaMoneyBillWave className="text-4xl text-blue-400" />
@@ -518,17 +553,27 @@ export default function PedidosPendientesPage() {
                 Cliente: {selectedPedido.customer_name}
               </p>
               <p className="text-xs sm:text-sm text-gray-600">
-                Estado: <span className={`font-semibold ${selectedPedido.status === 'entregado' ? 'text-green-600' : 'text-yellow-600'}`}>
+                Estado:{" "}
+                <span
+                  className={`font-semibold ${
+                    selectedPedido.status === "entregado"
+                      ? "text-green-600"
+                      : "text-yellow-600"
+                  }`}
+                >
                   {getStatusLabel(selectedPedido.status)}
                 </span>
               </p>
               <div className="mt-3 bg-orange-50 rounded-lg p-3 border border-orange-200">
-                <p className="text-xs text-orange-700 font-semibold mb-1">SALDO PENDIENTE</p>
+                <p className="text-xs text-orange-700 font-semibold mb-1">
+                  SALDO PENDIENTE
+                </p>
                 <p className="text-2xl font-bold text-orange-600">
                   ${selectedPedido.amount_pending.toFixed(2)}
                 </p>
                 <p className="text-xs text-gray-600 mt-1">
-                  Total: ${selectedPedido.total_amount.toFixed(2)} | Pagado: ${selectedPedido.amount_paid.toFixed(2)}
+                  Total: ${selectedPedido.total_amount.toFixed(2)} | Pagado: $
+                  {selectedPedido.amount_paid.toFixed(2)}
                 </p>
               </div>
             </div>
