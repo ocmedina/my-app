@@ -58,13 +58,13 @@ export default async function CustomerDetailPage({
     );
   }
 
-  // Calcular la deuda real desde los pedidos FIADOS
+  // Calcular la deuda real desde los pedidos (cualquier método de pago con saldo pendiente)
   const { data: ordersData } = await supabase
     .from("orders")
     .select("id, amount_pending, created_at, status, payment_method")
     .eq("customer_id", params.id)
-    .eq("payment_method", "fiado")
-    .not("status", "eq", "cancelado")
+    .gt("amount_pending", 0)
+    .neq("status", "cancelado")
     .order("created_at", { ascending: false });
 
   // Calcular la deuda de ventas en CUENTA CORRIENTE
@@ -73,6 +73,8 @@ export default async function CustomerDetailPage({
     .select("id, amount_pending, created_at, payment_method")
     .eq("customer_id", params.id)
     .eq("payment_method", "cuenta_corriente")
+    .eq("is_cancelled", false)
+    .gt("amount_pending", 0)
     .order("created_at", { ascending: false });
 
   const ordersDebt = (ordersData || []).reduce(
@@ -134,7 +136,7 @@ export default async function CustomerDetailPage({
           </div>
           <div className="text-right bg-gray-50 px-6 py-4 rounded-lg border-2 border-gray-200">
             <p className="text-sm text-gray-500 font-medium uppercase">
-              Deuda por Fiados
+              Deuda Pendiente
             </p>
             <p
               className={`text-4xl font-bold mt-2 ${
@@ -145,8 +147,8 @@ export default async function CustomerDetailPage({
             </p>
             <p className="text-xs text-gray-400 mt-1">
               {currentDebt > 0
-                ? "Pedidos fiados pendientes"
-                : "Sin fiados pendientes"}
+                ? "Pedidos y ventas pendientes"
+                : "Sin deuda pendiente"}
             </p>
           </div>
         </div>

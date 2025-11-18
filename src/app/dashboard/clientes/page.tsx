@@ -79,16 +79,16 @@ function CustomersPageContent() {
         return;
       }
 
-      // Obtener la deuda de cada cliente desde los pedidos FIADOS y ventas en CUENTA CORRIENTE
+      // Obtener la deuda de cada cliente desde los pedidos (cualquier método de pago) y ventas en CUENTA CORRIENTE
       const customersWithDebt = await Promise.all(
         (customersData || []).map(async (customer) => {
-          // Deuda de pedidos fiados
+          // Deuda de pedidos con saldo pendiente (cualquier método de pago)
           const { data: ordersData } = await supabase
             .from("orders")
             .select("amount_pending")
             .eq("customer_id", customer.id)
-            .eq("payment_method", "fiado")
-            .not("status", "eq", "cancelado");
+            .gt("amount_pending", 0)
+            .neq("status", "cancelado");
 
           const ordersDebt = (ordersData || []).reduce(
             (sum, order) => sum + (order.amount_pending || 0),
@@ -100,7 +100,9 @@ function CustomersPageContent() {
             .from("sales")
             .select("amount_pending")
             .eq("customer_id", customer.id)
-            .eq("payment_method", "cuenta_corriente");
+            .eq("payment_method", "cuenta_corriente")
+            .eq("is_cancelled", false)
+            .gt("amount_pending", 0);
 
           const salesDebt = (salesData || []).reduce(
             (sum, sale) => sum + ((sale as any).amount_pending || 0),
@@ -158,12 +160,20 @@ function CustomersPageContent() {
             Administra tu cartera de clientes y sus cuentas
           </p>
         </div>
-        <Link
-          href="/dashboard/clientes/new"
-          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
-        >
-          <FaPlus /> Agregar Cliente
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href="/dashboard/clientes/deudores"
+            className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+          >
+            <FaExclamationTriangle /> Ver Deudores
+          </Link>
+          <Link
+            href="/dashboard/clientes/new"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+          >
+            <FaPlus /> Agregar Cliente
+          </Link>
+        </div>
       </div>
 
       {/* BÚSQUEDA Y FILTROS */}
@@ -241,7 +251,7 @@ function CustomersPageContent() {
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <FaDollarSign /> Fiados Pendientes
+                    <FaDollarSign /> Deuda Pendiente
                   </div>
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">

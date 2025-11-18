@@ -256,7 +256,7 @@ export default function SalesHistoryPage() {
   return (
     <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
             <FaChartLine className="text-blue-600" /> Historial de Ventas
@@ -265,12 +265,20 @@ export default function SalesHistoryPage() {
             Gestiona y revisa todas las ventas realizadas
           </p>
         </div>
-        <Link
-          href="/dashboard/ventas/nueva"
-          className="px-6 py-3 text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold flex items-center gap-2"
-        >
-          <FaPlus /> Nueva Venta
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href="/dashboard/ventas/pendientes"
+            className="px-6 py-3 text-white bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg hover:from-purple-700 hover:to-purple-800 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold flex items-center gap-2"
+          >
+            <FaClock /> Ventas Pendientes
+          </Link>
+          <Link
+            href="/dashboard/ventas/nueva"
+            className="px-6 py-3 text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold flex items-center gap-2"
+          >
+            <FaPlus /> Nueva Venta
+          </Link>
+        </div>
       </div>
 
       {/* FILTROS */}

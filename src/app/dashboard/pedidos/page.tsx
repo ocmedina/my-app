@@ -691,12 +691,20 @@ export default function OrdersPage() {
             {totalCount} pedido{totalCount !== 1 ? "s" : ""} registrados
           </p>
         </div>
-        <Link
-          href="/dashboard/pedidos/nuevo"
-          className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
-        >
-          <FaPlus /> Nuevo Pedido
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href="/dashboard/pedidos/pendientes"
+            className="px-6 py-2.5 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-lg hover:from-orange-700 hover:to-orange-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+          >
+            <FaClock /> Saldos Pendientes
+          </Link>
+          <Link
+            href="/dashboard/pedidos/nuevo"
+            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+          >
+            <FaPlus /> Nuevo Pedido
+          </Link>
+        </div>
       </div>
 
       {/* FILTROS POR ESTADO */}

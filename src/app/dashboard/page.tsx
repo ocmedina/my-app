@@ -150,19 +150,44 @@ async function getDashboardData() {
     .order("created_at", { ascending: false })
     .limit(5);
 
-  // Total de deuda pendiente (cuenta corriente)
-  const { data: customersWithDebt } = await supabase
-    .from("customers" as any)
-    .select("debt")
-    .eq("is_active", true)
-    .gt("debt", 0);
+  // Total de deuda pendiente (pedidos con cualquier método de pago + ventas cuenta corriente)
+  // Obtener TODOS los pedidos con deuda pendiente (sin filtrar por cliente activo ni método de pago)
+  const { data: ordersWithDebt } = await supabase
+    .from("orders" as any)
+    .select("amount_pending, customer_id")
+    .gt("amount_pending", 0)
+    .neq("status", "cancelado");
 
-  const totalDebt =
-    customersWithDebt?.reduce(
-      (sum: number, customer: any) => sum + (customer.debt || 0),
-      0
-    ) ?? 0;
-  const customersWithDebtCount = customersWithDebt?.length ?? 0;
+  // Obtener TODAS las ventas en cuenta corriente con deuda pendiente (sin filtrar por cliente activo)
+  const { data: salesWithDebt } = await supabase
+    .from("sales")
+    .select("amount_pending, customer_id")
+    .eq("payment_method", "cuenta_corriente")
+    .gt("amount_pending", 0)
+    .eq("is_cancelled", false);
+
+  // Sumar deuda total
+  const totalOrdersDebt = ordersWithDebt?.reduce(
+    (sum: number, order: any) => sum + (order.amount_pending || 0),
+    0
+  ) ?? 0;
+
+  const totalSalesDebt = salesWithDebt?.reduce(
+    (sum: number, sale: any) => sum + (sale.amount_pending || 0),
+    0
+  ) ?? 0;
+
+  const totalDebt = totalOrdersDebt + totalSalesDebt;
+
+  // Contar clientes únicos con deuda
+  const customersWithDebtSet = new Set<string>();
+  ordersWithDebt?.forEach((order: any) => {
+    if (order.customer_id) customersWithDebtSet.add(order.customer_id);
+  });
+  salesWithDebt?.forEach((sale: any) => {
+    if (sale.customer_id) customersWithDebtSet.add(sale.customer_id);
+  });
+  const customersWithDebtCount = customersWithDebtSet.size;
 
   return {
     productCount: productCount ?? 0,
