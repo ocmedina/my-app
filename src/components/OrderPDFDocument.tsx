@@ -246,7 +246,11 @@ export default function OrderPDFDocument({ order }: { order: any }) {
               <View style={styles.customerRow}>
                 <Text style={styles.customerLabel}>Tipo Cliente:</Text>
                 <Text style={styles.customerValue}>
-                  {order.customers.customer_type}
+                  {order.customers.customer_type === "minorista"
+                    ? "Consumidor Final"
+                    : order.customers.customer_type === "mayorista"
+                    ? "Mayorista"
+                    : order.customers.customer_type}
                 </Text>
               </View>
             )}

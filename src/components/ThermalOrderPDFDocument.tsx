@@ -236,7 +236,11 @@ export default function ThermalOrderPDFDocument({ order }: { order: any }) {
           {order.customers?.customer_type && (
             <Text style={styles.customerRow}>
               <Text style={styles.customerLabel}>Tipo: </Text>
-              {order.customers.customer_type}
+              {order.customers.customer_type === "minorista"
+                ? "Consumidor Final"
+                : order.customers.customer_type === "mayorista"
+                ? "Mayorista"
+                : order.customers.customer_type}
             </Text>
           )}
           {order.customers?.phone && (
