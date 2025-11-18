@@ -15,13 +15,49 @@ interface Update {
 
 const UPDATES: Update[] = [
   {
+    id: "2025-11-18-pagos-pendientes",
+    date: "18 Nov 2025",
+    title: "💳 Registro de Pagos desde Pendientes",
+    description:
+      "Ahora puedes registrar pagos directamente desde las páginas de Ventas Pendientes y Pedidos Pendientes, incluso si el pedido ya fue entregado. Cada registro incluye botón 'Pagar' con modal intuitivo que actualiza automáticamente el saldo y registra el movimiento en el historial de pagos del cliente.",
+    icon: "💳",
+    isNew: true,
+  },
+  {
+    id: "2025-11-18-deuda-completa",
+    date: "18 Nov 2025",
+    title: "📊 Sistema de Deuda Completo y Transparente",
+    description:
+      "Sistema de deuda completamente rediseñado: ahora muestra TODA la deuda sin restricciones. Incluye pedidos con cualquier método de pago (no solo fiado), ventas en cuenta corriente, clientes activos e inactivos. Tres páginas dedicadas: Deudores, Ventas Pendientes y Pedidos con Saldo Pendiente. Dashboard corregido con cálculos precisos.",
+    icon: "📊",
+    isNew: true,
+  },
+  {
+    id: "2025-11-18-responsive-total",
+    date: "18 Nov 2025",
+    title: "📱 Diseño 100% Responsive",
+    description:
+      "Todas las páginas de gestión de deudas ahora son completamente responsive. En móviles se muestran tarjetas intuitivas con toda la información, en tablets vista optimizada y en desktop tablas completas. Headers, modales y estadísticas adaptados para cualquier dispositivo. Componente de registro de pagos rediseñado para mejor usabilidad en móviles.",
+    icon: "📱",
+    isNew: true,
+  },
+  {
+    id: "2025-11-18-consumidor-final",
+    date: "18 Nov 2025",
+    title: "🧾 Remitos: Consumidor Final",
+    description:
+      "Los remitos ahora muestran 'Consumidor Final' en lugar de 'Minorista' para clientes minoristas, dando una presentación más profesional y acorde a términos fiscales. Aplicado tanto en remitos A4 como térmicos.",
+    icon: "🧾",
+    isNew: true,
+  },
+  {
     id: "2025-11-14-remitos-mejorados",
     date: "14 Nov 2025",
     title: "🧾 Remitos con Información Completa del Cliente",
     description:
       "Los remitos (A4 y térmicos) ahora incluyen información completa del cliente: dirección, referencia para entregas, teléfono y tipo de cliente. Diseño profesional rediseñado con mejor jerarquía visual, logo del negocio y secciones claramente delimitadas para facilitar las entregas.",
     icon: "🧾",
-    isNew: true,
+    isNew: false,
   },
   {
     id: "2025-11-13-fix-compras-precios",
