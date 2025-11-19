@@ -83,33 +83,53 @@ export default function CashMovementModal({
   if (!isOpen) return null;
 
   return (
-    // ... (El JSX del modal es casi idéntico, solo cambian los textos)
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-800"
-          >
-            <FaTimes />
-          </button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-fadeIn">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all animate-slideUp">
+        {/* Header con gradiente */}
+        <div
+          className={`${
+            isExpense
+              ? "bg-gradient-to-r from-rose-500 to-pink-600"
+              : "bg-gradient-to-r from-amber-500 to-yellow-600"
+          } p-6 rounded-t-2xl`}
+        >
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              {isExpense ? "💸" : "💰"} {title}
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all"
+            >
+              <FaTimes className="text-xl" />
+            </button>
+          </div>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               {amountLabel}
             </label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
-              className="mt-1 w-full p-2 border rounded-md"
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                $
+              </span>
+              <input
+                type="number"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+                placeholder="0.00"
+                className="w-full pl-8 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none text-lg font-medium"
+              />
+            </div>
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               {descriptionLabel}
             </label>
             <input
@@ -117,21 +137,28 @@ export default function CashMovementModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required={isExpense}
-              className="mt-1 w-full p-2 border rounded-md"
+              placeholder={isExpense ? "Ej: Compra de insumos" : "Opcional"}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
             />
           </div>
-          <div className="flex justify-end gap-2 pt-4 border-t mt-4">
+
+          {/* Botones */}
+          <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded-md"
+              className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md"
+              className={`flex-1 px-4 py-3 ${
+                isExpense
+                  ? "bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700"
+                  : "bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700"
+              } text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg`}
             >
               {loading ? "Guardando..." : "Guardar Movimiento"}
             </button>

@@ -57,8 +57,20 @@ export default function StartingFloatModal({
         return;
       }
 
+      // Obtener el usuario actual
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        toast.error("Usuario no autenticado");
+        setLoading(false);
+        return;
+      }
+
       // Registrar el fondo inicial con zona horaria Argentina
       const { error } = await supabase.from("cash_movements").insert({
+        profile_id: user.id,
         type: "fondo_inicial",
         amount: floatAmount,
         description: "Fondo inicial del día",
