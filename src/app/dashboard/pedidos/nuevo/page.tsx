@@ -47,6 +47,8 @@ export default function NewOrderPage() {
   const [amountReceived, setAmountReceived] = useState<number>(0);
   const [amountCash, setAmountCash] = useState<number>(0);
   const [amountTransfer, setAmountTransfer] = useState<number>(0);
+  const [shippingCost, setShippingCost] = useState<number>(0);
+  const [discount, setDiscount] = useState<number>(0);
 
   useEffect(() => {
     async function loadInitialData() {
@@ -89,15 +91,18 @@ export default function NewOrderPage() {
       return;
     }
 
-    const newTotal = cart.reduce((acc, item) => {
+    const subtotal = cart.reduce((acc, item) => {
       const price =
         selectedCustomer.customer_type === "mayorista"
           ? item.price_mayorista
           : item.price_minorista;
       return acc + (price || 0) * item.quantity;
     }, 0);
-    setTotal(newTotal);
-  }, [cart, selectedCustomer]);
+    
+    // Total = Subtotal + Envío - Descuento
+    const newTotal = subtotal + shippingCost - discount;
+    setTotal(newTotal >= 0 ? newTotal : 0);
+  }, [cart, selectedCustomer, shippingCost, discount]);
 
   useEffect(() => {
     if (paymentMethod === "mixto") {
@@ -576,6 +581,59 @@ export default function NewOrderPage() {
                     {cart.reduce((acc, item) => acc + item.quantity, 0)}
                   </span>
                 </div>
+                
+                {/* Subtotal */}
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm font-semibold text-gray-700">Subtotal</span>
+                  <span className="font-bold text-gray-900">
+                    ${(cart.reduce((acc, item) => acc + getProductPrice(item) * item.quantity, 0)).toFixed(2)}
+                  </span>
+                </div>
+
+                {/* Costo de Envío */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    🚚 Costo de Envío
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={shippingCost === 0 ? "" : shippingCost}
+                      onChange={(e) => {
+                        const value = e.target.value === "" ? 0 : parseFloat(e.target.value);
+                        setShippingCost(value >= 0 ? value : 0);
+                      }}
+                      className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+
+                {/* Descuento */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    🏷️ Descuento
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={discount === 0 ? "" : discount}
+                      onChange={(e) => {
+                        const value = e.target.value === "" ? 0 : parseFloat(e.target.value);
+                        setDiscount(value >= 0 ? value : 0);
+                      }}
+                      className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+
                 <div className="flex justify-between items-center text-xl font-bold pt-3 border-t-2 border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50 -mx-6 px-6 py-4 mt-3">
                   <span className="flex items-center gap-2">
                     <FaDollarSign className="text-green-600" /> TOTAL
