@@ -23,7 +23,10 @@ type HistoryItem =
   | (Payment & { type: "pago" });
 
 async function getSupplierAccount(id: string) {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const cookieStore = await cookies();
+  const supabase = createServerComponentClient<Database>({
+    cookies: () => cookieStore,
+  });
 
   const { data: supplier } = await supabase
     .from("suppliers")
@@ -61,11 +64,10 @@ async function getSupplierAccount(id: string) {
   return { supplier, history };
 }
 
-export default async function SupplierDetailPage({
-  params,
-}: {
-  params: { id: string };
+export default async function SupplierDetailPage(props: {
+  params: Promise<{ id: string }>;
 }) {
+  const params = await props.params;
   const { supplier, history } = await getSupplierAccount(params.id);
 
   if (!supplier) {

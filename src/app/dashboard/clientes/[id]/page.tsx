@@ -19,14 +19,18 @@ type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
 
 // Esta es la forma estándar de definir props en una página dinámica de Next.js
 interface CustomerDetailPageProps {
-  params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  params: Promise<{ id: string }>;
 }
 
-export default async function CustomerDetailPage({
-  params,
-}: CustomerDetailPageProps) {
-  const supabase = createServerComponentClient<Database>({ cookies });
+export default async function CustomerDetailPage(
+  props: CustomerDetailPageProps
+) {
+  const params = await props.params;
+  console.log("CustomerDetailPage params:", params);
+  const cookieStore = await cookies();
+  const supabase = createServerComponentClient<Database>({
+    cookies: () => cookieStore,
+  });
 
   // Obtenemos los datos del cliente
   const { data: customer, error: customerError } = await supabase

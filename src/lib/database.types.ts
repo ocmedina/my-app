@@ -74,6 +74,76 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          amount_pending: number
+          created_at: string
+          customer_id: string
+          id: string
+          payment_method: string | null
+          status: string
+        }
+        Insert: {
+          amount_pending?: number
+          created_at?: string
+          customer_id: string
+          id?: string
+          payment_method?: string | null
+          status?: string
+        }
+        Update: {
+          amount_pending?: number
+          created_at?: string
+          customer_id?: string
+          id?: string
+          payment_method?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          comment: string | null
+          created_at: string
+          customer_id: string
+          id: number
+          type: string
+        }
+        Insert: {
+          amount: number
+          comment?: string | null
+          created_at?: string
+          customer_id: string
+          id?: number
+          type: string
+        }
+        Update: {
+          amount?: number
+          comment?: string | null
+          created_at?: string
+          customer_id?: string
+          id?: number
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       products: {
         Row: {
           brand_id: number | null
