@@ -2,11 +2,21 @@
 
 /* Estilos base para todo el cuerpo de la aplicación */
 body {
-  background-color: #f0f2f5; /* Un color de fondo suave y neutro */
+  background-color: #f0f2f5;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   margin: 0;
   padding: 0;
+}
+
+/* Variables CSS para tema navideño */
+:root {
+  --christmas-red: #DC2626;
+  --christmas-green: #059669;
+  --christmas-gold: #F59E0B;
+  --christmas-red-dark: #991B1B;
+  --christmas-green-dark: #047857;
+  --christmas-gold-light: #FCD34D;
 }
 
 /* --- Estilos para la página de inicio (landing page) --- */
@@ -16,13 +26,13 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* Ocupa toda la altura de la pantalla */
+  min-height: 100vh;
   text-align: center;
   color: #333;
 }
 
 .landing-root h1 {
-  font-size: 3rem; /* Tamaño de fuente grande */
+  font-size: 3rem;
   margin-bottom: 0.5rem;
   color: #1a202c;
 }
@@ -35,21 +45,21 @@ body {
 
 .landing-links {
   display: flex;
-  gap: 1.5rem; /* Espacio entre los enlaces */
+  gap: 1.5rem;
 }
 
 .landing-links a {
   padding: 0.75rem 1.5rem;
-  background-color: #4299e1; /* Fondo azul */
+  background-color: #4299e1;
   color: white;
   text-decoration: none;
-  border-radius: 8px; /* Bordes redondeados */
+  border-radius: 8px;
   font-weight: bold;
-  transition: background-color 0.2s ease-in-out; /* Transición suave */
+  transition: background-color 0.2s ease-in-out;
 }
 
 .landing-links a:hover {
-  background-color: #2b6cb0; /* Azul más oscuro al pasar el mouse */
+  background-color: #2b6cb0;
 }
 
 /* Animaciones para modales */
@@ -79,4 +89,365 @@ body {
 
 .animate-slideUp {
   animation: slideUp 0.3s ease-out;
+}
+
+/* ============================================ */
+/* ANIMACIONES NAVIDEÑAS */
+/* ============================================ */
+
+/* Caída de nieve */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-10vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) translateX(50px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.snowflake {
+  position: absolute;
+  top: -10vh;
+  color: #fff;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  animation: snowfall linear infinite;
+  user-select: none;
+}
+
+/* Luces navideñas parpadeantes */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.christmas-light {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: twinkle 2s ease-in-out infinite;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Animación de pulso suave */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Animación de rebote */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+/* Efecto de brillo dorado en hover */
+@keyframes goldShine {
+  0% {
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.8), 0 0 30px rgba(245, 158, 11, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+  }
+}
+
+.hover-gold-shine:hover {
+  animation: goldShine 1.5s ease-in-out infinite;
+}
+
+/* Efecto de escarcha */
+@keyframes frost {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.1) contrast(1.1);
+  }
+}
+
+.frost-effect {
+  animation: frost 3s ease-in-out infinite;
+}
+
+/* Gradiente animado navideño */
+@keyframes festiveGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.festive-gradient-animated {
+  background-size: 200% 200%;
+  animation: festiveGradient 5s ease infinite;
+}
+
+/* Clases utilitarias navideñas */
+.christmas-border {
+  border: 2px solid;
+  border-image: linear-gradient(45deg, #DC2626, #059669, #F59E0B) 1;
+}
+.landing-root h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  color: #1a202c;
+}
+
+.landing-root p {
+  font-size: 1.25rem;
+  color: #718096;
+  margin-bottom: 2rem;
+}
+
+.landing-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.landing-links a {
+  padding: 0.75rem 1.5rem;
+  background-color: #4299e1;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.landing-links a:hover {
+  background-color: #2b6cb0;
+}
+
+/* Animaciones para modales */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* ============================================ */
+/* ANIMACIONES NAVIDEÑAS */
+/* ============================================ */
+
+/* Caída de nieve */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-10vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) translateX(50px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.snowflake {
+  position: absolute;
+  top: -10vh;
+  color: #fff;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  animation: snowfall linear infinite;
+  user-select: none;
+}
+
+/* Luces navideñas parpadeantes */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.christmas-light {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: twinkle 2s ease-in-out infinite;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Animación de pulso suave */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Animación de rebote */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+/* Efecto de brillo dorado en hover */
+@keyframes goldShine {
+  0% {
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.8), 0 0 30px rgba(245, 158, 11, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+  }
+}
+
+.hover-gold-shine:hover {
+  animation: goldShine 1.5s ease-in-out infinite;
+}
+
+/* Efecto de escarcha */
+@keyframes frost {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.1) contrast(1.1);
+  }
+}
+
+.frost-effect {
+  animation: frost 3s ease-in-out infinite;
+}
+
+/* Gradiente animado navideño */
+@keyframes festiveGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.festive-gradient-animated {
+  background-size: 200% 200%;
+  animation: festiveGradient 5s ease infinite;
+}
+
+/* Clases utilitarias navideñas */
+.christmas-border {
+  border: 2px solid;
+  border-image: linear-gradient(45deg, #DC2626, #059669, #F59E0B) 1;
+}
+
+.christmas-shadow {
+  box-shadow: 0 4px 6px rgba(220, 38, 38, 0.1), 0 2px 4px rgba(5, 150, 105, 0.1);
+}
+
+/* Animación de copos de nieve cayendo */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-20px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(120px) translateX(10px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.animate-snowfall {
+  animation: snowfall linear infinite;
+}
+
+.christmas-glow {
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
 }

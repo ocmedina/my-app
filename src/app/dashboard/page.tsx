@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import QuickActionsHeader from "@/components/QuickActionsHeader";
 import NewsSection from "@/components/NewsSection";
+import ChristmasCountdown from "@/components/ChristmasCountdown";
 
 // --- Tipos ---
 type CustomerRow = {
@@ -228,6 +229,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Cuenta regresiva navideña */}
+      <ChristmasCountdown />
+
       {/* Acciones Rápidas como Header */}
       <QuickActionsHeader />
 
