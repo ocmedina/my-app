@@ -160,28 +160,28 @@ export default function ProductsPage() {
             Administra tu inventario y precios
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 overflow-x-auto pb-2 w-full lg:w-auto no-scrollbar">
           <button
             onClick={() => setIsMassUpdateModalOpen(true)}
-            className="px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+            className="px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0"
           >
             <FaPercentage /> Actualización Masiva
           </button>
           <Link
             href="/dashboard/clasificacion"
-            className="px-5 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+            className="px-5 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0"
           >
             <FaTags /> Clasificación
           </Link>
           <Link
             href="/dashboard/products/importar"
-            className="px-5 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+            className="px-5 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0"
           >
             <FaUpload /> Importar Excel
           </Link>
           <Link
             href="/dashboard/products/new"
-            className="px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+            className="px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0"
           >
             <FaPlus /> Agregar Producto
           </Link>
@@ -337,8 +337,8 @@ export default function ProductsPage() {
         )}
       </div>
 
-      {/* TABLA DE PRODUCTOS */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+      {/* TABLA DE PRODUCTOS (Desktop) */}
+      <div className="hidden md:block bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
@@ -488,6 +488,113 @@ export default function ProductsPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* TARJETAS DE PRODUCTOS (Mobile) */}
+      <div className="md:hidden space-y-4">
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <span className="text-gray-500 font-medium">
+                Cargando productos...
+              </span>
+            </div>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="bg-white rounded-xl shadow p-8 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <FaInbox className="text-6xl text-gray-300" />
+              <span className="text-gray-500 font-medium">
+                {searchTerm
+                  ? "No se encontraron productos con ese criterio"
+                  : "No hay productos registrados"}
+              </span>
+              {!searchTerm && (
+                <Link
+                  href="/dashboard/products/new"
+                  className="mt-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium flex items-center gap-2"
+                >
+                  <FaPlus /> Agregar primer producto
+                </Link>
+              )}
+            </div>
+          </div>
+        ) : (
+          products.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white rounded-xl shadow-sm border border-gray-100 p-4"
+            >
+              {/* Header de la tarjeta */}
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <h3 className="font-bold text-gray-900 text-lg leading-tight mb-1">
+                    {product.name}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <FaBarcode className="text-gray-400 text-xs" />
+                    <span className="text-xs font-mono text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                      {product.sku}
+                    </span>
+                  </div>
+                </div>
+                <ProductActions productId={product.id} userRole={userRole} />
+              </div>
+
+              {/* Detalles */}
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="bg-gray-50 p-2 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">Minorista</p>
+                  <p className="font-bold text-green-600 flex items-center gap-1">
+                    <FaDollarSign className="text-xs" />
+                    {product.price_minorista?.toFixed(2)}
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-2 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">Mayorista</p>
+                  <p className="font-bold text-blue-600 flex items-center gap-1">
+                    <FaDollarSign className="text-xs" />
+                    {product.price_mayorista?.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer de la tarjeta */}
+              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+                    product.stock === 0
+                      ? "bg-red-100 text-red-800"
+                      : product.stock <= 10
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-green-100 text-green-800"
+                  }`}
+                >
+                  {product.stock === 0 ? (
+                    <>
+                      <FaBan /> Sin stock
+                    </>
+                  ) : product.stock <= 10 ? (
+                    <>
+                      <FaExclamationTriangle /> {product.stock} uds
+                    </>
+                  ) : (
+                    <>
+                      <FaCheckCircle /> {product.stock} uds
+                    </>
+                  )}
+                </span>
+
+                {product.description && (
+                  <span className="text-xs text-gray-400 italic truncate max-w-[150px]">
+                    {product.description}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* PAGINACIÓN */}

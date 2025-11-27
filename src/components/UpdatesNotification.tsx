@@ -2,7 +2,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaBell, FaTimes, FaCheckCircle, FaStar } from "react-icons/fa";
+import { FaBell, FaTimes, FaCheckDouble, FaGift, FaBolt } from "react-icons/fa";
+import { HiSparkles } from "react-icons/hi";
 
 interface Update {
   id: string;
@@ -11,179 +12,79 @@ interface Update {
   description: string;
   icon?: string;
   isNew?: boolean;
+  type?: "feature" | "fix" | "improvement";
 }
 
 const UPDATES: Update[] = [
   {
+    id: "2025-11-27-reparto-ux",
+    date: "27 Nov 2025",
+    title: "🚚 Rediseño de Reparto (UX/UI)",
+    description:
+      "Renovamos la experiencia en el módulo de Reparto. Una interfaz más limpia y eficiente para gestionar tus entregas y rutas de manera intuitiva.",
+    icon: "🚚",
+    isNew: true,
+    type: "improvement",
+  },
+  {
+    id: "2025-11-27-proveedores-ordenes",
+    date: "27 Nov 2025",
+    title: "📝 Proveedores: Generación de Órdenes",
+    description:
+      "Nueva funcionalidad para generar órdenes de compra a proveedores. Organiza tus pedidos de reposición de manera profesional (Funcionalidad en desarrollo).",
+    icon: "📝",
+    isNew: true,
+    type: "feature",
+  },
+  {
+    id: "2025-11-27-productos-mejoras",
+    date: "27 Nov 2025",
+    title: "🏷️ Productos: Clasificación y Códigos",
+    description:
+      "Mejoras importantes en gestión de productos: Ahora puedes clasificarlos mejor y utilizar el nuevo Generador de Códigos de Barras automático para agilizar la carga.",
+    icon: "🏷️",
+    isNew: true,
+    type: "feature",
+  },
+  {
+    id: "2025-11-27-nueva-venta-redesign-v2",
+    date: "27 Nov 2025",
+    title: "🛍️ Nueva Venta: Rediseño Total",
+    description:
+      "Experiencia de venta totalmente renovada. Incluye filtrado por Marcas y Categorías, y una interfaz optimizada para cobrar más rápido.",
+    icon: "🛍️",
+    isNew: true,
+    type: "improvement",
+  },
+  {
+    id: "2025-11-27-kardex-v2",
+    date: "27 Nov 2025",
+    title: "📦 Inventario: Historial (Kardex)",
+    description:
+      "Control total de tu stock. Registramos cada movimiento: ventas, compras y ajustes, para que sepas exactamente qué pasa con tu inventario.",
+    icon: "📦",
+    isNew: true,
+    type: "feature",
+  },
+  {
+    id: "2025-11-27-navbar-v2",
+    date: "27 Nov 2025",
+    title: "🧭 Nueva Barra de Navegación",
+    description:
+      "Reorganizamos el menú en 3 áreas clave: Comercial, Logística y Administración. Todo más ordenado y fácil de encontrar.",
+    icon: "🧭",
+    isNew: true,
+    type: "improvement",
+  },
+  {
     id: "2025-11-18-pagos-pendientes",
     date: "18 Nov 2025",
-    title: "💳 Registro de Pagos desde Pendientes",
+    title: "💳 Registro de Pagos",
     description:
-      "Ahora puedes registrar pagos directamente desde las páginas de Ventas Pendientes y Pedidos Pendientes, incluso si el pedido ya fue entregado. Cada registro incluye botón 'Pagar' con modal intuitivo que actualiza automáticamente el saldo y registra el movimiento en el historial de pagos del cliente.",
+      "Registra pagos directamente desde Ventas Pendientes. Nuevo modal intuitivo para mantener las cuentas al día.",
     icon: "💳",
-    isNew: true,
-  },
-  {
-    id: "2025-11-18-deuda-completa",
-    date: "18 Nov 2025",
-    title: "📊 Sistema de Deuda Completo y Transparente",
-    description:
-      "Sistema de deuda completamente rediseñado: ahora muestra TODA la deuda sin restricciones. Incluye pedidos con cualquier método de pago (no solo fiado), ventas en cuenta corriente, clientes activos e inactivos. Tres páginas dedicadas: Deudores, Ventas Pendientes y Pedidos con Saldo Pendiente. Dashboard corregido con cálculos precisos.",
-    icon: "📊",
-    isNew: true,
-  },
-  {
-    id: "2025-11-18-responsive-total",
-    date: "18 Nov 2025",
-    title: "📱 Diseño 100% Responsive",
-    description:
-      "Todas las páginas de gestión de deudas ahora son completamente responsive. En móviles se muestran tarjetas intuitivas con toda la información, en tablets vista optimizada y en desktop tablas completas. Headers, modales y estadísticas adaptados para cualquier dispositivo. Componente de registro de pagos rediseñado para mejor usabilidad en móviles.",
-    icon: "📱",
-    isNew: true,
-  },
-  {
-    id: "2025-11-18-consumidor-final",
-    date: "18 Nov 2025",
-    title: "🧾 Remitos: Consumidor Final",
-    description:
-      "Los remitos ahora muestran 'Consumidor Final' en lugar de 'Minorista' para clientes minoristas, dando una presentación más profesional y acorde a términos fiscales. Aplicado tanto en remitos A4 como térmicos.",
-    icon: "🧾",
-    isNew: true,
-  },
-  {
-    id: "2025-11-14-remitos-mejorados",
-    date: "14 Nov 2025",
-    title: "🧾 Remitos con Información Completa del Cliente",
-    description:
-      "Los remitos (A4 y térmicos) ahora incluyen información completa del cliente: dirección, referencia para entregas, teléfono y tipo de cliente. Diseño profesional rediseñado con mejor jerarquía visual, logo del negocio y secciones claramente delimitadas para facilitar las entregas.",
-    icon: "🧾",
     isNew: false,
-  },
-  {
-    id: "2025-11-13-fix-compras-precios",
-    date: "13 Nov 2025",
-    title: "🔧 Corrección: Creación de Productos en Compras",
-    description:
-      "Corregido error al crear productos desde nueva compra. Ahora permite ingresar precio minorista y mayorista por separado. Eliminados campos obsoletos (categoría en texto) y adaptado a la estructura correcta de la base de datos. Generación automática de SKU si no se proporciona.",
-    icon: "🔧",
-    isNew: false,
-  },
-  {
-    id: "2025-11-13-fix-pedidos-metodo-pago",
-    date: "13 Nov 2025",
-    title: "🐛 Corrección: Método de Pago en Detalle de Pedido",
-    description:
-      "Solucionado problema donde el detalle del pedido mostraba siempre 'efectivo' independientemente del método de pago real. Ahora muestra correctamente: efectivo, transferencia, mixto o fiado con sus respectivos badges de colores.",
-    icon: "🐛",
-    isNew: false,
-  },
-  {
-    id: "2025-11-13-filtros-stock",
-    date: "13 Nov 2025",
-    title: "📊 Filtros y Estadísticas de Stock en Productos",
-    description:
-      "Panel de estadísticas visuales con tarjetas clickeables para filtrar productos sin stock, stock bajo (1-10) y con stock (>10). Tabla mejorada mostrando precio mayorista, descripciones y badges coloridos según nivel de stock. Sistema completo de filtros con indicadores activos.",
-    icon: "📊",
-    isNew: false,
-  },
-  {
-    id: "2025-11-13-pago-proveedores",
-    date: "13 Nov 2025",
-    title: "💰 Pago Directo a Proveedores desde Ventas",
-    description:
-      "Nueva funcionalidad que permite pagar directamente a proveedores desde una venta. El dinero de la venta se envía al proveedor para reducir su deuda. Soporta pagos mayores a la deuda (crédito a favor) y se registra automáticamente en el historial del proveedor.",
-    icon: "💰",
-    isNew: false,
-  },
-  {
-    id: "2025-11-13-creditos-favor",
-    date: "13 Nov 2025",
-    title: "✅ Sistema de Créditos a Favor",
-    description:
-      "Los proveedores ahora pueden tener créditos a favor (deuda negativa) cuando se les paga más de lo que se les debe. Visualización mejorada con colores: rojo para deudas, verde para créditos a favor. Incluye filtro específico para ver proveedores con crédito.",
-    icon: "✅",
-    isNew: false,
-  },
-  {
-    id: "2025-11-13-historial-pagos",
-    date: "13 Nov 2025",
-    title: "📋 Historial de Pagos a Proveedores",
-    description:
-      "Nueva tabla supplier_payments que registra todos los pagos realizados a proveedores. El historial en la gestión de proveedores ahora muestra tanto compras como pagos con notas descriptivas, fechas y montos diferenciados por colores.",
-    icon: "📋",
-    isNew: false,
-  },
-  {
-    id: "2025-11-11-rediseno-completo",
-    date: "11 Nov 2025",
-    title: "🎨 Rediseño Completo de la Aplicación",
-    description:
-      "Renovación total del diseño con gradientes modernos, tarjetas con sombras, iconos coloridos, mejoras en la experiencia de usuario y una interfaz más intuitiva y profesional en todas las secciones.",
-    icon: "🎨",
-    isNew: false,
-  },
-  {
-    id: "2025-11-11-atajos-teclado",
-    date: "11 Nov 2025",
-    title: "⌨️ Mejoras en Atajos de Teclado",
-    description:
-      "Corrección en la navegación con flechas (↑↓) en el buscador de productos (F10). Ahora el selector se mantiene visible y hace scroll automático al producto seleccionado.",
-    icon: "⌨️",
-    isNew: false,
-  },
-  {
-    id: "2025-11-11-notificaciones",
-    date: "11 Nov 2025",
-    title: "🔔 Sistema de Notificaciones",
-    description:
-      "Nueva campanita flotante que te notifica sobre todas las actualizaciones y mejoras implementadas en FrontStock. ¡Nunca te pierdas una novedad!",
-    icon: "🔔",
-    isNew: false,
-  },
-  {
-    id: "2025-11-11-graficos",
-    date: "11 Nov 2025",
-    title: "📊 Dashboard de Análisis Completo",
-    description:
-      "Nueva página de gráficos con 6 visualizaciones: evolución diaria, balance Local vs Reparto, métodos de pago, top productos, tendencia mensual y selector de rangos.",
-    icon: "📊",
-    isNew: false,
-  },
-  {
-    id: "2025-11-11-balance",
-    date: "11 Nov 2025",
-    title: "⚖️ Balance Local vs Reparto",
-    description:
-      "Nuevo panel en el dashboard principal que muestra el balance entre ventas del local y ventas de reparto/pedidos con indicador de dominancia.",
-    icon: "⚖️",
-    isNew: false,
-  },
-  {
-    id: "2025-11-11-busqueda",
-    date: "11 Nov 2025",
-    title: "🔍 Búsqueda de Clientes en Pedidos",
-    description:
-      "Barra de búsqueda en nuevo pedido para encontrar clientes rápidamente por nombre o tipo (mayorista/minorista).",
-    icon: "🔍",
-    isNew: false,
-  },
-  {
-    id: "2025-11-11-fix-datepicker",
-    date: "11 Nov 2025",
-    title: "🐛 Corrección en Selector de Fechas",
-    description:
-      "Solucionado el problema donde el selector de fechas causaba que la página saltara hacia arriba al navegar entre fechas en ventas.",
-    icon: "🐛",
-    isNew: false,
-  },
-  {
-    id: "2025-11-10-detalle-pedido",
-    date: "10 Nov 2025",
-    title: "📦 Mejora en Detalle de Pedido",
-    description:
-      "Rediseño completo del detalle de pedido con tarjetas informativas, tabla moderna y vista móvil optimizada.",
-    icon: "📦",
-    isNew: false,
+    type: "feature",
   },
 ];
 
@@ -193,21 +94,19 @@ export default function UpdatesNotification() {
   const [isOpen, setIsOpen] = useState(false);
   const [seenUpdates, setSeenUpdates] = useState<string[]>([]);
   const [hasNewUpdates, setHasNewUpdates] = useState(false);
+  const [activeTab, setActiveTab] = useState<"new" | "all">("new");
 
   useEffect(() => {
-    // Cargar actualizaciones vistas del localStorage
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const seen = JSON.parse(stored);
       setSeenUpdates(seen);
-
-      // Verificar si hay actualizaciones nuevas no vistas
       const hasNew = UPDATES.some(
         (update) => update.isNew && !seen.includes(update.id)
       );
       setHasNewUpdates(hasNew);
+      if (!hasNew) setActiveTab("all");
     } else {
-      // Si no hay nada guardado, todas las actualizaciones "new" son nuevas
       setHasNewUpdates(UPDATES.some((update) => update.isNew));
     }
   }, []);
@@ -215,128 +114,231 @@ export default function UpdatesNotification() {
   const handleOpen = () => {
     setIsOpen(true);
     setHasNewUpdates(false);
-
-    // Marcar todas las actualizaciones como vistas
-    const allIds = UPDATES.map((u) => u.id);
-    setSeenUpdates(allIds);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allIds));
   };
 
   const handleClose = () => {
     setIsOpen(false);
   };
 
+  const markAllAsRead = () => {
+    const allIds = UPDATES.map((u) => u.id);
+    setSeenUpdates(allIds);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allIds));
+    setActiveTab("all");
+  };
+
+  const newUpdatesList = UPDATES.filter(
+    (u) => u.isNew && !seenUpdates.includes(u.id)
+  );
+  const allUpdatesList = UPDATES;
+
+  const displayedUpdates =
+    activeTab === "new" ? newUpdatesList : allUpdatesList;
+
   return (
     <>
-      {/* Botón flotante de la campanita */}
+      {/* Botón Flotante Premium (Mantiene el estilo llamativo) */}
       <button
         onClick={handleOpen}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-300 z-50 group"
+        className="fixed bottom-6 right-6 group z-50"
         aria-label="Ver actualizaciones"
       >
-        <FaBell className="w-6 h-6" />
+        <div className="absolute inset-0 bg-blue-600 rounded-full blur opacity-40 group-hover:opacity-75 transition-opacity duration-500 animate-pulse"></div>
+        <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 rounded-full shadow-2xl border border-white/10 hover:scale-110 transition-transform duration-300 flex items-center justify-center">
+          <FaBell
+            className={`w-6 h-6 ${hasNewUpdates ? "animate-swing" : ""}`}
+          />
 
-        {/* Badge de notificación */}
-        {hasNewUpdates && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full font-bold animate-pulse">
-            {
-              UPDATES.filter((u) => u.isNew && !seenUpdates.includes(u.id))
-                .length
-            }
-          </span>
-        )}
-
-        {/* Tooltip */}
-        <span className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-          ¿Qué hay de nuevo? 🎉
-        </span>
+          {hasNewUpdates && (
+            <span className="absolute -top-1 -right-1 flex h-6 w-6">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-6 w-6 bg-red-500 text-[10px] font-bold items-center justify-center border-2 border-slate-900">
+                {newUpdatesList.length}
+              </span>
+            </span>
+          )}
+        </div>
       </button>
 
-      {/* Modal de actualizaciones */}
+      {/* Backdrop (Fondo oscuro al abrir) */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-2xl flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <FaStar className="w-6 h-6 text-yellow-300" />
-                <div>
-                  <h2 className="text-2xl font-bold">¿Qué hay de nuevo?</h2>
-                  <p className="text-blue-100 text-sm">
-                    Últimas actualizaciones de FrontStock
-                  </p>
-                </div>
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[90] transition-opacity duration-300"
+          onClick={handleClose}
+        />
+      )}
+
+      {/* Drawer / Panel Lateral (Desliza desde la derecha) */}
+      <div
+        className={`fixed inset-y-0 right-0 z-[100] w-full sm:w-[450px] bg-white shadow-2xl transform transition-transform duration-500 ease-out flex flex-col ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* Header Llamativo con Gradiente */}
+        <div className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white p-6 shrink-0 overflow-hidden">
+          {/* Elementos decorativos de fondo */}
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <FaBolt className="w-40 h-40 transform rotate-12 translate-x-10 -translate-y-10" />
+          </div>
+          <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/20 to-transparent" />
+
+          <div className="relative z-10">
+            <div className="flex justify-between items-start mb-6">
+              <div className="flex items-center gap-2">
+                <span className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold border border-white/10 flex items-center gap-1 text-blue-200">
+                  <HiSparkles className="text-yellow-400" /> NOVEDADES
+                </span>
               </div>
               <button
                 onClick={handleClose}
-                className="bg-white hover:bg-gray-100 p-2 rounded-lg transition-all"
-                aria-label="Cerrar"
+                className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors backdrop-blur-md text-white/80 hover:text-white"
               >
-                <FaTimes className="w-5 h-5 text-blue-600" />
+                <FaTimes className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Lista de actualizaciones */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {UPDATES.map((update) => {
-                const isNewToUser =
-                  update.isNew && !seenUpdates.includes(update.id);
+            <h2 className="text-3xl font-black tracking-tight mb-2">
+              ¿Qué hay de nuevo?
+            </h2>
+            <p className="text-blue-200 text-sm leading-relaxed max-w-xs">
+              Mantente al día con las últimas mejoras de tu sistema.
+            </p>
 
-                return (
-                  <div
-                    key={update.id}
-                    className={`border-2 rounded-xl p-5 transition-all hover:shadow-md ${
-                      isNewToUser
-                        ? "border-blue-300 bg-blue-50"
-                        : "border-gray-200 bg-white"
-                    }`}
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Icono */}
-                      <div
-                        className={`text-4xl flex-shrink-0 ${
-                          isNewToUser ? "animate-bounce" : ""
-                        }`}
-                      >
-                        {update.icon}
-                      </div>
-
-                      {/* Contenido */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-lg font-bold text-gray-800">
-                            {update.title}
-                          </h3>
-                          {isNewToUser && (
-                            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
-                              NUEVO
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-gray-600 text-sm mb-2">
-                          {update.description}
-                        </p>
-                        <p className="text-gray-400 text-xs flex items-center gap-1">
-                          <FaCheckCircle className="text-green-500" />
-                          {update.date}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-gray-200 p-4 bg-gray-50 rounded-b-2xl">
-              <p className="text-center text-sm text-gray-600">
-                💡 <strong>Tip:</strong> Haz clic en la campanita en cualquier
-                momento para ver las actualizaciones
-              </p>
+            {/* Tabs Integrados en el Header */}
+            <div className="flex gap-6 mt-8 border-b border-white/10">
+              <button
+                onClick={() => setActiveTab("new")}
+                className={`pb-3 text-sm font-bold transition-all relative ${
+                  activeTab === "new"
+                    ? "text-white"
+                    : "text-blue-300/70 hover:text-white"
+                }`}
+              >
+                Nuevas
+                {newUpdatesList.length > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full shadow-sm">
+                    {newUpdatesList.length}
+                  </span>
+                )}
+                {activeTab === "new" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.7)]" />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab("all")}
+                className={`pb-3 text-sm font-bold transition-all relative ${
+                  activeTab === "all"
+                    ? "text-white"
+                    : "text-blue-300/70 hover:text-white"
+                }`}
+              >
+                Historial
+                {activeTab === "all" && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.7)]" />
+                )}
+              </button>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Contenido Scrollable */}
+        <div className="flex-1 overflow-y-auto bg-slate-50 p-6">
+          {displayedUpdates.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-4">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
+                <FaCheckDouble className="w-8 h-8 text-gray-300" />
+              </div>
+              <div className="text-center">
+                <p className="text-gray-900 font-medium">¡Estás al día!</p>
+                <p className="text-sm">No tienes notificaciones nuevas.</p>
+              </div>
+              <button
+                onClick={() => setActiveTab("all")}
+                className="text-blue-600 text-sm font-bold hover:underline"
+              >
+                Ver historial completo
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {displayedUpdates.map((update, index) => (
+                <div
+                  key={update.id}
+                  className={`group relative bg-white rounded-2xl p-5 border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-in slide-in-from-right-8 fade-in duration-500 ${
+                    update.isNew && !seenUpdates.includes(update.id)
+                      ? "border-blue-200 shadow-md ring-1 ring-blue-50"
+                      : "border-gray-100 shadow-sm"
+                  }`}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  {/* Indicador de Nuevo (Punto pulsante) */}
+                  {update.isNew && !seenUpdates.includes(update.id) && (
+                    <span className="absolute top-5 right-5 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                    </span>
+                  )}
+
+                  <div className="flex items-start gap-4">
+                    {/* Icono con fondo */}
+                    <div
+                      className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm ${
+                        update.type === "feature"
+                          ? "bg-purple-50 text-purple-600"
+                          : update.type === "fix"
+                          ? "bg-red-50 text-red-600"
+                          : "bg-blue-50 text-blue-600"
+                      }`}
+                    >
+                      {update.icon}
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                            update.type === "feature"
+                              ? "bg-purple-100 text-purple-700"
+                              : update.type === "fix"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-blue-100 text-blue-700"
+                          }`}
+                        >
+                          {update.type || "Update"}
+                        </span>
+                        <span className="text-xs text-gray-400 font-medium">
+                          {update.date}
+                        </span>
+                      </div>
+
+                      <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                        {update.title}
+                      </h3>
+
+                      <p className="text-gray-600 text-sm leading-relaxed">
+                        {update.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer con Acción */}
+        {newUpdatesList.length > 0 && activeTab === "new" && (
+          <div className="p-4 bg-white border-t border-gray-100 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <button
+              onClick={markAllAsRead}
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200"
+            >
+              <FaCheckDouble className="text-blue-400" />
+              Marcar todo como leído
+            </button>
+          </div>
+        )}
+      </div>
     </>
   );
 }

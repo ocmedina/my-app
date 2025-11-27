@@ -315,8 +315,8 @@ export default function InventoryKardexPage() {
         </div>
       </div>
 
-      {/* Tabla */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      {/* Tabla (Desktop) */}
+      <div className="hidden md:block bg-white rounded-xl shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -413,6 +413,81 @@ export default function InventoryKardexPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Tarjetas (Mobile) */}
+      <div className="md:hidden space-y-4">
+        {loading ? (
+          <div className="text-center py-10 text-gray-500">
+            Cargando movimientos...
+          </div>
+        ) : movements.length === 0 ? (
+          <div className="text-center py-10 text-gray-500 bg-white rounded-xl shadow-sm">
+            No se encontraron movimientos en este período.
+          </div>
+        ) : (
+          movements.map((movement) => (
+            <div
+              key={movement.id}
+              className="bg-white rounded-xl shadow-sm p-4 border border-gray-100"
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <h3 className="font-bold text-gray-900">
+                    {movement.products?.name || "Producto Eliminado"}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {movement.products?.sku}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-gray-400 block mb-1">
+                    {new Date(movement.created_at).toLocaleDateString("es-AR")}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {new Date(movement.created_at).toLocaleTimeString("es-AR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center gap-2">
+                  {getMovementIcon(movement.movement_type)}
+                  {getMovementLabel(movement.movement_type)}
+                </div>
+                <div
+                  className={`text-lg font-bold ${
+                    movement.quantity > 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {movement.quantity > 0 ? "+" : ""}
+                  {movement.quantity}
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-3 border-t border-gray-100 text-sm">
+                <div className="text-gray-600">
+                  Stock:{" "}
+                  <span className="font-medium">{movement.new_stock}</span>
+                </div>
+                <div className="text-gray-500 text-xs">
+                  {movement.profiles?.full_name ||
+                    movement.profiles?.username ||
+                    "Sistema"}
+                </div>
+              </div>
+
+              {movement.notes && (
+                <div className="mt-2 text-xs text-gray-500 italic bg-gray-50 p-2 rounded">
+                  "{movement.notes}"
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
       <AdjustmentModal

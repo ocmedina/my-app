@@ -13,6 +13,7 @@ import {
   FaBalanceScale,
 } from "react-icons/fa";
 import QuickActionsHeader from "@/components/QuickActionsHeader";
+import NewsSection from "@/components/NewsSection";
 
 // --- Tipos ---
 type CustomerRow = {
@@ -229,6 +230,9 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       {/* Acciones Rápidas como Header */}
       <QuickActionsHeader />
+
+      {/* Sección de Novedades - Colapsable */}
+      <NewsSection />
 
       {/* Tarjetas principales */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

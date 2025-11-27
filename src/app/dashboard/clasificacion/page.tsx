@@ -13,6 +13,14 @@ export default function ClassificationPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
+          <div className="flex justify-between items-start mb-6">
+            <a
+              href="/dashboard/products"
+              className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 border border-gray-200 transition-all font-medium"
+            >
+              ← Volver a Productos
+            </a>
+          </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
             <FaTags className="text-blue-600" /> Clasificación de Productos
           </h1>
