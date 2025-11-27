@@ -128,6 +128,12 @@ export default function SuppliersPage() {
             <FaShoppingCart /> Registrar Compra
           </Link>
           <Link
+            href="/dashboard/compras/generar"
+            className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 text-sm"
+          >
+            <FaShoppingCart /> Generar Orden
+          </Link>
+          <Link
             href="/dashboard/proveedores/nuevo"
             className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 text-sm"
           >

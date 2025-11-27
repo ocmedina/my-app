@@ -1,0 +1,136 @@
+"use client";
+
+import { FaTrash, FaMinus, FaPlus } from "react-icons/fa";
+import { CartItem } from "../types";
+
+interface CartListProps {
+  cart: CartItem[];
+  onUpdateQuantity: (productId: string, delta: number) => void;
+  onRemoveFromCart: (productId: string) => void;
+  onUpdateCustomPrice: (productId: string, newPrice: string) => void;
+}
+
+export default function CartList({
+  cart,
+  onUpdateQuantity,
+  onRemoveFromCart,
+  onUpdateCustomPrice,
+}: CartListProps) {
+  if (cart.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+        <div className="text-6xl mb-4 opacity-20">🛒</div>
+        <p className="text-lg font-medium">El carrito está vacío</p>
+        <p className="text-sm">Agrega productos para comenzar la venta</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Producto
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Cantidad
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Precio Unit.
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Subtotal
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {cart.map((item) => {
+              const price =
+                item.customPrice !== undefined
+                  ? item.customPrice
+                  : item.price_minorista || 0; // Default to minorista for display if not set
+
+              return (
+                <tr
+                  key={item.id}
+                  className="hover:bg-gray-50 transition-colors group"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex flex-col">
+                      <span className="font-medium text-gray-900">
+                        {item.name}
+                      </span>
+                      {item.sku && (
+                        <span className="text-xs text-gray-500">
+                          SKU: {item.sku}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex justify-center items-center gap-2">
+                      <button
+                        onClick={() => onUpdateQuantity(item.id, -1)}
+                        className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                      >
+                        <FaMinus size={12} />
+                      </button>
+                      <span className="w-8 text-center font-semibold text-gray-700">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => onUpdateQuantity(item.id, 1)}
+                        className="p-1 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded transition-colors"
+                      >
+                        <FaPlus size={12} />
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <span className="text-gray-400 text-sm">$</span>
+                      <input
+                        type="number"
+                        value={price}
+                        onChange={(e) =>
+                          onUpdateCustomPrice(item.id, e.target.value)
+                        }
+                        className={`w-24 px-2 py-1 text-right border-b focus:outline-none bg-transparent transition-colors font-medium ${
+                          price === 0
+                            ? "border-red-300 text-red-600 placeholder-red-300"
+                            : "border-transparent hover:border-gray-300 focus:border-blue-500 text-gray-700"
+                        }`}
+                        placeholder="0.00"
+                        onFocus={(e) => e.target.select()}
+                      />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <span className="font-bold text-gray-900">
+                      ${(price * item.quantity).toFixed(2)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <button
+                      onClick={() => onRemoveFromCart(item.id)}
+                      className="text-gray-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50"
+                      title="Eliminar del carrito"
+                    >
+                      <FaTrash size={16} />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

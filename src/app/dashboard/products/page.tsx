@@ -12,6 +12,7 @@ import {
   FaBoxes,
   FaBarcode,
   FaTag,
+  FaTags,
   FaDollarSign,
   FaCubes,
   FaChevronLeft,
@@ -22,7 +23,9 @@ import {
   FaExclamationTriangle,
   FaCheckCircle,
   FaBan,
+  FaPercentage,
 } from "react-icons/fa";
+import MassUpdateModal from "./components/MassUpdateModal";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 const ITEMS_PER_PAGE = 10;
@@ -41,6 +44,8 @@ export default function ProductsPage() {
     conStock: 0,
     total: 0,
   });
+  const [isMassUpdateModalOpen, setIsMassUpdateModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Obtener rol del usuario una sola vez
   useEffect(() => {
@@ -134,7 +139,7 @@ export default function ProductsPage() {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [currentPage, searchTerm, stockFilter]);
+  }, [currentPage, searchTerm, stockFilter, refreshKey]);
 
   // Resetear a página 1 cuando se busca o cambia el filtro
   useEffect(() => {
@@ -156,6 +161,18 @@ export default function ProductsPage() {
           </p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={() => setIsMassUpdateModalOpen(true)}
+            className="px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+          >
+            <FaPercentage /> Actualización Masiva
+          </button>
+          <Link
+            href="/dashboard/clasificacion"
+            className="px-5 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+          >
+            <FaTags /> Clasificación
+          </Link>
           <Link
             href="/dashboard/products/importar"
             className="px-5 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
@@ -517,6 +534,12 @@ export default function ProductsPage() {
           </div>
         </div>
       </div>
+
+      <MassUpdateModal
+        isOpen={isMassUpdateModalOpen}
+        onClose={() => setIsMassUpdateModalOpen(false)}
+        onSuccess={() => setRefreshKey((prev) => prev + 1)}
+      />
     </div>
   );
 }

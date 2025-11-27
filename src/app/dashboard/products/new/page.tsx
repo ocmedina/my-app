@@ -1,7 +1,7 @@
 // src/app/dashboard/products/new/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import {
@@ -20,16 +20,59 @@ import toast from "react-hot-toast";
 export default function NewProductPage() {
   const router = useRouter();
   const [sku, setSku] = useState("");
+  const [barcode, setBarcode] = useState("");
   const [name, setName] = useState("");
   const [priceMinorista, setPriceMinorista] = useState("");
   const [priceMayorista, setPriceMayorista] = useState("");
   const [stock, setStock] = useState("");
+  const [brands, setBrands] = useState<{ id: number; name: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
+    []
+  );
+  const [selectedBrand, setSelectedBrand] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: brandsData } = await supabase
+        .from("brands")
+        .select("id, name")
+        .order("name");
+      const { data: categoriesData } = await supabase
+        .from("categories")
+        .select("id, name")
+        .order("name");
+
+      if (brandsData) setBrands(brandsData);
+      if (categoriesData) setCategories(categoriesData);
+    };
+    fetchData();
+  }, []);
+
+  const generateBarcode = () => {
+    // Generar un código EAN-13 ficticio (13 dígitos)
+    // Prefijo interno 200 + timestamp parcial + random
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0");
+    const code = `200${timestamp}${random}`;
+
+    // Calcular dígito verificador (simple)
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      sum += parseInt(code[i]) * (i % 2 === 0 ? 1 : 3);
+    }
+    const checkDigit = (10 - (sum % 10)) % 10;
+
+    setBarcode(`${code}${checkDigit}`);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!sku || !name || !priceMinorista || !priceMayorista || !stock) {
-      toast.error("Por favor, completa todos los campos.");
+      toast.error("Por favor, completa todos los campos obligatorios.");
       return;
     }
 
@@ -38,10 +81,13 @@ export default function NewProductPage() {
     const { data, error } = await supabase.from("products").insert([
       {
         sku,
+        barcode: barcode || null,
         name,
         price_minorista: parseFloat(priceMinorista),
         price_mayorista: parseFloat(priceMayorista),
         stock: parseInt(stock, 10),
+        brand_id: selectedBrand ? parseInt(selectedBrand) : null,
+        category_id: selectedCategory ? parseInt(selectedCategory) : null,
       },
     ]);
 
@@ -72,10 +118,10 @@ export default function NewProductPage() {
 
         {/* FORMULARIO */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* SECCIÓN: INFORMACIÓN BÁSICA */}
+          {/* SECCIÓN: CÓDIGOS */}
           <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
             <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <FaTag className="text-blue-600" /> Información Básica
+              <FaTag className="text-blue-600" /> Identificación
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* SKU */}
@@ -84,7 +130,7 @@ export default function NewProductPage() {
                   htmlFor="sku"
                   className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
                 >
-                  <FaBarcode className="text-blue-500" /> SKU (Código)
+                  <FaBarcode className="text-blue-500" /> SKU (Código Interno)
                 </label>
                 <input
                   type="text"
@@ -97,6 +143,45 @@ export default function NewProductPage() {
                 />
               </div>
 
+              {/* Barcode */}
+              <div>
+                <label
+                  htmlFor="barcode"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                >
+                  <FaBarcode className="text-purple-500" /> Código de Barras
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    id="barcode"
+                    value={barcode}
+                    onChange={(e) => setBarcode(e.target.value)}
+                    placeholder="Escanear o generar..."
+                    className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={generateBarcode}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 border-2 border-gray-300 rounded-lg hover:bg-gray-200 transition-all font-semibold text-sm"
+                    title="Generar código aleatorio"
+                  >
+                    Generar
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Deja vacío si no tiene. Usa el botón para crear uno nuevo.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* SECCIÓN: INFORMACIÓN BÁSICA */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <FaBoxOpen className="text-green-600" /> Detalles del Producto
+            </h2>
+            <div className="grid grid-cols-1 gap-6">
               {/* Nombre */}
               <div>
                 <label
@@ -114,6 +199,63 @@ export default function NewProductPage() {
                   placeholder="Ej: Alimento para perros 15kg"
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* SECCIÓN: CLASIFICACIÓN */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <FaTag className="text-purple-600" /> Clasificación
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Marca */}
+              <div>
+                <label
+                  htmlFor="brand"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Marca
+                </label>
+                <select
+                  id="brand"
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
+                >
+                  <option value="">Seleccionar Marca...</option>
+                  {brands.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Agrupar por marca ayuda en las órdenes de compra.
+                </p>
+              </div>
+
+              {/* Categoría */}
+              <div>
+                <label
+                  htmlFor="category"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Categoría
+                </label>
+                <select
+                  id="category"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
+                >
+                  <option value="">Seleccionar Categoría...</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>

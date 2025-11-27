@@ -17,46 +17,43 @@ import {
   HiOutlineMenu,
   HiOutlineX,
   HiOutlineCog,
-  HiOutlineTruck, // <-- Ícono para Proveedores
-  HiOutlineArchive, // <-- Ícono para Compras
+  HiOutlineTruck,
+  HiOutlineArchive,
+  HiOutlineClipboardList,
 } from "react-icons/hi";
 
-// Organizamos los enlaces por categorías
+// Organizamos los enlaces por categorías (NUEVA ESTRUCTURA SIMPLIFICADA)
 const navSections = {
-  ventas: [
+  comercial: [
     {
       href: "/dashboard/ventas/nueva",
       label: "Nueva Venta",
       icon: HiOutlineTicket,
     },
     {
-      href: "/dashboard/ventas",
-      label: "Historial",
-      icon: HiOutlineDocumentText,
-    },
-  ],
-  catalogos: [
-    { href: "/dashboard/products", label: "Productos", icon: HiOutlineTag },
-    { href: "/dashboard/clientes", label: "Clientes", icon: HiOutlineUsers },
-    {
-      href: "/dashboard/proveedores",
-      label: "Proveedores",
-      icon: HiOutlineTruck,
-      adminOnly: true,
-    }, // <-- AÑADIDO
-  ],
-  gestion: [
-    {
       href: "/dashboard/pedidos",
       label: "Pedidos",
       icon: HiOutlineShoppingCart,
       adminOnly: true,
     },
-
+    { href: "/dashboard/clientes", label: "Clientes", icon: HiOutlineUsers },
     {
-      href: "/dashboard/facturas",
-      label: "Facturas",
+      href: "/dashboard/ventas",
+      label: "Historial",
       icon: HiOutlineDocumentText,
+    },
+  ],
+  logistica: [
+    { href: "/dashboard/products", label: "Productos", icon: HiOutlineTag },
+    {
+      href: "/dashboard/inventario",
+      label: "Inventario",
+      icon: HiOutlineClipboardList,
+    },
+    {
+      href: "/dashboard/proveedores",
+      label: "Proveedores",
+      icon: HiOutlineTruck,
       adminOnly: true,
     },
   ],
@@ -68,17 +65,21 @@ const navSections = {
       adminOnly: true,
     },
     {
-      href: "/dashboard/usuarios",
-      label: "Usuarios",
-      icon: HiOutlineUserGroup,
+      href: "/dashboard/facturas",
+      label: "Facturas",
+      icon: HiOutlineDocumentText,
       adminOnly: true,
     },
-  ],
-  graficos: [
     {
       href: "/dashboard/graficos",
       label: "Gráficos",
       icon: HiOutlineChartPie,
+      adminOnly: true,
+    },
+    {
+      href: "/dashboard/usuarios",
+      label: "Usuarios",
+      icon: HiOutlineUserGroup,
       adminOnly: true,
     },
   ],
@@ -125,7 +126,7 @@ export default function Navbar() {
   // Definición de roles
   const role = userProfile?.role;
   const isAdmin = role === "administrador";
-  // @ts-ignore - 'supervendedor' no está en tu tipo de rol base, pero lo mantenemos por si lo usas
+  // @ts-ignore
   const isSuper = role === "supervendedor";
 
   // Filtro de visibilidad según rol
@@ -146,7 +147,6 @@ export default function Navbar() {
 
   const isLinkActive = (href: string) => {
     if (href === "/dashboard") return pathname === href;
-    // Corregido: /dashboard/ventas no debe estar activo si estás en /dashboard/ventas/nueva
     if (
       href.endsWith("/ventas") &&
       (pathname.startsWith("/dashboard/ventas/nueva") ||
@@ -197,9 +197,9 @@ export default function Navbar() {
           {/* Navigation Links - Desktop */}
           <div className="hidden lg:flex items-center gap-0.5 flex-1 justify-center max-w-6xl mx-2">
             <div className="flex items-center gap-0.5 flex-wrap justify-center">
-              {/* VENTAS */}
+              {/* 1. COMERCIAL (Azul) */}
               <div className="flex items-center gap-0.5 px-1 py-1 rounded-lg bg-blue-50 mb-1">
-                {getVisibleLinks(navSections.ventas).map((link) => {
+                {getVisibleLinks(navSections.comercial).map((link) => {
                   const Icon = link.icon;
                   const isActive = isLinkActive(link.href);
                   return (
@@ -222,9 +222,9 @@ export default function Navbar() {
 
               <div className="w-px h-5 bg-gray-300 mx-0.5" />
 
-              {/* CATÁLOGOS (AQUÍ AÑADIMOS PROVEEDORES) */}
+              {/* 2. LOGÍSTICA (Verde) */}
               <div className="flex items-center gap-0.5 px-1 py-1 rounded-lg bg-green-50 mb-1">
-                {getVisibleLinks(navSections.catalogos).map((link) => {
+                {getVisibleLinks(navSections.logistica).map((link) => {
                   const Icon = link.icon;
                   const isActive = isLinkActive(link.href);
                   return (
@@ -245,35 +245,7 @@ export default function Navbar() {
                 })}
               </div>
 
-              {/* GESTIÓN (AQUÍ AÑADIMOS COMPRAS) */}
-              {getVisibleLinks(navSections.gestion).length > 0 && (
-                <>
-                  <div className="w-px h-5 bg-gray-300 mx-0.5" />
-                  <div className="flex items-center gap-0.5 px-1 py-1 rounded-lg bg-purple-50 mb-1">
-                    {getVisibleLinks(navSections.gestion).map((link) => {
-                      const Icon = link.icon;
-                      const isActive = isLinkActive(link.href);
-                      return (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          className={`flex items-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap
-                          ${
-                            isActive
-                              ? "bg-purple-600 text-white shadow-sm"
-                              : "text-purple-700 hover:bg-purple-100"
-                          }`}
-                        >
-                          <Icon className="h-3.5 w-3.5" />
-                          <span className="hidden xl:inline">{link.label}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-
-              {/* ADMINISTRACIÓN */}
+              {/* 3. ADMINISTRACIÓN (Naranja) */}
               {getVisibleLinks(navSections.administracion).length > 0 && (
                 <>
                   <div className="w-px h-5 bg-gray-300 mx-0.5" />
@@ -290,34 +262,6 @@ export default function Navbar() {
                             isActive
                               ? "bg-orange-600 text-white shadow-sm"
                               : "text-orange-700 hover:bg-orange-100"
-                          }`}
-                        >
-                          <Icon className="h-3.5 w-3.5" />
-                          <span className="hidden xl:inline">{link.label}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-
-              {/* GRÁFICOS */}
-              {isAdmin && getVisibleLinks(navSections.graficos).length > 0 && (
-                <>
-                  <div className="w-px h-5 bg-gray-300 mx-0.5" />
-                  <div className="flex items-center gap-0.5 px-1 py-1 rounded-lg bg-sky-50 mb-1">
-                    {getVisibleLinks(navSections.graficos).map((link) => {
-                      const Icon = link.icon;
-                      const isActive = isLinkActive(link.href);
-                      return (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          className={`flex items-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap
-                          ${
-                            isActive
-                              ? "bg-sky-600 text-white shadow-sm"
-                              : "text-sky-700 hover:bg-sky-100"
                           }`}
                         >
                           <Icon className="h-3.5 w-3.5" />
@@ -430,12 +374,12 @@ export default function Navbar() {
                 Dashboard
               </Link>
 
-              {/* Sección Ventas */}
+              {/* Sección Comercial */}
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-blue-600 uppercase px-3 mb-1">
-                  Ventas
+                  Comercial
                 </p>
-                {getVisibleLinks(navSections.ventas).map((link) => {
+                {getVisibleLinks(navSections.comercial).map((link) => {
                   const Icon = link.icon;
                   const isActive = isLinkActive(link.href);
                   return (
@@ -457,12 +401,12 @@ export default function Navbar() {
                 })}
               </div>
 
-              {/* Sección Catálogos (AQUÍ AÑADIMOS PROVEEDORES) */}
+              {/* Sección Logística */}
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-green-600 uppercase px-3 mb-1">
-                  Catálogos
+                  Logística
                 </p>
-                {getVisibleLinks(navSections.catalogos).map((link) => {
+                {getVisibleLinks(navSections.logistica).map((link) => {
                   const Icon = link.icon;
                   const isActive = isLinkActive(link.href);
                   return (
@@ -484,35 +428,6 @@ export default function Navbar() {
                 })}
               </div>
 
-              {/* Sección Gestión (PEDIDOS Y FACTURAS) */}
-              {getVisibleLinks(navSections.gestion).length > 0 && (
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-purple-600 uppercase px-3 mb-1">
-                    Gestión
-                  </p>
-                  {getVisibleLinks(navSections.gestion).map((link) => {
-                    const Icon = link.icon;
-                    const isActive = isLinkActive(link.href);
-                    return (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          ${
-                            isActive
-                              ? "bg-purple-600 text-white"
-                              : "text-gray-700 hover:bg-purple-50"
-                          }`}
-                      >
-                        <Icon className="h-5 w-5" />
-                        {link.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-
               {/* Sección Administración */}
               {getVisibleLinks(navSections.administracion).length > 0 && (
                 <div className="space-y-1">
@@ -532,35 +447,6 @@ export default function Navbar() {
                             isActive
                               ? "bg-orange-600 text-white"
                               : "text-gray-700 hover:bg-orange-50"
-                          }`}
-                      >
-                        <Icon className="h-5 w-5" />
-                        {link.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Sección Gráficos */}
-              {isAdmin && getVisibleLinks(navSections.graficos).length > 0 && (
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-sky-600 uppercase px-3 mb-1">
-                    Gráficos
-                  </p>
-                  {getVisibleLinks(navSections.graficos).map((link) => {
-                    const Icon = link.icon;
-                    const isActive = isLinkActive(link.href);
-                    return (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                          ${
-                            isActive
-                              ? "bg-sky-600 text-white"
-                              : "text-gray-700 hover:bg-sky-50"
                           }`}
                       >
                         <Icon className="h-5 w-5" />

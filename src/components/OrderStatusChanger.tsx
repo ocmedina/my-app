@@ -30,20 +30,29 @@ export default function OrderStatusChanger({
     setLoading(true);
     const loadingToast = toast.loading("Actualizando estado...");
 
-    const { error } = await supabase
-      .from("orders")
-      .update({ status: newStatus })
-      .eq("id", order.id);
+    try {
+      const { error } = await supabase.rpc("handle_order_status_change", {
+        order_id_param: order.id,
+        new_status_param: newStatus,
+      });
 
-    toast.dismiss(loadingToast);
+      if (error) throw error;
 
-    if (error) {
-      toast.error("Error al actualizar el estado.");
-    } else {
       toast.success(`Pedido actualizado a "${newStatus}".`);
-      onStatusUpdate(); // <-- Llama a la función del padre para recargar la lista
+      onStatusUpdate();
+    } catch (error: any) {
+      console.error("Error updating status:", error);
+      toast.error("Error al actualizar el estado: " + error.message);
+
+      // Revertir selección visual si hubo error
+      const selectElement = document.getElementById(
+        `status-changer-${order.id}`
+      ) as HTMLSelectElement;
+      if (selectElement) selectElement.value = order.status;
+    } finally {
+      toast.dismiss(loadingToast);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

@@ -1052,10 +1052,10 @@ export default function OrdersPage() {
             <p className="text-gray-600 mb-4">
               No se encontraron pedidos con los filtros aplicados.
             </p>
-            {(filterCustomer ||
-              filterStatus ||
-              filterDeliveryDay ||
-              filterDate) && (
+            {(searchQuery ||
+              statusFilter !== "todos" ||
+              deliveryDayFilter !== "todos" ||
+              dateFilter) && (
               <button
                 onClick={clearFilters}
                 className="text-sm text-blue-600 hover:text-blue-700 underline"

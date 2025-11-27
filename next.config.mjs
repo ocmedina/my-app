@@ -7,9 +7,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  turbopack: {},
   reactStrictMode: true,
   // Configuración de webpack para manejar @react-pdf/renderer
   webpack: (config, { isServer }) => {

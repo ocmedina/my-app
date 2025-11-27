@@ -15,6 +15,7 @@ import {
   FaEdit,
   FaStoreAlt,
   FaWarehouse,
+  FaLayerGroup,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 
@@ -34,6 +35,27 @@ export default function EditProductPage() {
   const [priceMinorista, setPriceMinorista] = useState("");
   const [priceMayorista, setPriceMayorista] = useState("");
   const [stock, setStock] = useState("");
+  const [brands, setBrands] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedBrand, setSelectedBrand] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: brandsData } = await supabase
+        .from("brands")
+        .select("*")
+        .order("name");
+      const { data: categoriesData } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
+
+      if (brandsData) setBrands(brandsData);
+      if (categoriesData) setCategories(categoriesData);
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -53,6 +75,8 @@ export default function EditProductPage() {
         setPriceMinorista(data.price_minorista?.toString() || "");
         setPriceMayorista(data.price_mayorista?.toString() || "");
         setStock(data.stock?.toString() || "");
+        setSelectedBrand(data.brand_id?.toString() || "");
+        setSelectedCategory(data.category_id?.toString() || "");
       } else {
         console.error("Error fetching product:", error);
         router.push("/dashboard/products");
@@ -72,27 +96,64 @@ export default function EditProductPage() {
 
     const loadingToast = toast.loading("Actualizando producto...");
 
-    const { error } = await supabase
-      .from("products")
-      .update({
+    try {
+      // 1. Actualizar datos básicos (excluyendo stock si cambió)
+      const currentStock = product?.stock || 0;
+      const newStock = parseInt(stock, 10);
+      const stockDiff = newStock - currentStock;
+
+      const updateData: any = {
         sku,
         name,
         price_minorista: parseFloat(priceMinorista),
         price_mayorista: parseFloat(priceMayorista),
-        stock: parseInt(stock, 10),
-      })
-      .eq("id", id);
+        brand_id: selectedBrand ? parseInt(selectedBrand) : null,
+        category_id: selectedCategory ? parseInt(selectedCategory) : null,
+      };
 
-    if (error) {
-      toast.error(`Error al actualizar el producto: ${error.message}`, {
-        id: loadingToast,
-      });
-    } else {
+      // Si el stock NO cambió, lo incluimos en el update normal para asegurarnos (aunque sea redundante)
+      // Si SÍ cambió, lo manejamos con el RPC
+      if (stockDiff === 0) {
+        updateData.stock = newStock;
+      }
+
+      const { error: updateError } = await supabase
+        .from("products")
+        .update(updateData)
+        .eq("id", id);
+
+      if (updateError) throw updateError;
+
+      // 2. Si hubo cambio de stock, registrar el movimiento
+      if (stockDiff !== 0) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        const { error: movementError } = await supabase.rpc(
+          "log_stock_movement",
+          {
+            p_product_id: id,
+            p_movement_type: "ajuste_manual",
+            p_quantity: stockDiff,
+            p_user_id: user?.id || null,
+            p_notes: "Ajuste manual desde edición de producto",
+          }
+        );
+
+        if (movementError) throw movementError;
+      }
+
       toast.success("✅ Producto actualizado exitosamente", {
         id: loadingToast,
       });
       router.push("/dashboard/products");
       router.refresh();
+    } catch (error: any) {
+      console.error("Error updating product:", error);
+      toast.error(`Error al actualizar: ${error.message}`, {
+        id: loadingToast,
+      });
     }
   };
 
@@ -167,6 +228,46 @@ export default function EditProductPage() {
                   placeholder="Ej: Alimento para perros 15kg"
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              {/* Marca */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                  <FaTag className="text-purple-500" /> Marca
+                </label>
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                >
+                  <option value="">Seleccionar Marca</option>
+                  {brands.map((brand) => (
+                    <option key={brand.id} value={brand.id}>
+                      {brand.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Categoría */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                  <FaLayerGroup className="text-indigo-500" /> Categoría
+                </label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                >
+                  <option value="">Seleccionar Categoría</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
