@@ -218,7 +218,7 @@ function OrderDetailsModal({
           ) : (
             <div className="space-y-6">
               {/* Información del Pedido */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
                     <FaHashtag className="text-blue-600" /> Información del
@@ -258,15 +258,15 @@ function OrderDetailsModal({
                       </span>
                     ) : (orderData as any).payment_method ===
                       "transferencia" ? (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
                         🏦 Transferencia
                       </span>
                     ) : (orderData as any).payment_method === "mixto" ? (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400">
                         💳 Mixto
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                         💵 Efectivo
                       </span>
                     )}
@@ -275,7 +275,7 @@ function OrderDetailsModal({
               </div>
 
               {/* Información del Cliente */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800">
                 <h3 className="font-bold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2">
                   <FaUser className="text-purple-600" /> Información del Cliente
                 </h3>
@@ -314,8 +314,8 @@ function OrderDetailsModal({
                     <div>
                       <span
                         className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${orderData.customers.customer_type === "mayorista"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-green-100 text-green-700"
+                          ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+                          : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                           }`}
                       >
                         {orderData.customers.customer_type === "mayorista"
@@ -328,7 +328,7 @@ function OrderDetailsModal({
               </div>
 
               {/* Productos del Pedido */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800">
                 <h3 className="font-bold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2">
                   <FaBox className="text-green-600" /> Productos (
                   {orderData.order_items.length})
@@ -381,7 +381,7 @@ function OrderDetailsModal({
               {(orderData as any).amount_paid !== undefined &&
                 (orderData as any).amount_paid !== null && (
                   <div className="space-y-2">
-                    <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                    <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800">
                       <div className="flex items-center justify-between">
                         <span className="text-green-700 font-semibold">
                           Entrega Recibida:
@@ -393,7 +393,7 @@ function OrderDetailsModal({
                     </div>
 
                     {((orderData as any).amount_pending || 0) > 0 && (
-                      <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-300">
+                      <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 border-2 border-orange-300 dark:border-orange-700">
                         <div className="flex items-center justify-between">
                           <span className="text-orange-700 font-bold">
                             Saldo Pendiente:
@@ -410,7 +410,7 @@ function OrderDetailsModal({
 
                     {((orderData as any).amount_pending || 0) === 0 &&
                       (orderData as any).amount_paid > 0 && (
-                        <div className="bg-green-50 rounded-xl p-3 border-2 border-green-300 flex items-center justify-center gap-2">
+                        <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 border-2 border-green-300 dark:border-green-700 flex items-center justify-center gap-2">
                           <FaCheckCircle className="text-green-700" />
                           <span className="text-green-700 font-bold">
                             Pago Completo
@@ -519,8 +519,8 @@ function RemitoModal({
                   <button
                     onClick={() => setPrintFormat("thermal")}
                     className={`p-3 rounded-lg border-2 transition-all ${printFormat === "thermal"
-                      ? "border-blue-600 bg-blue-50 text-blue-700"
-                      : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                      ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                      : "border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:border-gray-400 dark:hover:border-slate-600"
                       }`}
                   >
                     <div className="text-center">
@@ -532,8 +532,8 @@ function RemitoModal({
                   <button
                     onClick={() => setPrintFormat("A4")}
                     className={`p-3 rounded-lg border-2 transition-all ${printFormat === "A4"
-                      ? "border-blue-600 bg-blue-50 text-blue-700"
-                      : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                      ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                      : "border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:border-gray-400 dark:hover:border-slate-600"
                       }`}
                   >
                     <div className="text-center">
@@ -754,7 +754,7 @@ export default function OrdersPage() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors border border-red-200"
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors border border-red-200"
               >
                 <FaTimes />
                 Limpiar Filtros
@@ -897,7 +897,7 @@ export default function OrdersPage() {
                           </span>
                           <button
                             onClick={clearFilters}
-                            className="mt-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                            className="mt-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
                           >
                             Limpiar filtros
                           </button>
@@ -971,7 +971,7 @@ export default function OrdersPage() {
                             <FaDollarSign /> Transferencia
                           </span>
                         ) : (order as any).payment_method === "mixto" ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-300">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-300">
                             <FaDollarSign /> Mixto
                           </span>
                         ) : (
@@ -1097,7 +1097,7 @@ export default function OrdersPage() {
                       🏦 Transferencia
                     </span>
                   ) : (order as any).payment_method === "mixto" ? (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
                       💳 Mixto
                     </span>
                   ) : (
@@ -1161,7 +1161,7 @@ export default function OrdersPage() {
                 </button>
                 <Link
                   href={`/dashboard/pedidos/${order.id}`}
-                  className="flex-1 min-w-[120px] inline-flex items-center justify-center px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-semibold rounded-lg transition-all"
+                  className="flex-1 min-w-[120px] inline-flex items-center justify-center px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-xs font-semibold rounded-lg transition-all"
                 >
                   Detalle Completo
                 </Link>
