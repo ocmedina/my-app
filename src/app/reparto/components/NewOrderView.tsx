@@ -84,7 +84,7 @@ export default function NewOrderView({
   }, [selectedCustomer]);
 
   return (
-    <main className="p-4 space-y-4 pb-32">
+    <main className="p-4 space-y-4 pb-32 bg-gray-50 dark:bg-slate-900 min-h-screen">
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 overflow-visible">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-3 rounded-t-2xl">
           <label className="flex items-center gap-2 text-sm font-semibold text-white">
@@ -136,17 +136,16 @@ export default function NewOrderView({
                       setSearchTerm(c.full_name);
                       setIsDropdownOpen(false);
                     }}
-                    className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 flex justify-between items-center group"
+                    className="px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer border-b last:border-b-0 flex justify-between items-center group"
                   >
                     <span className="font-medium text-gray-700 dark:text-slate-200 group-hover:text-blue-700">
                       {c.full_name}
                     </span>
                     <span
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        c.customer_type === "mayorista"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-green-100 text-green-700"
-                      }`}
+                      className={`text-xs px-2 py-1 rounded-full ${c.customer_type === "mayorista"
+                          ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+                          : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                        }`}
                     >
                       {c.customer_type === "mayorista"
                         ? "Mayorista"
@@ -165,11 +164,10 @@ export default function NewOrderView({
           <div className="mt-4 flex items-center justify-between gap-2">
             {selectedCustomer ? (
               <span
-                className={`text-xs font-medium px-3 py-1.5 rounded-full ${
-                  selectedCustomer.customer_type === "mayorista"
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-green-100 text-green-700"
-                }`}
+                className={`text-xs font-medium px-3 py-1.5 rounded-full ${selectedCustomer.customer_type === "mayorista"
+                    ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+                    : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                  }`}
               >
                 {selectedCustomer.customer_type === "mayorista"
                   ? "🏢 Mayorista"
@@ -227,7 +225,7 @@ export default function NewOrderView({
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-all font-bold"
+                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-all font-bold"
                   >
                     <FaMinus size={12} />
                   </button>
@@ -236,7 +234,7 @@ export default function NewOrderView({
                   </span>
                   <button
                     onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-green-200 text-green-600 rounded-lg hover:bg-green-50 transition-all font-bold"
+                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-green-200 text-green-600 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/30 transition-all font-bold"
                   >
                     <FaPlus size={12} />
                   </button>
@@ -294,11 +292,10 @@ export default function NewOrderView({
         <button
           onClick={onFinalizeOrder}
           disabled={loading || cart.length === 0}
-          className={`w-full font-bold py-4 rounded-xl shadow-xl transition-all transform flex justify-between items-center px-6 ${
-            loading || cart.length === 0
+          className={`w-full font-bold py-4 rounded-xl shadow-xl transition-all transform flex justify-between items-center px-6 ${loading || cart.length === 0
               ? "bg-gray-400 cursor-not-allowed text-white"
               : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-2xl hover:-translate-y-1"
-          }`}
+            }`}
         >
           <span className="text-lg">
             {loading ? "Procesando..." : "Confirmar Pedido"}

@@ -111,7 +111,7 @@ export default function AddProductModal({
                     onProductAdd(product);
                     onClose();
                   }}
-                  className="p-4 border-2 border-gray-200 dark:border-slate-700 rounded-xl flex justify-between items-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                  className="p-4 border-2 border-gray-200 dark:border-slate-700 rounded-xl flex justify-between items-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all group"
                 >
                   <div className="flex-1">
                     <p className="font-semibold text-gray-800 dark:text-slate-100 group-hover:text-blue-600">

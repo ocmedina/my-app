@@ -108,8 +108,8 @@ export default function RemitoModal({
                     onClick={() => setPrintFormat("thermal")}
                     className={`py-3 px-4 rounded-xl border-2 transition-all font-semibold text-sm ${
                       printFormat === "thermal"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                        ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                        : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
                     }`}
                   >
                     <div className="flex flex-col items-center gap-1">
@@ -121,8 +121,8 @@ export default function RemitoModal({
                     onClick={() => setPrintFormat("A4")}
                     className={`py-3 px-4 rounded-xl border-2 transition-all font-semibold text-sm ${
                       printFormat === "A4"
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                        ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                        : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
                     }`}
                   >
                     <div className="flex flex-col items-center gap-1">

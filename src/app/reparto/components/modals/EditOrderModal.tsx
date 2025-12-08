@@ -272,7 +272,7 @@ export default function EditOrderModal({
                           onClick={() =>
                             handleQuantityChange(item.id, item.quantity - 1)
                           }
-                          className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-all font-bold"
+                          className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-all font-bold"
                         >
                           <FaMinus size={12} />
                         </button>
@@ -290,7 +290,7 @@ export default function EditOrderModal({
                           onClick={() =>
                             handleQuantityChange(item.id, item.quantity + 1)
                           }
-                          className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-green-200 text-green-600 rounded-lg hover:bg-green-50 transition-all font-bold"
+                          className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-green-200 text-green-600 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/30 transition-all font-bold"
                         >
                           <FaPlus size={12} />
                         </button>

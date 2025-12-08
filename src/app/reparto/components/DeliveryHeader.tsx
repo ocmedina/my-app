@@ -24,7 +24,7 @@ export default function DeliveryHeader({
   onLogout,
 }: DeliveryHeaderProps) {
   return (
-    <header className="bg-white dark:bg-slate-900 shadow-md border-b border-gray-200 dark:border-slate-700 sticky top-0 z-40">
+    <header className="bg-white dark:bg-slate-950 shadow-md border-b border-gray-200 dark:border-slate-700 sticky top-0 z-40">
       <div className="px-4 py-3 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <FaTruck className="text-blue-600 text-2xl" />
@@ -46,7 +46,7 @@ export default function DeliveryHeader({
           </div>
           <button
             onClick={onLogout}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 font-medium rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 font-medium rounded-lg transition-colors"
           >
             <FaSignOutAlt />
             <span className="hidden sm:inline">Salir</span>
@@ -56,11 +56,10 @@ export default function DeliveryHeader({
       <div className="flex border-t border-gray-200 dark:border-slate-700">
         <button
           onClick={() => setView("new_order")}
-          className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 ${
-            view === "new_order"
-              ? "bg-blue-50 border-b-2 border-blue-600 text-blue-600"
+          className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 ${view === "new_order"
+              ? "bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600 text-blue-600"
               : "text-gray-500 hover:bg-gray-50"
-          }`}
+            }`}
         >
           <FaEdit className="text-lg" />
           <span className="hidden sm:inline">Tomar Pedido</span>
@@ -68,11 +67,10 @@ export default function DeliveryHeader({
         </button>
         <button
           onClick={() => setView("daily")}
-          className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 relative ${
-            view === "daily"
-              ? "bg-blue-50 border-b-2 border-blue-600 text-blue-600"
+          className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 relative ${view === "daily"
+              ? "bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600 text-blue-600"
               : "text-gray-500 hover:bg-gray-50"
-          }`}
+            }`}
         >
           <FaClipboardList className="text-lg" />
           <span className="hidden sm:inline">Hoy</span>
@@ -84,11 +82,10 @@ export default function DeliveryHeader({
         </button>
         <button
           onClick={() => setView("history")}
-          className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 ${
-            view === "history"
-              ? "bg-blue-50 border-b-2 border-blue-600 text-blue-600"
+          className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 ${view === "history"
+              ? "bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600 text-blue-600"
               : "text-gray-500 hover:bg-gray-50"
-          }`}
+            }`}
         >
           <FaHistory className="text-lg" />
           <span className="hidden sm:inline">Historial</span>

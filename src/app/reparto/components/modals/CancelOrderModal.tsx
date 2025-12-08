@@ -59,7 +59,7 @@ export default function CancelOrderModal({
         </div>
         <div className="p-8 space-y-5">
           <div className="text-center">
-            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
               <FaBan className="text-red-600 text-3xl" />
             </div>
             <p className="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-2">
@@ -72,7 +72,7 @@ export default function CancelOrderModal({
             <p className="text-2xl font-bold text-red-600 mb-4">
               ${order.total_amount.toFixed(2)}
             </p>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3 text-sm text-yellow-800">
               <p className="font-semibold mb-1">⚠️ Importante:</p>
               <p>El stock de los productos será devuelto al inventario.</p>
             </div>

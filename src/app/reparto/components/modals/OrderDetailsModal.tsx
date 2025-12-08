@@ -82,19 +82,19 @@ export default function OrderDetailsModal({
   const getStatusBadge = (status: string) => {
     if (status === "pendiente") {
       return (
-        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800">
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
           <FaClock /> Pendiente
         </span>
       );
     } else if (status === "cancelado") {
       return (
-        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800">
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400">
           <FaBan /> Cancelado
         </span>
       );
     } else {
       return (
-        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
           <FaCheckCircle /> Entregado
         </span>
       );
@@ -125,7 +125,7 @@ export default function OrderDetailsModal({
           ) : (
             <div className="space-y-6">
               {/* Información del Pedido */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
                     <FaHashtag className="text-blue-600" /> Información del
@@ -161,7 +161,7 @@ export default function OrderDetailsModal({
               </div>
 
               {/* Información del Cliente */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800">
                 <h3 className="font-bold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2">
                   <FaUser className="text-purple-600" /> Información del Cliente
                 </h3>
@@ -198,15 +198,14 @@ export default function OrderDetailsModal({
                   )}
                   <div>
                     <span
-                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
-                        (orderData.customers as Customer).customer_type ===
-                        "mayorista"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-green-100 text-green-700"
-                      }`}
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${(orderData.customers as Customer).customer_type ===
+                          "mayorista"
+                          ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+                          : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                        }`}
                     >
                       {(orderData.customers as Customer).customer_type ===
-                      "mayorista"
+                        "mayorista"
                         ? "🏢 Cliente Mayorista"
                         : "👤 Cliente Minorista"}
                     </span>
@@ -215,7 +214,7 @@ export default function OrderDetailsModal({
               </div>
 
               {/* Productos del Pedido */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800">
                 <h3 className="font-bold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2">
                   <FaBox className="text-green-600" /> Productos (
                   {orderData.order_items.length})

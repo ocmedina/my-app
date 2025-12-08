@@ -171,7 +171,7 @@ export default function DeliveryConfirmationModal({
                   className="mt-1 w-full p-3 border-2 border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50 dark:bg-slate-950"
                 />
               </div>
-              <div className="bg-purple-50 p-3 rounded-xl border-2 border-purple-200">
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-xl border-2 border-purple-200 dark:border-purple-700">
                 <label className="block text-sm font-medium text-purple-700">
                   💰 Total Recibido
                 </label>
@@ -196,7 +196,7 @@ export default function DeliveryConfirmationModal({
             </div>
           )}
           {pending > 0 && (
-            <div className="flex justify-between font-bold text-red-600 p-3 bg-red-50 rounded-lg border border-red-200">
+            <div className="flex justify-between font-bold text-red-600 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
               <span>Saldo Pendiente (Deuda):</span>
               <span>${pending.toFixed(2)}</span>
             </div>

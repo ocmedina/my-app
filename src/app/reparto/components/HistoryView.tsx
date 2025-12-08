@@ -46,7 +46,7 @@ export default function HistoryView({
   onCancelOrder,
 }: HistoryViewProps) {
   return (
-    <main className="p-4 space-y-4">
+    <main className="p-4 space-y-4 bg-gray-50 dark:bg-slate-900 min-h-screen">
       <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2 text-lg">
@@ -121,13 +121,12 @@ export default function HistoryView({
                 </div>
                 <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t">
                   <span
-                    className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${
-                      order.status === "pendiente"
-                        ? "bg-yellow-100 text-yellow-700"
+                    className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${order.status === "pendiente"
+                        ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
                         : order.status === "cancelado"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-green-100 text-green-700"
-                    }`}
+                          ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+                          : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                      }`}
                   >
                     {order.status === "pendiente" ? (
                       <FaClock />
@@ -139,8 +138,8 @@ export default function HistoryView({
                     {order.status === "pendiente"
                       ? "Pendiente"
                       : order.status === "cancelado"
-                      ? "Cancelado"
-                      : "Entregado"}
+                        ? "Cancelado"
+                        : "Entregado"}
                   </span>
                   <div className="flex gap-2 flex-wrap">
                     <button
