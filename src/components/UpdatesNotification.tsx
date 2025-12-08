@@ -210,7 +210,7 @@ export default function UpdatesNotification() {
 
       {/* Drawer / Panel Lateral (Desliza desde la derecha) */}
       <div
-        className={`fixed inset-y-0 right-0 z-[100] w-full sm:w-[450px] bg-white shadow-2xl transform transition-transform duration-500 ease-out flex flex-col ${isOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed inset-y-0 right-0 z-[100] w-full sm:w-[450px] bg-white dark:bg-slate-900 shadow-2xl transform transition-transform duration-500 ease-out flex flex-col ${isOpen ? "translate-x-0" : "translate-x-full"
           }`}
       >
         {/* Header Llamativo con Gradiente */}
@@ -279,7 +279,7 @@ export default function UpdatesNotification() {
         </div>
 
         {/* Contenido Scrollable */}
-        <div className="flex-1 overflow-y-auto bg-slate-50 p-6">
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-6">
           {displayedUpdates.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-4">
               <div className="w-20 h-20 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
@@ -301,9 +301,9 @@ export default function UpdatesNotification() {
               {displayedUpdates.map((update, index) => (
                 <div
                   key={update.id}
-                  className={`group relative bg-white rounded-2xl p-5 border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-in slide-in-from-right-8 fade-in duration-500 ${update.isNew && !seenUpdates.includes(update.id)
-                    ? "border-blue-200 shadow-md ring-1 ring-blue-50"
-                    : "border-gray-100 shadow-sm"
+                  className={`group relative bg-white dark:bg-slate-800 rounded-2xl p-5 border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-in slide-in-from-right-8 fade-in duration-500 ${update.isNew && !seenUpdates.includes(update.id)
+                      ? "border-blue-200 dark:border-blue-700 shadow-md ring-1 ring-blue-50 dark:ring-blue-900/50"
+                      : "border-gray-100 dark:border-slate-700 shadow-sm"
                     }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
@@ -340,7 +340,7 @@ export default function UpdatesNotification() {
                         >
                           {update.type || "Update"}
                         </span>
-                        <span className="text-xs text-gray-400 font-medium">
+                        <span className="text-xs text-gray-500 dark:text-slate-400 font-medium">
                           {update.date}
                         </span>
                       </div>
