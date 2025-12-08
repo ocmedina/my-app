@@ -358,7 +358,7 @@ export default function ReportsPage() {
               </p>
               <p className="text-xs text-green-600 mt-1">Total en efectivo</p>
             </div>
-            <div className="bg-purple-50 p-3 sm:p-4 rounded-lg border border-purple-200">
+            <div className="bg-purple-50 dark:bg-purple-900/20 p-3 sm:p-4 rounded-lg border border-purple-200 dark:border-purple-800">
               <p className="text-xs sm:text-sm text-purple-600 font-medium">
                 Fondo Inicial
               </p>
@@ -593,7 +593,7 @@ export default function ReportsPage() {
           <div className="space-y-4">
             {/* Resumen general */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
                 <p className="text-xs text-blue-600 font-medium">
                   Total Ventas
                 </p>
@@ -604,7 +604,7 @@ export default function ReportsPage() {
                   {savedReport.transactionCount} transacciones
                 </p>
               </div>
-              <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
                 <p className="text-xs text-green-600 font-medium">
                   Efectivo Total
                 </p>
@@ -612,7 +612,7 @@ export default function ReportsPage() {
                   ${savedReport.cashSales.toFixed(2)}
                 </p>
               </div>
-              <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
                 <p className="text-xs text-purple-600 font-medium">
                   Fondo Inicial
                 </p>
@@ -620,7 +620,7 @@ export default function ReportsPage() {
                   ${savedReport.startingFloat.toFixed(2)}
                 </p>
               </div>
-              <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+              <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
                 <p className="text-xs text-orange-600 font-medium">
                   Cuenta Corriente
                 </p>
@@ -631,7 +631,7 @@ export default function ReportsPage() {
             </div>
 
             {/* Ventas de Mostrador */}
-            <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-300">
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
               <h3 className="font-semibold text-blue-800 mb-3">
                 🏪 Ventas de Mostrador
               </h3>
@@ -678,7 +678,7 @@ export default function ReportsPage() {
             </div>
 
             {/* Entregas de Reparto */}
-            <div className="bg-green-50 p-4 rounded-lg border-2 border-green-300">
+            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border-2 border-green-300 dark:border-green-700">
               <h3 className="font-semibold text-green-800 mb-3">
                 🚚 Entregas de Reparto
               </h3>
@@ -715,7 +715,7 @@ export default function ReportsPage() {
             </div>
 
             {/* Arqueo de Efectivo */}
-            <div className="bg-blue-50 p-5 rounded-lg border border-blue-200">
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-5 rounded-lg border border-blue-200 dark:border-blue-800">
               <h3 className="font-semibold text-gray-700 dark:text-slate-200 mb-4">
                 💰 Arqueo de Efectivo
               </h3>
