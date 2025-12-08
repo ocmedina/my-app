@@ -74,15 +74,6 @@ export default function NewOrderView({
     };
   }, []);
 
-  // Update search term when a customer is selected
-  useEffect(() => {
-    if (selectedCustomer) {
-      setSearchTerm(selectedCustomer.full_name);
-    } else {
-      setSearchTerm("");
-    }
-  }, [selectedCustomer]);
-
   return (
     <main className="p-4 space-y-4 pb-32 bg-gray-50 dark:bg-slate-900 min-h-screen">
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 overflow-visible">
@@ -143,8 +134,8 @@ export default function NewOrderView({
                     </span>
                     <span
                       className={`text-xs px-2 py-1 rounded-full ${c.customer_type === "mayorista"
-                          ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
-                          : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                        ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+                        : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                         }`}
                     >
                       {c.customer_type === "mayorista"
@@ -165,8 +156,8 @@ export default function NewOrderView({
             {selectedCustomer ? (
               <span
                 className={`text-xs font-medium px-3 py-1.5 rounded-full ${selectedCustomer.customer_type === "mayorista"
-                    ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
-                    : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                  ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+                  : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                   }`}
               >
                 {selectedCustomer.customer_type === "mayorista"
@@ -293,8 +284,8 @@ export default function NewOrderView({
           onClick={onFinalizeOrder}
           disabled={loading || cart.length === 0}
           className={`w-full font-bold py-4 rounded-xl shadow-xl transition-all transform flex justify-between items-center px-6 ${loading || cart.length === 0
-              ? "bg-gray-400 cursor-not-allowed text-white"
-              : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-2xl hover:-translate-y-1"
+            ? "bg-gray-400 cursor-not-allowed text-white"
+            : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-2xl hover:-translate-y-1"
             }`}
         >
           <span className="text-lg">
