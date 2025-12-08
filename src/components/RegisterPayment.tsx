@@ -137,12 +137,12 @@ export default function RegisterPayment({
   };
 
   return (
-    <div className="bg-white rounded-lg">
+    <div className="bg-white dark:bg-slate-900 rounded-lg">
       <form onSubmit={handleRegisterPayment} className="space-y-4">
         <div>
           <label
             htmlFor="amount"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2"
           >
             Monto a Pagar
           </label>
@@ -152,18 +152,18 @@ export default function RegisterPayment({
             id="amount"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="block w-full px-3 py-2 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base"
+            className="block w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base"
             placeholder="0.00"
             required
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
             Deuda actual: ${currentDebt.toFixed(2)}
           </p>
         </div>
         <div>
           <label
             htmlFor="comment"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2"
           >
             Comentario (Opcional)
           </label>
@@ -172,7 +172,7 @@ export default function RegisterPayment({
             id="comment"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="block w-full px-3 py-2 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base"
+            className="block w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base"
             placeholder="Ej: Entrega semanal"
           />
         </div>

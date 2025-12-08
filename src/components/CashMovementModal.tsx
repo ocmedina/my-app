@@ -84,7 +84,7 @@ export default function CashMovementModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all animate-slideUp">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md transform transition-all animate-slideUp">
         {/* Header con gradiente */}
         <div
           className={`${
@@ -99,7 +99,7 @@ export default function CashMovementModal({
             </h2>
             <button
               onClick={onClose}
-              className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all"
+              className="text-white/80 hover:text-white hover:bg-white dark:bg-slate-900/20 rounded-full p-2 transition-all"
             >
               <FaTimes className="text-xl" />
             </button>
@@ -109,11 +109,11 @@ export default function CashMovementModal({
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">
               {amountLabel}
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 font-medium">
                 $
               </span>
               <input
@@ -123,13 +123,13 @@ export default function CashMovementModal({
                 onChange={(e) => setAmount(e.target.value)}
                 required
                 placeholder="0.00"
-                className="w-full pl-8 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none text-lg font-medium"
+                className="w-full pl-8 pr-4 py-3 border-2 border-gray-200 dark:border-slate-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none text-lg font-medium"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">
               {descriptionLabel}
             </label>
             <input
@@ -138,7 +138,7 @@ export default function CashMovementModal({
               onChange={(e) => setDescription(e.target.value)}
               required={isExpense}
               placeholder={isExpense ? "Ej: Compra de insumos" : "Opcional"}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
             />
           </div>
 
@@ -147,7 +147,7 @@ export default function CashMovementModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all"
+              className="flex-1 px-4 py-3 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-200 font-semibold rounded-xl transition-all"
             >
               Cancelar
             </button>

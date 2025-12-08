@@ -201,7 +201,7 @@ export default function PedidosPendientesPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando pedidos pendientes...</p>
+          <p className="text-gray-600 dark:text-slate-300">Cargando pedidos pendientes...</p>
         </div>
       </div>
     );
@@ -210,7 +210,7 @@ export default function PedidosPendientesPage() {
   const totalPendiente = pedidos.reduce((sum, p) => sum + p.amount_pending, 0);
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       {/* HEADER */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 sm:mb-8 gap-4">
         <div className="w-full lg:w-auto">
@@ -224,13 +224,13 @@ export default function PedidosPendientesPage() {
             <FaExclamationTriangle className="text-orange-600 text-xl sm:text-2xl" />{" "}
             Pedidos con Saldo Pendiente
           </h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">
+          <p className="text-gray-600 dark:text-slate-300 mt-1 text-sm sm:text-base">
             Todos los pedidos con deuda pendiente de cobro ({pedidos.length}{" "}
             pedidos)
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-orange-200 w-full lg:w-auto">
-          <p className="text-xs sm:text-sm text-gray-600 mb-1">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-4 border-2 border-orange-200 w-full lg:w-auto">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 mb-1">
             Total Pendiente
           </p>
           <p className="text-2xl sm:text-3xl font-bold text-orange-600">
@@ -241,12 +241,12 @@ export default function PedidosPendientesPage() {
 
       {/* LISTA DE PEDIDOS PENDIENTES */}
       {pedidos.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-12 text-center">
           <FaCheckCircle className="text-6xl text-green-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-slate-100 mb-2">
             ¡No hay pedidos pendientes!
           </h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-slate-300">
             Todos los pedidos fiados están pagados
           </p>
         </div>
@@ -257,9 +257,9 @@ export default function PedidosPendientesPage() {
             {pedidos.map((pedido) => (
               <div
                 key={pedido.id}
-                className="bg-white rounded-xl shadow-lg border-2 border-gray-200 overflow-hidden"
+                className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border-2 border-gray-200 dark:border-slate-700 overflow-hidden"
               >
-                <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 border-b border-gray-200">
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 p-4 border-b border-gray-200 dark:border-slate-700">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex-1">
                       <Link
@@ -269,7 +269,7 @@ export default function PedidosPendientesPage() {
                         <FaUser className="text-sm" />
                         {pedido.customer_name}
                       </Link>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">
                         Vendedor: {pedido.profile_name}
                       </p>
                     </div>
@@ -281,7 +281,7 @@ export default function PedidosPendientesPage() {
                       {getStatusLabel(pedido.status)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
                     <FaCalendarAlt />
                     {new Date(pedido.created_at).toLocaleDateString("es-AR")}
                     {" · "}
@@ -294,13 +294,13 @@ export default function PedidosPendientesPage() {
                 <div className="p-4 space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">Total Pedido</p>
-                      <p className="text-lg font-bold text-gray-900">
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mb-1">Total Pedido</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-slate-50">
                         ${pedido.total_amount.toFixed(2)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">Pagado</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mb-1">Pagado</p>
                       <p className="text-lg font-bold text-green-600">
                         ${pedido.amount_paid.toFixed(2)}
                       </p>
@@ -343,58 +343,58 @@ export default function PedidosPendientesPage() {
           </div>
 
           {/* Vista de tabla para desktop */}
-          <div className="hidden lg:block bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+          <div className="hidden lg:block bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-orange-50 to-red-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+                <thead className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       <div className="flex items-center gap-2">
                         <FaCalendarAlt /> Fecha
                       </div>
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       <div className="flex items-center gap-2">
                         <FaUser /> Cliente
                       </div>
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       <div className="flex items-center gap-2">
                         <FaShoppingCart /> Vendedor
                       </div>
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       Estado
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       Total Pedido
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       Pagado
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       <div className="flex items-center justify-end gap-2">
                         <FaDollarSign /> Pendiente
                       </div>
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       Acciones
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
                   {pedidos.map((pedido) => (
                     <tr
                       key={pedido.id}
-                      className="hover:bg-gray-50 transition-colors"
+                      className="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-gray-900 dark:text-slate-50">
                           {new Date(pedido.created_at).toLocaleDateString(
                             "es-AR"
                           )}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-slate-400">
                           {new Date(pedido.created_at).toLocaleTimeString(
                             "es-AR",
                             {
@@ -413,7 +413,7 @@ export default function PedidosPendientesPage() {
                         </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-gray-900 dark:text-slate-50">
                           {pedido.profile_name}
                         </div>
                       </td>
@@ -427,7 +427,7 @@ export default function PedidosPendientesPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="text-sm font-semibold text-gray-900">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-slate-50">
                           ${pedido.total_amount.toFixed(2)}
                         </div>
                       </td>
@@ -440,7 +440,7 @@ export default function PedidosPendientesPage() {
                         <div className="text-sm font-bold text-red-600">
                           ${pedido.amount_pending.toFixed(2)}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-slate-400">
                           {(
                             (pedido.amount_pending / pedido.total_amount) *
                             100
@@ -467,11 +467,11 @@ export default function PedidosPendientesPage() {
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-gradient-to-r from-orange-50 to-red-50">
+                <tfoot className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30">
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-6 py-4 text-right font-bold text-gray-700"
+                      className="px-6 py-4 text-right font-bold text-gray-700 dark:text-slate-200"
                     >
                       TOTAL PENDIENTE:
                     </td>
@@ -491,11 +491,11 @@ export default function PedidosPendientesPage() {
 
       {/* ESTADÍSTICAS ADICIONALES */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-6">
-        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total de Pedidos</p>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">Total de Pedidos</p>
+              <p className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                 {pedidos.length}
               </p>
             </div>
@@ -503,11 +503,11 @@ export default function PedidosPendientesPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total en Pedidos</p>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">Total en Pedidos</p>
+              <p className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                 $
                 {pedidos.reduce((sum, p) => sum + p.total_amount, 0).toFixed(2)}
               </p>
@@ -516,11 +516,11 @@ export default function PedidosPendientesPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border-l-4 border-green-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Cobrado</p>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">Total Cobrado</p>
+              <p className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                 ${pedidos.reduce((sum, p) => sum + p.amount_paid, 0).toFixed(2)}
               </p>
             </div>
@@ -528,11 +528,11 @@ export default function PedidosPendientesPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Pedidos Pendientes</p>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">Pedidos Pendientes</p>
+              <p className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                 {pedidos.filter((p) => p.status === "pendiente").length}
               </p>
             </div>
@@ -544,22 +544,21 @@ export default function PedidosPendientesPage() {
       {/* MODAL DE PAGO */}
       {showPaymentModal && selectedPedido && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 sm:p-6 border-b border-gray-200">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-slate-700">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100">
                 Registrar Pago de Pedido
               </h3>
-              <p className="text-xs sm:text-sm text-gray-600 mt-1">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 mt-1">
                 Cliente: {selectedPedido.customer_name}
               </p>
-              <p className="text-xs sm:text-sm text-gray-600">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300">
                 Estado:{" "}
                 <span
-                  className={`font-semibold ${
-                    selectedPedido.status === "entregado"
-                      ? "text-green-600"
-                      : "text-yellow-600"
-                  }`}
+                  className={`font-semibold ${selectedPedido.status === "entregado"
+                    ? "text-green-600"
+                    : "text-yellow-600"
+                    }`}
                 >
                   {getStatusLabel(selectedPedido.status)}
                 </span>
@@ -571,7 +570,7 @@ export default function PedidosPendientesPage() {
                 <p className="text-2xl font-bold text-orange-600">
                   ${selectedPedido.amount_pending.toFixed(2)}
                 </p>
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-xs text-gray-600 dark:text-slate-300 mt-1">
                   Total: ${selectedPedido.total_amount.toFixed(2)} | Pagado: $
                   {selectedPedido.amount_paid.toFixed(2)}
                 </p>
@@ -582,7 +581,7 @@ export default function PedidosPendientesPage() {
                 <div>
                   <label
                     htmlFor="payment-amount"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2"
                   >
                     Monto a Pagar
                   </label>
@@ -592,7 +591,7 @@ export default function PedidosPendientesPage() {
                     id="payment-amount"
                     value={paymentAmount}
                     onChange={(e) => setPaymentAmount(e.target.value)}
-                    className="block w-full px-3 py-2 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base"
+                    className="block w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base"
                     placeholder="0.00"
                     required
                     max={selectedPedido.amount_pending}
@@ -601,7 +600,7 @@ export default function PedidosPendientesPage() {
                 <div>
                   <label
                     htmlFor="payment-comment"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2"
                   >
                     Comentario (Opcional)
                   </label>
@@ -610,7 +609,7 @@ export default function PedidosPendientesPage() {
                     id="payment-comment"
                     value={paymentComment}
                     onChange={(e) => setPaymentComment(e.target.value)}
-                    className="block w-full px-3 py-2 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base"
+                    className="block w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base"
                     placeholder="Ej: Pago parcial en efectivo"
                   />
                 </div>
@@ -623,11 +622,11 @@ export default function PedidosPendientesPage() {
                 </button>
               </form>
             </div>
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-gray-200 dark:border-slate-700">
               <button
                 onClick={handleClosePayment}
                 disabled={processingPayment}
-                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm sm:text-base disabled:opacity-50"
+                className="w-full px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm sm:text-base disabled:opacity-50"
               >
                 Cancelar
               </button>

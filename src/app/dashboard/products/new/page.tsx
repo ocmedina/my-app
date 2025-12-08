@@ -104,14 +104,14 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       <div className="max-w-4xl mx-auto">
         {/* HEADER */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
             <FaBoxOpen className="text-blue-600" /> Agregar Nuevo Producto
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 dark:text-slate-300 mt-2">
             Completa la información del producto para agregarlo al inventario
           </p>
         </div>
@@ -119,8 +119,8 @@ export default function NewProductPage() {
         {/* FORMULARIO */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* SECCIÓN: CÓDIGOS */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
+            <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
               <FaTag className="text-blue-600" /> Identificación
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -128,7 +128,7 @@ export default function NewProductPage() {
               <div>
                 <label
                   htmlFor="sku"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   <FaBarcode className="text-blue-500" /> SKU (Código Interno)
                 </label>
@@ -139,7 +139,7 @@ export default function NewProductPage() {
                   onChange={(e) => setSku(e.target.value)}
                   required
                   placeholder="Ej: PROD-001"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono"
+                  className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono"
                 />
               </div>
 
@@ -147,7 +147,7 @@ export default function NewProductPage() {
               <div>
                 <label
                   htmlFor="barcode"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   <FaBarcode className="text-purple-500" /> Código de Barras
                 </label>
@@ -158,18 +158,18 @@ export default function NewProductPage() {
                     value={barcode}
                     onChange={(e) => setBarcode(e.target.value)}
                     placeholder="Escanear o generar..."
-                    className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono"
+                    className="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono"
                   />
                   <button
                     type="button"
                     onClick={generateBarcode}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 border-2 border-gray-300 rounded-lg hover:bg-gray-200 transition-all font-semibold text-sm"
+                    className="px-4 py-2 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 border-2 border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-200 dark:bg-slate-700 transition-all font-semibold text-sm"
                     title="Generar código aleatorio"
                   >
                     Generar
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   Deja vacío si no tiene. Usa el botón para crear uno nuevo.
                 </p>
               </div>
@@ -177,8 +177,8 @@ export default function NewProductPage() {
           </div>
 
           {/* SECCIÓN: INFORMACIÓN BÁSICA */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
+            <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
               <FaBoxOpen className="text-green-600" /> Detalles del Producto
             </h2>
             <div className="grid grid-cols-1 gap-6">
@@ -186,7 +186,7 @@ export default function NewProductPage() {
               <div>
                 <label
                   htmlFor="name"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   <FaTag className="text-green-500" /> Nombre del Producto
                 </label>
@@ -197,15 +197,15 @@ export default function NewProductPage() {
                   onChange={(e) => setName(e.target.value)}
                   required
                   placeholder="Ej: Alimento para perros 15kg"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>
             </div>
           </div>
 
           {/* SECCIÓN: CLASIFICACIÓN */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
+            <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
               <FaTag className="text-purple-600" /> Clasificación
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -213,7 +213,7 @@ export default function NewProductPage() {
               <div>
                 <label
                   htmlFor="brand"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   Marca
                 </label>
@@ -221,7 +221,7 @@ export default function NewProductPage() {
                   id="brand"
                   value={selectedBrand}
                   onChange={(e) => setSelectedBrand(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
+                  className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-slate-900"
                 >
                   <option value="">Seleccionar Marca...</option>
                   {brands.map((b) => (
@@ -230,7 +230,7 @@ export default function NewProductPage() {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   Agrupar por marca ayuda en las órdenes de compra.
                 </p>
               </div>
@@ -239,7 +239,7 @@ export default function NewProductPage() {
               <div>
                 <label
                   htmlFor="category"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   Categoría
                 </label>
@@ -247,7 +247,7 @@ export default function NewProductPage() {
                   id="category"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
+                  className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-slate-900"
                 >
                   <option value="">Seleccionar Categoría...</option>
                   {categories.map((c) => (
@@ -261,8 +261,8 @@ export default function NewProductPage() {
           </div>
 
           {/* SECCIÓN: PRECIOS Y STOCK */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
+            <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
               <FaDollarSign className="text-green-600" /> Precios y Stock
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -270,12 +270,12 @@ export default function NewProductPage() {
               <div>
                 <label
                   htmlFor="priceMinorista"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   <FaStoreAlt className="text-orange-500" /> Precio Minorista
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">
+                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-slate-400 font-bold">
                     $
                   </span>
                   <input
@@ -286,10 +286,10 @@ export default function NewProductPage() {
                     required
                     step="0.01"
                     placeholder="0.00"
-                    className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   Precio para clientes minoristas
                 </p>
               </div>
@@ -298,12 +298,12 @@ export default function NewProductPage() {
               <div>
                 <label
                   htmlFor="priceMayorista"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   <FaWarehouse className="text-purple-500" /> Precio Mayorista
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">
+                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-slate-400 font-bold">
                     $
                   </span>
                   <input
@@ -314,10 +314,10 @@ export default function NewProductPage() {
                     required
                     step="0.01"
                     placeholder="0.00"
-                    className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   Precio para clientes mayoristas
                 </p>
               </div>
@@ -326,7 +326,7 @@ export default function NewProductPage() {
               <div>
                 <label
                   htmlFor="stock"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   <FaCubes className="text-blue-500" /> Stock Inicial
                 </label>
@@ -337,9 +337,9 @@ export default function NewProductPage() {
                   onChange={(e) => setStock(e.target.value)}
                   required
                   placeholder="0"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   Cantidad de unidades disponibles
                 </p>
               </div>
@@ -347,12 +347,12 @@ export default function NewProductPage() {
           </div>
 
           {/* BOTONES DE ACCIÓN */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
             <div className="flex flex-col sm:flex-row justify-end gap-4">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-lg hover:from-gray-200 hover:to-gray-300 transition-all shadow-sm hover:shadow-md font-semibold flex items-center justify-center gap-2"
+                className="px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 dark:text-slate-200 rounded-lg hover:from-gray-200 hover:to-gray-300 transition-all shadow-sm hover:shadow-md font-semibold flex items-center justify-center gap-2"
               >
                 <FaTimes /> Cancelar
               </button>

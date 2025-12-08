@@ -67,14 +67,14 @@ export default function DailyOrdersView({
   return (
     <main className="p-4 space-y-4">
       {/* Date Selector */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 flex items-center justify-between">
         <button
           onClick={handlePrevDay}
-          className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-2 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800/80 dark:bg-slate-800 rounded-full transition-colors"
         >
           <FaChevronLeft />
         </button>
-        <div className="flex items-center gap-2 font-bold text-gray-800">
+        <div className="flex items-center gap-2 font-bold text-gray-800 dark:text-slate-100">
           <FaCalendarAlt className="text-blue-600" />
           <input
             type="date"
@@ -85,7 +85,7 @@ export default function DailyOrdersView({
         </div>
         <button
           onClick={handleNextDay}
-          className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-2 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800/80 dark:bg-slate-800 rounded-full transition-colors"
         >
           <FaChevronRight />
         </button>
@@ -112,8 +112,8 @@ export default function DailyOrdersView({
         </div>
       </div>
 
-      <div className="bg-white p-5 rounded-2xl shadow-lg border border-gray-200">
-        <h2 className="font-bold text-gray-800 mb-4 flex items-center gap-2 text-lg">
+      <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700">
+        <h2 className="font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2 text-lg">
           <FaClipboardList className="text-blue-600" /> Pedidos del{" "}
           {new Date(selectedDate).toLocaleDateString("es-AR", {
             day: "numeric",
@@ -126,27 +126,27 @@ export default function DailyOrdersView({
             dailyOrders.map((order) => (
               <li
                 key={order.id}
-                className="p-4 border-2 border-gray-200 rounded-xl hover:border-blue-300 transition-all"
+                className="p-4 border-2 border-gray-200 dark:border-slate-700 rounded-xl hover:border-blue-300 transition-all"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-800">
+                    <p className="font-semibold text-gray-800 dark:text-slate-100">
                       {order.customers.full_name}
                     </p>
                     {order.customers.address && (
-                      <div className="text-xs text-gray-600 mt-1 flex items-start gap-1">
+                      <div className="text-xs text-gray-600 dark:text-slate-300 mt-1 flex items-start gap-1">
                         <FaMapMarkerAlt className="text-gray-400 mt-0.5" />
                         <div>
                           <span>{order.customers.address}</span>
                           {order.customers.reference && (
-                            <span className="block italic text-gray-500">
+                            <span className="block italic text-gray-500 dark:text-slate-400">
                               Ref: {order.customers.reference}
                             </span>
                           )}
                         </div>
                       </div>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                       {new Date(order.created_at).toLocaleTimeString("es-AR", {
                         hour: "2-digit",
                         minute: "2-digit",

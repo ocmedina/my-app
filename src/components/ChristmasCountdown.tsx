@@ -77,7 +77,7 @@ export default function ChristmasCountdown() {
 
       <div className="relative z-20 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 border border-white/30">
+          <div className="bg-white/20 dark:bg-slate-900/20 backdrop-blur-sm rounded-lg p-2 border border-white/30">
             <FaTree className="text-2xl text-yellow-300" />
           </div>
           <div>
@@ -93,41 +93,41 @@ export default function ChristmasCountdown() {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[50px] text-center border border-yellow-400/40 shadow-md">
+          <div className="bg-white/20 dark:bg-slate-900/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[50px] text-center border border-yellow-400/40 shadow-md">
             <div
-              className="text-xl font-bold text-yellow-100"
+              className="text-xl font-bold text-white"
               suppressHydrationWarning
             >
               {timeLeft.days}
             </div>
-            <div className="text-[10px] uppercase text-emerald-100">Días</div>
+            <div className="text-[10px] uppercase text-white/90">Días</div>
           </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[50px] text-center border border-yellow-400/40 shadow-md">
+          <div className="bg-white/20 dark:bg-slate-900/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[50px] text-center border border-yellow-400/40 shadow-md">
             <div
-              className="text-xl font-bold text-yellow-100"
+              className="text-xl font-bold text-white"
               suppressHydrationWarning
             >
               {timeLeft.hours}
             </div>
-            <div className="text-[10px] uppercase text-emerald-100">Hrs</div>
+            <div className="text-[10px] uppercase text-white/90">Hrs</div>
           </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[50px] text-center border border-yellow-400/40 shadow-md hidden sm:block">
+          <div className="bg-white/20 dark:bg-slate-900/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[50px] text-center border border-yellow-400/40 shadow-md hidden sm:block">
             <div
-              className="text-xl font-bold text-yellow-100"
+              className="text-xl font-bold text-white"
               suppressHydrationWarning
             >
               {timeLeft.minutes}
             </div>
-            <div className="text-[10px] uppercase text-emerald-100">Min</div>
+            <div className="text-[10px] uppercase text-white/90">Min</div>
           </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[50px] text-center border border-yellow-400/40 shadow-md hidden md:block">
+          <div className="bg-white/20 dark:bg-slate-900/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[50px] text-center border border-yellow-400/40 shadow-md hidden md:block">
             <div
-              className="text-xl font-bold text-yellow-100"
+              className="text-xl font-bold text-white"
               suppressHydrationWarning
             >
               {timeLeft.seconds}
             </div>
-            <div className="text-[10px] uppercase text-emerald-100">Seg</div>
+            <div className="text-[10px] uppercase text-white/90">Seg</div>
           </div>
         </div>
       </div>

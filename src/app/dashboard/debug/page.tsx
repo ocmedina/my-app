@@ -17,7 +17,7 @@ export default function DebugPage() {
   if (!mounted) {
     return (
       <div className="max-w-6xl mx-auto p-4 sm:p-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
           <p>Cargando...</p>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function DebugPage() {
       </div>
 
       {/* Botón de prueba */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md p-6">
         <button
           onClick={testTimezones}
           disabled={loading}
@@ -138,24 +138,24 @@ export default function DebugPage() {
         <div className="space-y-4">
           {/* Información de tiempo actual */}
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md p-4 sm:p-6 border-2 border-blue-200">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
               🕐 Tiempo Actual
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div className="bg-white p-3 rounded">
-                <p className="text-gray-600 font-medium">Hora UTC:</p>
-                <p className="text-gray-900 font-mono mt-1">
+              <div className="bg-white dark:bg-slate-900 p-3 rounded">
+                <p className="text-gray-600 dark:text-slate-300 font-medium">Hora UTC:</p>
+                <p className="text-gray-900 dark:text-slate-50 font-mono mt-1">
                   {results.currentTimeUTC}
                 </p>
               </div>
-              <div className="bg-white p-3 rounded">
-                <p className="text-gray-600 font-medium">Hora Argentina:</p>
-                <p className="text-gray-900 font-mono mt-1">
+              <div className="bg-white dark:bg-slate-900 p-3 rounded">
+                <p className="text-gray-600 dark:text-slate-300 font-medium">Hora Argentina:</p>
+                <p className="text-gray-900 dark:text-slate-50 font-mono mt-1">
                   {results.currentTimeArgentina}
                 </p>
               </div>
             </div>
-            <p className="text-xs text-gray-600 mt-3">
+            <p className="text-xs text-gray-600 dark:text-slate-300 mt-3">
               Fecha de prueba: <strong>{results.testDate}</strong>
             </p>
           </div>
@@ -166,19 +166,19 @@ export default function DebugPage() {
             <div className="bg-green-50 rounded-lg shadow-md p-4 sm:p-6 border-2 border-green-300">
               <div className="flex items-center gap-2 mb-4">
                 <FaCheckCircle className="text-green-600 text-xl" />
-                <h3 className="text-lg font-bold text-gray-800">
+                <h3 className="text-lg font-bold text-gray-800 dark:text-slate-100">
                   CON Zona Horaria 🇦🇷
                 </h3>
               </div>
               <div className="space-y-3">
-                <div className="bg-white p-3 rounded text-xs">
-                  <p className="text-gray-600 font-medium mb-1">Inicio:</p>
+                <div className="bg-white dark:bg-slate-900 p-3 rounded text-xs">
+                  <p className="text-gray-600 dark:text-slate-300 font-medium mb-1">Inicio:</p>
                   <code className="text-green-700 break-all">
                     {results.filters.withTimezone.start}
                   </code>
                 </div>
-                <div className="bg-white p-3 rounded text-xs">
-                  <p className="text-gray-600 font-medium mb-1">Fin:</p>
+                <div className="bg-white dark:bg-slate-900 p-3 rounded text-xs">
+                  <p className="text-gray-600 dark:text-slate-300 font-medium mb-1">Fin:</p>
                   <code className="text-green-700 break-all">
                     {results.filters.withTimezone.end}
                   </code>
@@ -195,19 +195,19 @@ export default function DebugPage() {
             <div className="bg-orange-50 rounded-lg shadow-md p-4 sm:p-6 border-2 border-orange-300">
               <div className="flex items-center gap-2 mb-4">
                 <FaTimesCircle className="text-orange-600 text-xl" />
-                <h3 className="text-lg font-bold text-gray-800">
+                <h3 className="text-lg font-bold text-gray-800 dark:text-slate-100">
                   SIN Zona Horaria (Antiguo)
                 </h3>
               </div>
               <div className="space-y-3">
-                <div className="bg-white p-3 rounded text-xs">
-                  <p className="text-gray-600 font-medium mb-1">Inicio:</p>
+                <div className="bg-white dark:bg-slate-900 p-3 rounded text-xs">
+                  <p className="text-gray-600 dark:text-slate-300 font-medium mb-1">Inicio:</p>
                   <code className="text-orange-700 break-all">
                     {results.filters.withoutTimezone.start}
                   </code>
                 </div>
-                <div className="bg-white p-3 rounded text-xs">
-                  <p className="text-gray-600 font-medium mb-1">Fin:</p>
+                <div className="bg-white dark:bg-slate-900 p-3 rounded text-xs">
+                  <p className="text-gray-600 dark:text-slate-300 font-medium mb-1">Fin:</p>
                   <code className="text-orange-700 break-all">
                     {results.filters.withoutTimezone.end}
                   </code>
@@ -225,33 +225,33 @@ export default function DebugPage() {
           {/* Venta más reciente */}
           {results.recentSale && (
             <div className="bg-purple-50 rounded-lg shadow-md p-4 sm:p-6 border-2 border-purple-300">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 📝 Venta Más Reciente
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                <div className="bg-white p-3 rounded">
-                  <p className="text-gray-600 font-medium">ID:</p>
-                  <p className="text-gray-900 font-mono mt-1">
+                <div className="bg-white dark:bg-slate-900 p-3 rounded">
+                  <p className="text-gray-600 dark:text-slate-300 font-medium">ID:</p>
+                  <p className="text-gray-900 dark:text-slate-50 font-mono mt-1">
                     {results.recentSale.id.substring(0, 8)}...
                   </p>
                 </div>
-                <div className="bg-white p-3 rounded">
-                  <p className="text-gray-600 font-medium">Total:</p>
-                  <p className="text-gray-900 font-bold mt-1">
+                <div className="bg-white dark:bg-slate-900 p-3 rounded">
+                  <p className="text-gray-600 dark:text-slate-300 font-medium">Total:</p>
+                  <p className="text-gray-900 dark:text-slate-50 font-bold mt-1">
                     ${results.recentSale.total.toFixed(2)}
                   </p>
                 </div>
-                <div className="bg-white p-3 rounded">
-                  <p className="text-gray-600 font-medium">
+                <div className="bg-white dark:bg-slate-900 p-3 rounded">
+                  <p className="text-gray-600 dark:text-slate-300 font-medium">
                     Timestamp UTC (BD):
                   </p>
-                  <p className="text-gray-900 font-mono text-xs mt-1">
+                  <p className="text-gray-900 dark:text-slate-50 font-mono text-xs mt-1">
                     {results.recentSale.created_at}
                   </p>
                 </div>
-                <div className="bg-white p-3 rounded">
-                  <p className="text-gray-600 font-medium">Hora Argentina:</p>
-                  <p className="text-gray-900 font-bold mt-1">
+                <div className="bg-white dark:bg-slate-900 p-3 rounded">
+                  <p className="text-gray-600 dark:text-slate-300 font-medium">Hora Argentina:</p>
+                  <p className="text-gray-900 dark:text-slate-50 font-bold mt-1">
                     {results.recentSale.created_at_local}
                   </p>
                 </div>
@@ -261,10 +261,10 @@ export default function DebugPage() {
 
           {/* Explicación */}
           <div className="bg-blue-50 rounded-lg shadow-md p-4 sm:p-6 border-2 border-blue-200">
-            <h3 className="text-lg font-bold text-gray-800 mb-3">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-3">
               💡 Explicación
             </h3>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <ul className="space-y-2 text-sm text-gray-700 dark:text-slate-200">
               <li className="flex gap-2">
                 <span>✅</span>
                 <span>

@@ -213,7 +213,7 @@ export default function EditOrderModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col">
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 rounded-t-3xl flex justify-between items-center">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <FaEdit /> Editar Pedido
@@ -221,7 +221,7 @@ export default function EditOrderModal({
           <button
             onClick={onClose}
             disabled={isSaving}
-            className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2"
+            className="text-white hover:bg-white dark:bg-slate-900 hover:bg-opacity-20 rounded-full p-2"
           >
             <FaTimes size={20} />
           </button>
@@ -230,19 +230,19 @@ export default function EditOrderModal({
           {loading || !orderData ? (
             <div className="flex flex-col items-center justify-center h-48">
               <FaSpinner className="animate-spin text-4xl text-blue-600" />
-              <p className="mt-4 text-gray-600">Cargando datos del pedido...</p>
+              <p className="mt-4 text-gray-600 dark:text-slate-300">Cargando datos del pedido...</p>
             </div>
           ) : (
             <>
               <div className="mb-6">
-                <p className="text-sm text-gray-600">Cliente</p>
-                <p className="text-lg font-bold text-gray-800">
+                <p className="text-sm text-gray-600 dark:text-slate-300">Cliente</p>
+                <p className="text-lg font-bold text-gray-800 dark:text-slate-100">
                   {orderData.customers?.full_name}
                 </p>
               </div>
 
               <div className="space-y-3 mb-6">
-                <h3 className="font-semibold text-gray-700 flex items-center gap-2">
+                <h3 className="font-semibold text-gray-700 dark:text-slate-200 flex items-center gap-2">
                   <FaShoppingCart /> Productos
                 </h3>
                 {editedItems.length === 0 ? (
@@ -253,16 +253,16 @@ export default function EditOrderModal({
                   editedItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200"
+                      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-950 rounded-xl border border-gray-200 dark:border-slate-700"
                     >
                       <div className="flex-1">
-                        <p className="font-semibold text-gray-800">
+                        <p className="font-semibold text-gray-800 dark:text-slate-100">
                           {item.product_name}
                         </p>
                         <p className="text-sm text-green-600 font-medium mt-1">
                           ${item.price.toFixed(2)} c/u
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                           Stock disponible:{" "}
                           {item.stock + item.original_quantity}
                         </p>
@@ -272,7 +272,7 @@ export default function EditOrderModal({
                           onClick={() =>
                             handleQuantityChange(item.id, item.quantity - 1)
                           }
-                          className="w-8 h-8 flex items-center justify-center bg-white border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-all font-bold"
+                          className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-all font-bold"
                         >
                           <FaMinus size={12} />
                         </button>
@@ -284,13 +284,13 @@ export default function EditOrderModal({
                             const val = parseInt(e.target.value) || 0;
                             handleQuantityChange(item.id, val);
                           }}
-                          className="w-16 text-center font-bold text-lg border-2 border-gray-200 rounded-lg"
+                          className="w-16 text-center font-bold text-lg border-2 border-gray-200 dark:border-slate-700 rounded-lg"
                         />
                         <button
                           onClick={() =>
                             handleQuantityChange(item.id, item.quantity + 1)
                           }
-                          className="w-8 h-8 flex items-center justify-center bg-white border-2 border-green-200 text-green-600 rounded-lg hover:bg-green-50 transition-all font-bold"
+                          className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-green-200 text-green-600 rounded-lg hover:bg-green-50 transition-all font-bold"
                         >
                           <FaPlus size={12} />
                         </button>
@@ -309,13 +309,13 @@ export default function EditOrderModal({
 
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-600">Total Original:</span>
+                  <span className="text-gray-600 dark:text-slate-300">Total Original:</span>
                   <span className="font-medium line-through text-gray-400">
                     ${orderData.total_amount.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xl font-bold text-gray-800">
+                  <span className="text-xl font-bold text-gray-800 dark:text-slate-100">
                     Nuevo Total:
                   </span>
                   <span className="text-2xl font-bold text-green-600">
@@ -326,11 +326,11 @@ export default function EditOrderModal({
             </>
           )}
         </div>
-        <div className="p-6 border-t bg-gray-50 rounded-b-3xl flex gap-3">
+        <div className="p-6 border-t bg-gray-50 dark:bg-slate-950 rounded-b-3xl flex gap-3">
           <button
             onClick={onClose}
             disabled={isSaving}
-            className="flex-1 py-3 text-gray-600 font-semibold hover:bg-gray-200 rounded-xl transition-all disabled:opacity-50"
+            className="flex-1 py-3 text-gray-600 dark:text-slate-300 font-semibold hover:bg-gray-200 dark:bg-slate-700 rounded-xl transition-all disabled:opacity-50"
           >
             Cancelar
           </button>

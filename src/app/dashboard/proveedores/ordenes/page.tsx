@@ -129,7 +129,7 @@ export default function PurchaseOrdersPage() {
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
@@ -137,7 +137,7 @@ export default function PurchaseOrdersPage() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
               <FaBox className="text-blue-600" /> Órdenes de Compra
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-slate-300 mt-1">
               Gestiona tus órdenes de compra a proveedores
             </p>
           </div>
@@ -157,7 +157,7 @@ export default function PurchaseOrdersPage() {
                 <p className="text-sm font-medium opacity-90">Total Órdenes</p>
                 <p className="text-3xl font-bold mt-1">{stats.total}</p>
               </div>
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-full flex items-center justify-center">
                 <FaBox className="text-2xl" />
               </div>
             </div>
@@ -174,7 +174,7 @@ export default function PurchaseOrdersPage() {
                 <p className="text-sm font-medium opacity-90">Borradores</p>
                 <p className="text-3xl font-bold mt-1">{stats.draft}</p>
               </div>
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-full flex items-center justify-center">
                 <FaEdit className="text-2xl" />
               </div>
             </div>
@@ -191,7 +191,7 @@ export default function PurchaseOrdersPage() {
                 <p className="text-sm font-medium opacity-90">Enviadas</p>
                 <p className="text-3xl font-bold mt-1">{stats.sent}</p>
               </div>
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-full flex items-center justify-center">
                 <FaClock className="text-2xl" />
               </div>
             </div>
@@ -208,7 +208,7 @@ export default function PurchaseOrdersPage() {
                 <p className="text-sm font-medium opacity-90">Recibidas</p>
                 <p className="text-3xl font-bold mt-1">{stats.received}</p>
               </div>
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-full flex items-center justify-center">
                 <FaCheck className="text-2xl" />
               </div>
             </div>
@@ -216,7 +216,7 @@ export default function PurchaseOrdersPage() {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-xl shadow-lg mb-6 p-6 border border-gray-200">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg mb-6 p-6 border border-gray-200 dark:border-slate-700">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
               <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
@@ -225,7 +225,7 @@ export default function PurchaseOrdersPage() {
                 placeholder="Buscar por número de orden o proveedor..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 font-medium"
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 dark:text-slate-200 font-medium"
               />
             </div>
             <div className="flex items-center gap-3">
@@ -233,7 +233,7 @@ export default function PurchaseOrdersPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 font-medium min-w-[200px]"
+                className="px-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 dark:text-slate-200 font-medium min-w-[200px]"
               >
                 <option value="all">📦 Todas las órdenes</option>
                 <option value="draft">📝 Borradores</option>
@@ -246,7 +246,7 @@ export default function PurchaseOrdersPage() {
         </div>
 
         {/* Orders Table */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
           {loading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -254,10 +254,10 @@ export default function PurchaseOrdersPage() {
           ) : filteredOrders.length === 0 ? (
             <div className="text-center py-12">
               <FaBox className="mx-auto text-6xl text-gray-300 mb-4" />
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-slate-100 mb-2">
                 No hay órdenes
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 dark:text-slate-300 mb-4">
                 {searchTerm
                   ? "No se encontraron órdenes con ese criterio"
                   : "Comienza creando tu primera orden de compra"}
@@ -273,34 +273,34 @@ export default function PurchaseOrdersPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+                <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-900">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       Número
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       Proveedor
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       Estado
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       Total
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       Fecha
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                       Acciones
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
                   {filteredOrders.map((order) => (
                     <tr
                       key={order.id}
-                      className="hover:bg-gray-50 transition-colors"
+                      className="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm font-mono font-bold text-blue-600">
@@ -308,7 +308,7 @@ export default function PurchaseOrdersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-semibold text-gray-900">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-slate-50">
                           {order.brands?.name || "Sin proveedor"}
                         </span>
                       </td>
@@ -316,12 +316,12 @@ export default function PurchaseOrdersPage() {
                         {getStatusBadge(order.status)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <span className="text-sm font-bold text-gray-900">
+                        <span className="text-sm font-bold text-gray-900 dark:text-slate-50">
                           ${order.total_amount.toLocaleString("es-AR")}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-slate-300">
                           {new Date(order.created_at).toLocaleDateString(
                             "es-AR"
                           )}

@@ -117,7 +117,7 @@ export default function ProductSearchModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col transform transition-all scale-100">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col transform transition-all scale-100">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 rounded-t-2xl">
           <div className="flex justify-between items-center">
@@ -131,7 +131,7 @@ export default function ProductSearchModal({
             </div>
             <button
               onClick={onClose}
-              className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all"
+              className="text-white/80 hover:text-white hover:bg-white dark:bg-slate-900/20 rounded-full p-2 transition-all"
             >
               <FaTimes size={24} />
             </button>
@@ -145,26 +145,26 @@ export default function ProductSearchModal({
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por nombre, SKU o descripción..."
               autoFocus
-              className="w-full px-5 py-4 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/30 text-lg shadow-lg"
+              className="w-full px-5 py-4 rounded-xl text-gray-900 dark:text-slate-50 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/30 text-lg shadow-lg"
             />
           </div>
 
           {/* Atajos de teclado */}
           <div className="mt-4 flex gap-4 text-xs text-purple-100 font-medium">
             <span className="flex items-center gap-1">
-              <kbd className="px-2 py-1 bg-white/20 rounded border border-white/10">
+              <kbd className="px-2 py-1 bg-white dark:bg-slate-900/20 rounded border border-white/10">
                 ↑↓
               </kbd>{" "}
               Navegar
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-2 py-1 bg-white/20 rounded border border-white/10">
+              <kbd className="px-2 py-1 bg-white dark:bg-slate-900/20 rounded border border-white/10">
                 Enter
               </kbd>{" "}
               Seleccionar
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-2 py-1 bg-white/20 rounded border border-white/10">
+              <kbd className="px-2 py-1 bg-white dark:bg-slate-900/20 rounded border border-white/10">
                 Esc
               </kbd>{" "}
               Cerrar
@@ -173,18 +173,18 @@ export default function ProductSearchModal({
         </div>
 
         {/* Lista de productos */}
-        <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-slate-950">
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="flex flex-col items-center gap-3">
                 <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full"></div>
-                <div className="text-gray-500 font-medium">
+                <div className="text-gray-500 dark:text-slate-400 font-medium">
                   Cargando productos...
                 </div>
               </div>
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="flex flex-col justify-center items-center h-64 text-gray-500">
+            <div className="flex flex-col justify-center items-center h-64 text-gray-500 dark:text-slate-400">
               <FaSearch className="text-4xl text-gray-300 mb-3" />
               <p className="text-lg font-medium mb-1">
                 No se encontraron productos
@@ -215,19 +215,19 @@ export default function ProductSearchModal({
                       >
                         {product.name}
                       </h3>
-                      <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-                        <span className="bg-gray-100 px-2 py-0.5 rounded text-xs font-medium">
+                      <div className="flex flex-wrap gap-3 text-sm text-gray-600 dark:text-slate-300">
+                        <span className="bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded text-xs font-medium">
                           SKU: {product.sku}
                         </span>
                         {product.description && (
-                          <span className="text-gray-500 truncate max-w-[300px]">
+                          <span className="text-gray-500 dark:text-slate-400 truncate max-w-[300px]">
                             {product.description}
                           </span>
                         )}
                       </div>
                     </div>
                     <div className="text-right ml-4">
-                      <div className="text-xs text-gray-500 uppercase tracking-wide mb-0.5">
+                      <div className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-0.5">
                         Precio
                       </div>
                       <div className="text-xl font-bold text-green-600">

@@ -2,19 +2,19 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { Toaster } from 'react-hot-toast' // <-- 1. IMPORTA TOASTER
+import { Toaster } from 'react-hot-toast'
+import { ThemeProvider } from "@/components/ThemeProvider"
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'FrontStock',
   description: 'Sistema de Gestión de Stock y Ventas',
-  manifest:'/manifest.json',
+  manifest: '/manifest.json',
   icons: {
     icon: '/favicon.png',
   },
 }
-
 
 export default function RootLayout({
   children,
@@ -22,19 +22,26 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
-        {children}
-        <Toaster // <-- 2. AÑADE EL COMPONENTE AQUÍ
-          position="bottom-right"
-          toastOptions={{
-            duration: 5000,
-            style: {
-              background: '#333',
-              color: '#fff',
-            },
-          }}
-        />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              duration: 5000,
+              style: {
+                background: '#333',
+                color: '#fff',
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   )

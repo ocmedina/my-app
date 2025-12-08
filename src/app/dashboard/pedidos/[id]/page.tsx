@@ -50,9 +50,9 @@ export default async function OrderDetailPage(props: {
 
   if (!order) {
     return (
-      <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200 text-center">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-slate-700 text-center">
             <div className="mb-4">
               <svg
                 className="mx-auto h-16 w-16 text-gray-400"
@@ -68,10 +68,10 @@ export default async function OrderDetailPage(props: {
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-2">
               Pedido no encontrado
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-slate-300 mb-6">
               El pedido que buscas no existe o fue eliminado
             </p>
             <Link

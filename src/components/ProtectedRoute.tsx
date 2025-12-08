@@ -29,7 +29,7 @@ export function ProtectedRoute({
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="text-gray-500">Cargando...</div>
+        <div className="text-gray-500 dark:text-slate-400">Cargando...</div>
       </div>
     );
   }

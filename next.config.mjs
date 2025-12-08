@@ -26,9 +26,11 @@ const nextConfig = {
   },
 };
 
-export default withPWA({
-  dest: "public",     // 📦 genera el service worker en /public
-  register: true,     // registra el SW automáticamente
-  skipWaiting: true,  // activa la nueva versión sin recargar
-  disable: isDev,     // 🚫 desactiva PWA en modo desarrollo
-})(nextConfig);
+// export default withPWA({
+//   dest: "public",     // 📦 genera el service worker en /public
+//   register: true,     // registra el SW automáticamente
+//   skipWaiting: true,  // activa la nueva versión sin recargar
+//   disable: isDev,     // 🚫 desactiva PWA en modo desarrollo
+// })(nextConfig);
+
+export default nextConfig;

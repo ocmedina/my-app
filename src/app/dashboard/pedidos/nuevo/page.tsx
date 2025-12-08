@@ -286,7 +286,7 @@ export default function NewOrderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -294,13 +294,13 @@ export default function NewOrderPage() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-3">
               <FaClipboardList className="text-purple-600" /> Nuevo Pedido
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-slate-300 mt-1">
               Crea un nuevo pedido seleccionando cliente y productos
             </p>
           </div>
           <button
             onClick={() => router.back()}
-            className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-semibold flex items-center gap-2"
+            className="px-6 py-2.5 bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-slate-100 rounded-lg hover:bg-gray-300 transition-all font-semibold flex items-center gap-2"
           >
             <FaArrowLeft /> Cancelar
           </button>
@@ -310,12 +310,12 @@ export default function NewOrderPage() {
           {/* Panel Principal */}
           <div className="lg:col-span-2 space-y-6">
             {/* Selección de Cliente */}
-            <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200">
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-lg border-2 border-gray-200 dark:border-slate-700">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200 dark:border-slate-700">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center">
                   <FaUser className="text-blue-600" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-50">
                   1. Seleccionar Cliente
                 </h2>
               </div>
@@ -328,14 +328,14 @@ export default function NewOrderPage() {
                   value={customerSearchQuery}
                   onChange={(e) => setCustomerSearchQuery(e.target.value)}
                   placeholder="Buscar cliente por nombre, tipo o día de reparto..."
-                  className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
               {/* Lista de Clientes */}
               <div className="space-y-2 max-h-80 overflow-y-auto">
                 {filteredCustomers.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-gray-500 dark:text-slate-400">
                     <FaUser className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     <p>No se encontraron clientes</p>
                   </div>
@@ -353,14 +353,14 @@ export default function NewOrderPage() {
                         }}
                         className={`p-4 rounded-lg border cursor-pointer transition-all ${
                           isSelected
-                            ? "border-blue-500 bg-blue-50 shadow-md"
-                            : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 shadow-md"
+                            : "border-gray-200 dark:border-slate-700 hover:border-blue-300 hover:bg-gray-50 dark:hover:bg-slate-800"
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h3 className="font-semibold text-gray-900">
+                              <h3 className="font-semibold text-gray-900 dark:text-slate-50">
                                 {customer.full_name}
                               </h3>
                               {isSelected && (
@@ -390,19 +390,19 @@ export default function NewOrderPage() {
             </div>
 
             {/* Selección de Productos */}
-            <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200">
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-lg border-2 border-gray-200 dark:border-slate-700">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200 dark:border-slate-700">
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg flex items-center justify-center">
                   <FaBox className="text-purple-600" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-50">
                   2. Agregar Productos
                 </h2>
               </div>
 
               {!selectedCustomer ? (
                 <div className="text-center py-12 text-gray-400">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FaUser className="w-8 h-8 text-gray-300" />
                   </div>
                   <p className="font-semibold">Selecciona un cliente primero</p>
@@ -420,14 +420,14 @@ export default function NewOrderPage() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Buscar productos por nombre..."
-                      className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     />
                   </div>
 
                   {/* Lista de Productos */}
                   <div className="space-y-2 max-h-96 overflow-y-auto">
                     {filteredProducts.length === 0 ? (
-                      <p className="text-center py-8 text-gray-500">
+                      <p className="text-center py-8 text-gray-500 dark:text-slate-400">
                         No se encontraron productos
                       </p>
                     ) : (
@@ -442,13 +442,13 @@ export default function NewOrderPage() {
                             key={product.id}
                             className={`flex items-center justify-between p-4 rounded-lg border transition-all ${
                               isInCart
-                                ? "border-blue-300 bg-blue-50"
-                                : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                                ? "border-blue-300 bg-blue-50 dark:bg-blue-900/30"
+                                : "border-gray-200 dark:border-slate-700 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800"
                             }`}
                           >
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <h3 className="font-medium text-gray-900">
+                                <h3 className="font-medium text-gray-900 dark:text-slate-50">
                                   {product.name}
                                 </h3>
                                 {isInCart && (
@@ -458,7 +458,7 @@ export default function NewOrderPage() {
                                 )}
                               </div>
                               <div className="flex items-center gap-3 mt-1">
-                                <span className="text-sm font-semibold text-gray-900">
+                                <span className="text-sm font-semibold text-gray-900 dark:text-slate-50">
                                   ${price?.toFixed(2)}
                                 </span>
                                 <span
@@ -491,12 +491,12 @@ export default function NewOrderPage() {
 
           {/* Panel de Carrito */}
           <div className="lg:col-span-1">
-            <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-200 sticky top-6">
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-lg border-2 border-gray-200 dark:border-slate-700 sticky top-6">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200 dark:border-slate-700">
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg flex items-center justify-center">
                   <FaShoppingCart className="text-purple-600" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-50">
                   Resumen del Pedido
                 </h2>
               </div>
@@ -515,14 +515,14 @@ export default function NewOrderPage() {
                     return (
                       <div
                         key={item.id}
-                        className="p-3 bg-gray-50 rounded-lg border border-gray-200"
+                        className="p-3 bg-gray-50 dark:bg-slate-950 rounded-lg border border-gray-200 dark:border-slate-700"
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex-1">
-                            <p className="font-medium text-gray-900 text-sm">
+                            <p className="font-medium text-gray-900 dark:text-slate-50 text-sm">
                               {item.name}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-slate-400">
                               ${price.toFixed(2)} c/u
                             </p>
                           </div>
@@ -539,7 +539,7 @@ export default function NewOrderPage() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleUpdateQuantity(item.id, -1)}
-                              className="w-7 h-7 flex items-center justify-center bg-white border border-gray-300 rounded hover:bg-gray-100"
+                              className="w-7 h-7 flex items-center justify-center bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded hover:bg-gray-100 dark:bg-slate-700 dark:hover:bg-slate-800/80 dark:bg-slate-800"
                               title="Disminuir cantidad"
                             >
                               <FaMinus className="w-3 h-3" />
@@ -549,14 +549,14 @@ export default function NewOrderPage() {
                             </span>
                             <button
                               onClick={() => handleUpdateQuantity(item.id, 1)}
-                              className="w-7 h-7 flex items-center justify-center bg-white border border-gray-300 rounded hover:bg-gray-100"
+                              className="w-7 h-7 flex items-center justify-center bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded hover:bg-gray-100 dark:bg-slate-700 dark:hover:bg-slate-800/80 dark:bg-slate-800"
                               disabled={item.quantity >= (item.stock || 0)}
                               title="Aumentar cantidad"
                             >
                               <FaPlus className="w-3 h-3" />
                             </button>
                           </div>
-                          <span className="font-semibold text-gray-900">
+                          <span className="font-semibold text-gray-900 dark:text-slate-50">
                             ${subtotal.toFixed(2)}
                           </span>
                         </div>
@@ -566,28 +566,28 @@ export default function NewOrderPage() {
                 )}
               </div>
 
-              <div className="border-t-2 border-gray-200 pt-4 space-y-3">
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+              <div className="border-t-2 border-gray-200 dark:border-slate-700 pt-4 space-y-3">
+                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-slate-950 rounded-lg">
+                  <span className="text-sm font-semibold text-gray-700 dark:text-slate-200 flex items-center gap-2">
                     <FaBox className="text-purple-600" /> Productos
                   </span>
-                  <span className="font-bold text-gray-900">{cart.length}</span>
+                  <span className="font-bold text-gray-900 dark:text-slate-50">{cart.length}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-slate-950 rounded-lg">
+                  <span className="text-sm font-semibold text-gray-700 dark:text-slate-200 flex items-center gap-2">
                     📦 Unidades
                   </span>
-                  <span className="font-bold text-gray-900">
+                  <span className="font-bold text-gray-900 dark:text-slate-50">
                     {cart.reduce((acc, item) => acc + item.quantity, 0)}
                   </span>
                 </div>
 
                 {/* Subtotal */}
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm font-semibold text-gray-700">
+                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-slate-950 rounded-lg">
+                  <span className="text-sm font-semibold text-gray-700 dark:text-slate-200">
                     Subtotal
                   </span>
-                  <span className="font-bold text-gray-900">
+                  <span className="font-bold text-gray-900 dark:text-slate-50">
                     $
                     {cart
                       .reduce(
@@ -601,11 +601,11 @@ export default function NewOrderPage() {
 
                 {/* Costo de Envío */}
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-slate-200 flex items-center gap-2">
                     🚚 Costo de Envío
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 font-semibold">
                       $
                     </span>
                     <input
@@ -620,7 +620,7 @@ export default function NewOrderPage() {
                             : parseFloat(e.target.value);
                         setShippingCost(value >= 0 ? value : 0);
                       }}
-                      className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="0.00"
                     />
                   </div>
@@ -628,11 +628,11 @@ export default function NewOrderPage() {
 
                 {/* Descuento */}
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-slate-200 flex items-center gap-2">
                     🏷️ Descuento
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 font-semibold">
                       $
                     </span>
                     <input
@@ -647,13 +647,13 @@ export default function NewOrderPage() {
                             : parseFloat(e.target.value);
                         setDiscount(value >= 0 ? value : 0);
                       }}
-                      className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                       placeholder="0.00"
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center text-xl font-bold pt-3 border-t-2 border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50 -mx-6 px-6 py-4 mt-3">
+                <div className="flex justify-between items-center text-xl font-bold pt-3 border-t-2 border-gray-200 dark:border-slate-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 -mx-6 px-6 py-4 mt-3">
                   <span className="flex items-center gap-2">
                     <FaDollarSign className="text-green-600" /> TOTAL
                   </span>
@@ -661,8 +661,8 @@ export default function NewOrderPage() {
                 </div>
 
                 {/* Método de Pago */}
-                <div className="pt-3 border-t-2 border-gray-200 mt-3">
-                  <label className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <div className="pt-3 border-t-2 border-gray-200 dark:border-slate-700 mt-3">
+                  <label className="text-sm font-bold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-2">
                     <FaMoneyBillWave className="text-blue-600" /> Método de Pago
                   </label>
                   <div className="grid grid-cols-2 gap-3">
@@ -677,7 +677,7 @@ export default function NewOrderPage() {
                       className={`px-4 py-3 rounded-lg border-2 transition-all font-semibold flex items-center justify-center gap-2 ${
                         paymentMethod === "efectivo"
                           ? "border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 text-green-700 shadow-md"
-                          : "border-gray-300 bg-white text-gray-700 hover:border-green-400 hover:bg-green-50"
+                          : "border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/30"
                       }`}
                     >
                       <FaMoneyBillWave /> Efectivo
@@ -693,7 +693,7 @@ export default function NewOrderPage() {
                       className={`px-4 py-3 rounded-lg border-2 transition-all font-semibold flex items-center justify-center gap-2 ${
                         paymentMethod === "transferencia"
                           ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 text-blue-700 shadow-md"
-                          : "border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50"
+                          : "border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                       }`}
                     >
                       <FaDollarSign /> Transferencia
@@ -709,7 +709,7 @@ export default function NewOrderPage() {
                       className={`px-4 py-3 rounded-lg border-2 transition-all font-semibold flex items-center justify-center gap-2 ${
                         paymentMethod === "fiado"
                           ? "border-orange-500 bg-gradient-to-br from-orange-50 to-amber-50 text-orange-700 shadow-md"
-                          : "border-gray-300 bg-white text-gray-700 hover:border-orange-400 hover:bg-orange-50"
+                          : "border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/30"
                       }`}
                     >
                       <FaFileInvoice /> Fiado
@@ -725,7 +725,7 @@ export default function NewOrderPage() {
                       className={`px-4 py-3 rounded-lg border-2 transition-all font-semibold flex items-center justify-center gap-2 ${
                         paymentMethod === "mixto"
                           ? "border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 text-purple-700 shadow-md"
-                          : "border-gray-300 bg-white text-gray-700 hover:border-purple-400 hover:bg-purple-50"
+                          : "border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30"
                       }`}
                     >
                       <FaDollarSign /> Mixto
@@ -736,18 +736,18 @@ export default function NewOrderPage() {
                 {/* Monto Recibido */}
                 {paymentMethod === "mixto" ? (
                   <div className="pt-3 border-t space-y-3">
-                    <label className="block text-sm font-bold text-gray-800">
+                    <label className="block text-sm font-bold text-gray-800 dark:text-slate-100">
                       💰 Desglose de Pago Mixto
                     </label>
 
                     {/* Efectivo */}
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                      <label className="block text-xs font-medium text-gray-600 dark:text-slate-300 mb-1">
                         💵 Efectivo
                       </label>
                       <div className="flex gap-2">
                         <div className="relative flex-1">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 font-semibold">
                             $
                           </span>
                           <input
@@ -762,7 +762,7 @@ export default function NewOrderPage() {
                                   : parseFloat(e.target.value);
                               setAmountCash(value);
                             }}
-                            className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                             placeholder="0.00"
                           />
                         </div>
@@ -771,12 +771,12 @@ export default function NewOrderPage() {
 
                     {/* Transferencia */}
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                      <label className="block text-xs font-medium text-gray-600 dark:text-slate-300 mb-1">
                         🏦 Transferencia
                       </label>
                       <div className="flex gap-2">
                         <div className="relative flex-1">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 font-semibold">
                             $
                           </span>
                           <input
@@ -791,7 +791,7 @@ export default function NewOrderPage() {
                                   : parseFloat(e.target.value);
                               setAmountTransfer(value);
                             }}
-                            className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0.00"
                           />
                         </div>
@@ -799,7 +799,7 @@ export default function NewOrderPage() {
                     </div>
 
                     {/* Total Recibido */}
-                    <div className="bg-purple-50 -mx-6 px-6 py-3 border-y border-purple-200">
+                    <div className="bg-purple-50 dark:bg-purple-950/30 -mx-6 px-6 py-3 border-y border-purple-200 dark:border-purple-900">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-semibold text-purple-700">
                           💳 Total Recibido:
@@ -812,12 +812,12 @@ export default function NewOrderPage() {
                   </div>
                 ) : (
                   <div className="pt-3 border-t">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                       Entrega Recibida
                     </label>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 font-semibold">
                           $
                         </span>
                         <input
@@ -832,7 +832,7 @@ export default function NewOrderPage() {
                                 : parseFloat(e.target.value);
                             setAmountReceived(value);
                           }}
-                          className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full pl-8 pr-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="0.00"
                         />
                       </div>
@@ -859,7 +859,7 @@ export default function NewOrderPage() {
 
                 {/* Saldo Pendiente */}
                 {amountReceived < total && (
-                  <div className="pt-3 bg-orange-50 -mx-6 px-6 py-3 border-t border-orange-200">
+                  <div className="pt-3 bg-orange-50 dark:bg-orange-950/30 -mx-6 px-6 py-3 border-t border-orange-200 dark:border-orange-900">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-orange-700">
                         Saldo Pendiente:
@@ -873,7 +873,7 @@ export default function NewOrderPage() {
 
                 {/* Indicador de pago completo */}
                 {amountReceived >= total && total > 0 && (
-                  <div className="pt-3 bg-green-50 -mx-6 px-6 py-3 border-t border-green-200">
+                  <div className="pt-3 bg-green-50 dark:bg-green-950/30 -mx-6 px-6 py-3 border-t border-green-200 dark:border-green-900">
                     <div className="flex items-center justify-center gap-2 text-green-700">
                       <FaCheckCircle />
                       <span className="text-sm font-semibold">

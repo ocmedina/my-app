@@ -74,7 +74,7 @@ export default async function SupplierDetailPage(props: {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <p className="text-xl text-gray-600">Proveedor no encontrado.</p>
+          <p className="text-xl text-gray-600 dark:text-slate-300">Proveedor no encontrado.</p>
           <Link
             href="/dashboard/proveedores"
             className="text-blue-600 mt-4 inline-block"
@@ -88,7 +88,7 @@ export default async function SupplierDetailPage(props: {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
         <Link
           href="/dashboard/proveedores"
           className="text-blue-600 mb-4 inline-flex items-center gap-2 text-sm hover:text-blue-800 transition-colors"
@@ -98,16 +98,16 @@ export default async function SupplierDetailPage(props: {
 
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mt-4">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-800">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100">
               {supplier.name}
             </h1>
             {supplier.contact_person && (
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
                 {supplier.contact_person}
               </p>
             )}
             {supplier.phone && (
-              <p className="text-sm text-gray-500">{supplier.phone}</p>
+              <p className="text-sm text-gray-500 dark:text-slate-400">{supplier.phone}</p>
             )}
           </div>
 
@@ -120,7 +120,7 @@ export default async function SupplierDetailPage(props: {
                 : "bg-gray-50 border-gray-200"
             }`}
           >
-            <p className="text-sm font-medium uppercase text-gray-700 flex items-center justify-end gap-2">
+            <p className="text-sm font-medium uppercase text-gray-700 dark:text-slate-200 flex items-center justify-end gap-2">
               {(supplier.debt || 0) > 0 ? (
                 <>
                   <FaExclamationTriangle className="text-red-600" /> Deuda
@@ -154,7 +154,7 @@ export default async function SupplierDetailPage(props: {
         currentDebt={supplier.debt || 0}
       />
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-4">Historial de Cuenta</h2>
         <div className="space-y-3">
           {history.length === 0 ? (
@@ -173,7 +173,7 @@ export default async function SupplierDetailPage(props: {
               return (
                 <div
                   key={item.id}
-                  className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <div
@@ -189,7 +189,7 @@ export default async function SupplierDetailPage(props: {
                     </div>
                     <div>
                       <p className="font-semibold">{displayTitle}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-slate-400">
                         {new Date(item.created_at).toLocaleDateString("es-AR", {
                           year: "numeric",
                           month: "long",

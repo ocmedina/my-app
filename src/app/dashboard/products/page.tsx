@@ -149,14 +149,14 @@ export default function ProductsPage() {
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       {/* HEADER */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
             <FaBoxes className="text-blue-600" /> Gestión de Productos
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-slate-300 mt-1">
             Administra tu inventario y precios
           </p>
         </div>
@@ -197,8 +197,8 @@ export default function ProductsPage() {
               <p className="text-sm font-medium opacity-90">Total Productos</p>
               <p className="text-3xl font-bold mt-1">{stats.total}</p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              <FaBoxes className="text-2xl" />
+            <div className="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-full flex items-center justify-center">
+              <FaBoxes className="text-2xl text-blue-600" />
             </div>
           </div>
         </div>
@@ -206,17 +206,16 @@ export default function ProductsPage() {
         {/* Sin stock */}
         <button
           onClick={() => setStockFilter("sin_stock")}
-          className={`bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-5 text-white hover:shadow-xl transition-all ${
-            stockFilter === "sin_stock" ? "ring-4 ring-red-300" : ""
-          }`}
+          className={`bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-5 text-white hover:shadow-xl transition-all ${stockFilter === "sin_stock" ? "ring-4 ring-red-300" : ""
+            }`}
         >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium opacity-90">Sin Stock</p>
               <p className="text-3xl font-bold mt-1">{stats.sinStock}</p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              <FaBan className="text-2xl" />
+            <div className="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-full flex items-center justify-center">
+              <FaBan className="text-2xl text-red-600" />
             </div>
           </div>
         </button>
@@ -224,9 +223,8 @@ export default function ProductsPage() {
         {/* Stock bajo */}
         <button
           onClick={() => setStockFilter("stock_bajo")}
-          className={`bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-5 text-white hover:shadow-xl transition-all ${
-            stockFilter === "stock_bajo" ? "ring-4 ring-yellow-300" : ""
-          }`}
+          className={`bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-5 text-white hover:shadow-xl transition-all ${stockFilter === "stock_bajo" ? "ring-4 ring-yellow-300" : ""
+            }`}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -235,8 +233,8 @@ export default function ProductsPage() {
               </p>
               <p className="text-3xl font-bold mt-1">{stats.stockBajo}</p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              <FaExclamationTriangle className="text-2xl" />
+            <div className="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-full flex items-center justify-center">
+              <FaExclamationTriangle className="text-2xl text-yellow-600" />
             </div>
           </div>
         </button>
@@ -244,9 +242,8 @@ export default function ProductsPage() {
         {/* Con stock */}
         <button
           onClick={() => setStockFilter("con_stock")}
-          className={`bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-5 text-white hover:shadow-xl transition-all ${
-            stockFilter === "con_stock" ? "ring-4 ring-green-300" : ""
-          }`}
+          className={`bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-5 text-white hover:shadow-xl transition-all ${stockFilter === "con_stock" ? "ring-4 ring-green-300" : ""
+            }`}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -255,15 +252,15 @@ export default function ProductsPage() {
               </p>
               <p className="text-3xl font-bold mt-1">{stats.conStock}</p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              <FaCheckCircle className="text-2xl" />
+            <div className="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-full flex items-center justify-center">
+              <FaCheckCircle className="text-2xl text-green-600" />
             </div>
           </div>
         </button>
       </div>
 
       {/* BUSCADOR Y FILTROS */}
-      <div className="bg-white rounded-xl shadow-lg mb-6 p-6 border border-gray-200">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg mb-6 p-6 border border-gray-200 dark:border-slate-700">
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Barra de búsqueda */}
           <div className="flex-1 relative">
@@ -273,7 +270,7 @@ export default function ProductsPage() {
               placeholder="Buscar productos por nombre o SKU..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 font-medium"
+              className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 dark:text-slate-200 font-medium bg-white dark:bg-slate-800 placeholder:text-gray-400 dark:placeholder:text-slate-500"
             />
           </div>
 
@@ -284,7 +281,7 @@ export default function ProductsPage() {
               value={stockFilter}
               onChange={(e) => setStockFilter(e.target.value)}
               aria-label="Filtrar por stock"
-              className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 font-medium min-w-[200px]"
+              className="px-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 dark:text-slate-200 font-medium min-w-[200px] bg-white dark:bg-slate-800"
             >
               <option value="all">📦 Todos los productos</option>
               <option value="sin_stock">❌ Sin stock (0)</option>
@@ -298,38 +295,38 @@ export default function ProductsPage() {
         {(searchTerm || stockFilter !== "all") && (
           <div className="mt-4 flex flex-wrap items-center gap-2">
             {searchTerm && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg border border-blue-200 text-sm font-medium">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg border border-blue-200 dark:border-blue-900 text-sm font-medium">
                 <FaSearch />
                 <span>Búsqueda: "{searchTerm}"</span>
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="ml-1 text-blue-600 hover:text-blue-800"
+                  className="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
                 >
                   ×
                 </button>
               </div>
             )}
             {stockFilter !== "all" && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg border border-purple-200 text-sm font-medium">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-lg border border-purple-200 dark:border-purple-900 text-sm font-medium">
                 <FaFilter />
                 <span>
                   Filtro:{" "}
                   {stockFilter === "sin_stock"
                     ? "Sin stock"
                     : stockFilter === "stock_bajo"
-                    ? "Stock bajo"
-                    : "Con stock"}
+                      ? "Stock bajo"
+                      : "Con stock"}
                 </span>
                 <button
                   onClick={() => setStockFilter("all")}
-                  className="ml-1 text-purple-600 hover:text-purple-800"
+                  className="ml-1 text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200"
                 >
                   ×
                 </button>
               </div>
             )}
             {totalCount > 0 && (
-              <div className="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg border border-green-200 text-sm font-semibold">
+              <div className="px-3 py-1.5 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg border border-green-200 dark:border-green-900 text-sm font-semibold">
                 {totalCount} resultado{totalCount !== 1 ? "s" : ""}
               </div>
             )}
@@ -338,48 +335,48 @@ export default function ProductsPage() {
       </div>
 
       {/* TABLA DE PRODUCTOS (Desktop) */}
-      <div className="hidden md:block bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+      <div className="hidden md:block bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-900">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaBarcode /> SKU
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaTag /> Nombre
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaDollarSign /> Precio Minorista
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaDollarSign /> Precio Mayorista
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaCubes /> Stock
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                      <span className="text-gray-500 font-medium">
+                      <span className="text-gray-500 dark:text-slate-400 font-medium">
                         Cargando productos...
                       </span>
                     </div>
@@ -390,7 +387,7 @@ export default function ProductsPage() {
                   <td colSpan={6} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <FaInbox className="text-6xl text-gray-300" />
-                      <span className="text-gray-500 font-medium">
+                      <span className="text-gray-500 dark:text-slate-400 font-medium">
                         {searchTerm
                           ? "No se encontraron productos con ese criterio"
                           : "No hay productos registrados"}
@@ -415,23 +412,23 @@ export default function ProductsPage() {
                 products.map((product) => (
                   <tr
                     key={product.id}
-                    className="hover:bg-gray-50 transition-colors"
+                    className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <FaBarcode className="text-gray-400" />
-                        <span className="text-sm font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded">
+                        <span className="text-sm font-mono text-gray-700 dark:text-slate-200 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
                           {product.sku}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-gray-900">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-slate-50">
                           {product.name}
                         </span>
                         {product.description && (
-                          <span className="text-xs text-gray-500 mt-0.5 italic">
+                          <span className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 italic">
                             {product.description.length > 50
                               ? product.description.substring(0, 50) + "..."
                               : product.description}
@@ -453,13 +450,12 @@ export default function ProductsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${
-                          product.stock === 0
-                            ? "bg-red-100 text-red-800 border-2 border-red-400"
-                            : product.stock <= 10
-                            ? "bg-yellow-100 text-yellow-800 border-2 border-yellow-400"
-                            : "bg-green-100 text-green-800 border-2 border-green-400"
-                        }`}
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${product.stock === 0
+                          ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-2 border-red-400 dark:border-red-900"
+                          : product.stock <= 10
+                            ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-2 border-yellow-400 dark:border-yellow-900"
+                            : "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-2 border-green-400 dark:border-green-900"
+                          }`}
                       >
                         {product.stock === 0 ? (
                           <>
@@ -496,16 +492,16 @@ export default function ProductsPage() {
           <div className="text-center py-12">
             <div className="flex flex-col items-center gap-3">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              <span className="text-gray-500 font-medium">
+              <span className="text-gray-500 dark:text-slate-400 font-medium">
                 Cargando productos...
               </span>
             </div>
           </div>
         ) : products.length === 0 ? (
-          <div className="bg-white rounded-xl shadow p-8 text-center">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow p-8 text-center">
             <div className="flex flex-col items-center gap-3">
               <FaInbox className="text-6xl text-gray-300" />
-              <span className="text-gray-500 font-medium">
+              <span className="text-gray-500 dark:text-slate-400 font-medium">
                 {searchTerm
                   ? "No se encontraron productos con ese criterio"
                   : "No hay productos registrados"}
@@ -524,17 +520,17 @@ export default function ProductsPage() {
           products.map((product) => (
             <div
               key={product.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 p-4"
+              className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-4"
             >
               {/* Header de la tarjeta */}
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h3 className="font-bold text-gray-900 text-lg leading-tight mb-1">
+                  <h3 className="font-bold text-gray-900 dark:text-slate-50 text-lg leading-tight mb-1">
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-2">
                     <FaBarcode className="text-gray-400 text-xs" />
-                    <span className="text-xs font-mono text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                    <span className="text-xs font-mono text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                       {product.sku}
                     </span>
                   </div>
@@ -544,15 +540,15 @@ export default function ProductsPage() {
 
               {/* Detalles */}
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <div className="bg-gray-50 p-2 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">Minorista</p>
+                <div className="bg-gray-50 dark:bg-slate-950 p-2 rounded-lg">
+                  <p className="text-xs text-gray-500 dark:text-slate-400 mb-1">Minorista</p>
                   <p className="font-bold text-green-600 flex items-center gap-1">
                     <FaDollarSign className="text-xs" />
                     {product.price_minorista?.toFixed(2)}
                   </p>
                 </div>
-                <div className="bg-gray-50 p-2 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">Mayorista</p>
+                <div className="bg-gray-50 dark:bg-slate-950 p-2 rounded-lg">
+                  <p className="text-xs text-gray-500 dark:text-slate-400 mb-1">Mayorista</p>
                   <p className="font-bold text-blue-600 flex items-center gap-1">
                     <FaDollarSign className="text-xs" />
                     {product.price_mayorista?.toFixed(2)}
@@ -563,13 +559,12 @@ export default function ProductsPage() {
               {/* Footer de la tarjeta */}
               <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                 <span
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                    product.stock === 0
-                      ? "bg-red-100 text-red-800"
-                      : product.stock <= 10
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-green-100 text-green-800"
-                  }`}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${product.stock === 0
+                    ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
+                    : product.stock <= 10
+                      ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
+                      : "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                    }`}
                 >
                   {product.stock === 0 ? (
                     <>
@@ -598,10 +593,10 @@ export default function ProductsPage() {
       </div>
 
       {/* PAGINACIÓN */}
-      <div className="mt-6 bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+      <div className="mt-6 bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-700 bg-gray-100 px-4 py-2 rounded-lg flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-slate-200 bg-gray-100 dark:bg-slate-800 px-4 py-2 rounded-lg flex items-center gap-2">
               <FaChartBar className="text-blue-600" />
               Mostrando{" "}
               <span className="font-bold text-blue-600">
@@ -620,21 +615,21 @@ export default function ProductsPage() {
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1 || loading}
-              className="px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-gray-200 hover:to-gray-300 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+              className="px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-slate-700 dark:to-slate-600 text-gray-700 dark:text-slate-200 rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-gray-200 hover:to-gray-300 dark:hover:from-slate-600 dark:hover:to-slate-500 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
             >
               <FaChevronLeft /> Anterior
             </button>
-            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200">
-              <span className="text-sm font-semibold text-gray-700">
+            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-700 rounded-lg border-2 border-blue-200 dark:border-slate-600">
+              <span className="text-sm font-semibold text-gray-700 dark:text-slate-200">
                 Página{" "}
                 <span className="text-blue-600 text-lg">{currentPage}</span> de{" "}
-                <span className="text-gray-900">{Math.max(1, totalPages)}</span>
+                <span className="text-gray-900 dark:text-slate-50">{Math.max(1, totalPages)}</span>
               </span>
             </div>
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage >= totalPages || loading}
-              className="px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-gray-200 hover:to-gray-300 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+              className="px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-slate-700 dark:to-slate-600 text-gray-700 dark:text-slate-200 rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-gray-200 hover:to-gray-300 dark:hover:from-slate-600 dark:hover:to-slate-500 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
             >
               Siguiente <FaChevronRight />
             </button>

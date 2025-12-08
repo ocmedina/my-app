@@ -111,10 +111,10 @@ function NewProductModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
               <FaBoxOpen className="text-blue-600" />
               Crear Nuevo Producto
             </h2>
@@ -129,7 +129,7 @@ function NewProductModal({
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                 Nombre del Producto <span className="text-red-500">*</span>
               </label>
               <input
@@ -140,13 +140,13 @@ function NewProductModal({
                 }
                 placeholder="Ej: Aceite Motor 10W40"
                 required
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                 SKU / Código
               </label>
               <input
@@ -156,14 +156,14 @@ function NewProductModal({
                   setFormData((prev) => ({ ...prev, sku: e.target.value }))
                 }
                 placeholder="Opcional"
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                 disabled={loading}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                   Precio Minorista <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -179,13 +179,13 @@ function NewProductModal({
                   }
                   placeholder="0.00"
                   required
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                   disabled={loading}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
                   Precio Mayorista <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -201,7 +201,7 @@ function NewProductModal({
                   }
                   placeholder="0.00"
                   required
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                   disabled={loading}
                 />
               </div>
@@ -220,7 +220,7 @@ function NewProductModal({
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-200 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors disabled:opacity-50"
               >
                 Cancelar
               </button>
@@ -302,11 +302,11 @@ function ProductSearch({
           placeholder="Buscar por nombre, SKU o categoría..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+          className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
         />
         {searchTerm && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+            <span className="text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-full">
               {filteredProducts.length}
             </span>
           </div>
@@ -324,15 +324,15 @@ function ProductSearch({
               setSearchTerm("");
             }
           }}
-          className="flex-1 px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm"
+          className="flex-1 px-3 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
           disabled={loading}
         >
           <option value="">
             {loading
               ? "Cargando productos..."
               : filteredProducts.length === 0
-              ? "No hay productos disponibles"
-              : `Seleccionar producto (${filteredProducts.length} disponibles)...`}
+                ? "No hay productos disponibles"
+                : `Seleccionar producto (${filteredProducts.length} disponibles)...`}
           </option>
           {filteredProducts.map((p) => (
             <option key={p.id} value={p.id}>
@@ -419,12 +419,12 @@ export default function NewPurchasePage() {
       prev.map((item) =>
         item.product.id === productId
           ? {
-              ...item,
-              [field]:
-                field === "quantity"
-                  ? Math.max(1, parseInt(value) || 1)
-                  : value,
-            }
+            ...item,
+            [field]:
+              field === "quantity"
+                ? Math.max(1, parseInt(value) || 1)
+                : value,
+          }
           : item
       )
     );
@@ -592,7 +592,7 @@ export default function NewPurchasePage() {
 
   return (
     <>
-      <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
         {/* HEADER */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
           <div>
@@ -605,7 +605,7 @@ export default function NewPurchasePage() {
           </div>
           <button
             onClick={() => router.back()}
-            className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-semibold flex items-center gap-2"
+            className="px-6 py-2.5 bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-slate-100 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition-all font-semibold flex items-center gap-2"
           >
             <FaTimes /> Cancelar
           </button>
@@ -615,15 +615,15 @@ export default function NewPurchasePage() {
           {/* COLUMNA PRINCIPAL */}
           <div className="lg:col-span-2 space-y-6">
             {/* INFORMACIÓN DE LA COMPRA */}
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-              <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
+              <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <FaTruck className="text-green-600" /> Información de la Compra
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label
                     htmlFor="supplier"
-                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                   >
                     <FaTruck className="text-orange-600" /> Proveedor *
                   </label>
@@ -632,7 +632,7 @@ export default function NewPurchasePage() {
                     value={selectedSupplier}
                     onChange={(e) => setSelectedSupplier(e.target.value)}
                     required
-                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                    className="w-full px-3 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                   >
                     <option value="">Seleccionar proveedor...</option>
                     {suppliers.map((s) => (
@@ -646,7 +646,7 @@ export default function NewPurchasePage() {
                 <div>
                   <label
                     htmlFor="invoice"
-                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                   >
                     <FaFileInvoice className="text-blue-600" /> Nº de
                     Factura/Remito
@@ -657,15 +657,15 @@ export default function NewPurchasePage() {
                     value={invoiceNumber}
                     onChange={(e) => setInvoiceNumber(e.target.value)}
                     placeholder="Ej: 0001-00001234"
-                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full px-3 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
                   />
                 </div>
               </div>
             </div>
 
             {/* AGREGAR PRODUCTOS */}
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-              <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
+              <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <FaBoxes className="text-blue-600" /> Agregar Productos al
                 Carrito
               </h2>
@@ -677,7 +677,7 @@ export default function NewPurchasePage() {
             </div>
 
             {/* CARRITO */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
               {cart.length === 0 ? (
                 <div className="text-center py-16">
                   <FaShoppingCart className="mx-auto text-6xl text-gray-300 mb-3" />
@@ -716,18 +716,18 @@ export default function NewPurchasePage() {
                         <th className="w-10"></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
+                    <tbody className="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                       {cart.map((item) => {
                         const subtotal =
                           item.quantity * (parseFloat(item.cost_price) || 0);
                         return (
                           <tr
                             key={item.product.id}
-                            className="hover:bg-gray-50 transition-colors"
+                            className="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors"
                           >
                             <td className="p-3">
                               <div>
-                                <p className="font-semibold text-gray-800">
+                                <p className="font-semibold text-gray-800 dark:text-slate-100">
                                   {item.product.name}
                                 </p>
                                 {item.product.sku && (
@@ -803,8 +803,8 @@ export default function NewPurchasePage() {
           </div>
 
           {/* PANEL DE RESUMEN */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 space-y-6 h-fit sticky top-6">
-            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700 space-y-6 h-fit sticky top-6">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
               <FaFileInvoice className="text-green-600" /> Resumen de Compra
             </h2>
 
@@ -825,9 +825,9 @@ export default function NewPurchasePage() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border-2 border-green-200">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg p-4 border-2 border-green-200 dark:border-green-900">
               <div className="flex justify-between items-center">
-                <span className="font-bold text-gray-700">Total Factura:</span>
+                <span className="font-bold text-gray-700 dark:text-slate-200">Total Factura:</span>
                 <span className="font-bold text-3xl text-green-600">
                   ${totalAmount.toFixed(2)}
                 </span>
@@ -861,28 +861,25 @@ export default function NewPurchasePage() {
             </div>
 
             <div
-              className={`rounded-lg p-4 border-2 ${
-                totalAmount - (parseFloat(amountPaid) || 0) > 0
-                  ? "bg-red-50 border-red-200"
-                  : "bg-green-50 border-green-200"
-              }`}
+              className={`rounded-lg p-4 border-2 ${totalAmount - (parseFloat(amountPaid) || 0) > 0
+                ? "bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-900"
+                : "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-900"
+                }`}
             >
               <div className="flex justify-between items-center">
                 <span
-                  className={`font-bold ${
-                    totalAmount - (parseFloat(amountPaid) || 0) > 0
-                      ? "text-red-700"
-                      : "text-green-700"
-                  }`}
+                  className={`font-bold ${totalAmount - (parseFloat(amountPaid) || 0) > 0
+                    ? "text-red-700 dark:text-red-300"
+                    : "text-green-700 dark:text-green-300"
+                    }`}
                 >
                   Deuda Generada:
                 </span>
                 <span
-                  className={`font-bold text-2xl ${
-                    totalAmount - (parseFloat(amountPaid) || 0) > 0
-                      ? "text-red-600"
-                      : "text-green-600"
-                  }`}
+                  className={`font-bold text-2xl ${totalAmount - (parseFloat(amountPaid) || 0) > 0
+                    ? "text-red-600"
+                    : "text-green-600"
+                    }`}
                 >
                   ${(totalAmount - (parseFloat(amountPaid) || 0)).toFixed(2)}
                 </span>

@@ -89,11 +89,11 @@ export default function NewCustomerPage() {
       </div>
 
       {/* Formulario */}
-      <div className="bg-white rounded-b-xl shadow-lg p-8">
+      <div className="bg-white dark:bg-slate-900 rounded-b-xl shadow-lg p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Información Básica */}
           <div className="border-l-4 border-blue-500 pl-4 mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
               <FaUserTag className="text-blue-600" />
               Información Básica
             </h2>
@@ -103,7 +103,7 @@ export default function NewCustomerPage() {
             <div>
               <label
                 htmlFor="fullName"
-                className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"
+                className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2"
               >
                 <FaUser className="text-gray-400" />
                 Nombre Completo <span className="text-red-500">*</span>
@@ -115,13 +115,13 @@ export default function NewCustomerPage() {
                 onChange={(e) => setFullName(e.target.value)}
                 required
                 placeholder="Juan Pérez"
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
             <div>
               <label
                 htmlFor="customerType"
-                className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"
+                className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2"
               >
                 <FaUserTag className="text-gray-400" />
                 Tipo de Cliente <span className="text-red-500">*</span>
@@ -131,7 +131,7 @@ export default function NewCustomerPage() {
                 value={customerType}
                 onChange={(e) => setCustomerType(e.target.value)}
                 required
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               >
                 <option value="minorista">🛒 Minorista</option>
                 <option value="mayorista">📦 Mayorista</option>
@@ -141,7 +141,7 @@ export default function NewCustomerPage() {
 
           {/* Contacto */}
           <div className="border-l-4 border-green-500 pl-4 mb-6 mt-8">
-            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
               <FaPhone className="text-green-600" />
               Información de Contacto
             </h2>
@@ -151,7 +151,7 @@ export default function NewCustomerPage() {
             <div>
               <label
                 htmlFor="phone"
-                className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"
+                className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2"
               >
                 <FaPhone className="text-gray-400" />
                 Teléfono
@@ -162,13 +162,13 @@ export default function NewCustomerPage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+54 11 1234-5678"
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               />
             </div>
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"
+                className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2"
               >
                 <FaEnvelope className="text-gray-400" />
                 Email
@@ -179,14 +179,14 @@ export default function NewCustomerPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="cliente@ejemplo.com"
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
 
           {/* Ubicación */}
           <div className="border-l-4 border-orange-500 pl-4 mb-6 mt-8">
-            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
               <FaMapMarkerAlt className="text-orange-600" />
               Ubicación y Entrega
             </h2>
@@ -196,7 +196,7 @@ export default function NewCustomerPage() {
             <div>
               <label
                 htmlFor="address"
-                className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"
+                className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2"
               >
                 <FaMapMarkerAlt className="text-gray-400" />
                 Dirección
@@ -207,13 +207,13 @@ export default function NewCustomerPage() {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="Av. Corrientes 1234, CABA"
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
               />
             </div>
             <div>
               <label
                 htmlFor="reference"
-                className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"
+                className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2"
               >
                 <FaInfoCircle className="text-gray-400" />
                 Referencia
@@ -224,7 +224,7 @@ export default function NewCustomerPage() {
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
                 placeholder="Entre Callao y Rodríguez Peña"
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
@@ -232,7 +232,7 @@ export default function NewCustomerPage() {
           <div>
             <label
               htmlFor="deliveryDay"
-              className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"
+              className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2"
             >
               <FaTruck className="text-gray-400" />
               Día de Reparto
@@ -241,7 +241,7 @@ export default function NewCustomerPage() {
               id="deliveryDay"
               value={deliveryDay}
               onChange={(e) => setDeliveryDay(e.target.value)}
-              className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+              className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
             >
               <option value="">Ninguno</option>
               {daysOfWeek.map((day) => (
@@ -253,11 +253,11 @@ export default function NewCustomerPage() {
           </div>
 
           {/* Botones */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-8 border-t border-gray-200 mt-8">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-8 border-t border-gray-200 dark:border-slate-700 mt-8">
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors"
+              className="px-6 py-3 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-200 dark:bg-slate-700 font-medium transition-colors"
             >
               Cancelar
             </button>

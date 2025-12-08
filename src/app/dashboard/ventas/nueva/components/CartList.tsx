@@ -18,7 +18,7 @@ export default function CartList({
 }: CartListProps) {
   if (cart.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+      <div className="flex flex-col items-center justify-center h-64 text-gray-400 bg-gray-50 dark:bg-slate-950 rounded-xl border-2 border-dashed border-gray-200 dark:border-slate-700">
         <div className="text-6xl mb-4 opacity-20">🛒</div>
         <p className="text-lg font-medium">El carrito está vacío</p>
         <p className="text-sm">Agrega productos para comenzar la venta</p>
@@ -27,29 +27,29 @@ export default function CartList({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+          <thead className="bg-gray-50 dark:bg-slate-950">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 Producto
               </th>
-              <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 Cantidad
               </th>
-              <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 Precio Unit.
               </th>
-              <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 Subtotal
               </th>
-              <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
             {cart.map((item) => {
               const price =
                 item.customPrice !== undefined
@@ -59,15 +59,15 @@ export default function CartList({
               return (
                 <tr
                   key={item.id}
-                  className="hover:bg-gray-50 transition-colors group"
+                  className="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors group"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-col">
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-gray-900 dark:text-slate-50">
                         {item.name}
                       </span>
                       {item.sku && (
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-slate-400">
                           SKU: {item.sku}
                         </span>
                       )}
@@ -81,7 +81,7 @@ export default function CartList({
                       >
                         <FaMinus size={12} />
                       </button>
-                      <span className="w-8 text-center font-semibold text-gray-700">
+                      <span className="w-8 text-center font-semibold text-gray-700 dark:text-slate-200">
                         {item.quantity}
                       </span>
                       <button
@@ -112,7 +112,7 @@ export default function CartList({
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <span className="font-bold text-gray-900">
+                    <span className="font-bold text-gray-900 dark:text-slate-50">
                       ${(price * item.quantity).toFixed(2)}
                     </span>
                   </td>

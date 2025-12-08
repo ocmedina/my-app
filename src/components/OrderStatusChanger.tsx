@@ -61,7 +61,7 @@ export default function OrderStatusChanger({
       value={order.status}
       onChange={(e) => handleStatusChange(e.target.value)}
       disabled={loading}
-      className="p-1 border rounded-md text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+      className="p-1 border rounded-md text-sm bg-gray-50 dark:bg-slate-950 focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
     >
       <option value="pendiente">Pendiente</option>
       <option value="entregado">Entregado</option>

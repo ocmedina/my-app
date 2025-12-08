@@ -93,9 +93,9 @@ export default function BrandsManager() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-      <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-md border border-gray-200 dark:border-slate-700 overflow-hidden">
+      <div className="p-6 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center bg-gray-50 dark:bg-slate-950">
+        <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
           <FaTag className="text-blue-600" /> Marcas
         </h2>
         <button
@@ -129,7 +129,7 @@ export default function BrandsManager() {
           <button
             type="button"
             onClick={() => setIsAdding(false)}
-            className="p-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-colors"
+            className="p-2 bg-gray-400 text-white rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-9500 transition-colors"
             title="Cancelar"
           >
             <FaTimes />
@@ -139,16 +139,16 @@ export default function BrandsManager() {
 
       <div className="divide-y divide-gray-100">
         {loading ? (
-          <div className="p-8 text-center text-gray-500">Cargando...</div>
+          <div className="p-8 text-center text-gray-500 dark:text-slate-400">Cargando...</div>
         ) : brands.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-gray-500 dark:text-slate-400">
             No hay marcas registradas.
           </div>
         ) : (
           brands.map((brand) => (
             <div
               key={brand.id}
-              className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors group"
+              className="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors group"
             >
               {editingId === brand.id ? (
                 <div className="flex gap-2 items-center flex-1 mr-4">
@@ -167,13 +167,13 @@ export default function BrandsManager() {
                   </button>
                   <button
                     onClick={() => setEditingId(null)}
-                    className="text-gray-400 hover:text-gray-600 p-1"
+                    className="text-gray-400 hover:text-gray-600 dark:text-slate-300 p-1"
                   >
                     <FaTimes size={18} />
                   </button>
                 </div>
               ) : (
-                <span className="font-medium text-gray-700">{brand.name}</span>
+                <span className="font-medium text-gray-700 dark:text-slate-200">{brand.name}</span>
               )}
 
               {editingId !== brand.id && (

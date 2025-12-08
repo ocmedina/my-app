@@ -737,10 +737,10 @@ export default function NewSalePage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 pb-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 py-6 pb-16">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Pestañas de Ventas */}
-        <div className="mb-4 bg-white rounded-xl shadow-sm border border-gray-100 p-1">
+        <div className="mb-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 p-1">
           <SaleTabs
             tabs={tabs}
             activeTabId={activeTabId}
@@ -760,8 +760,8 @@ export default function NewSalePage() {
           {/* Columna Izquierda: Buscador y Lista de Productos (si se quisiera mostrar) */}
           <div className="lg:col-span-8 space-y-6">
             {/* Buscador de Productos */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100">
+              <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <FaShoppingCart className="text-blue-600" /> Agregar Productos
               </h2>
               <ProductSearch
@@ -782,8 +782,8 @@ export default function NewSalePage() {
           {/* Columna Derecha: Cliente y Resumen */}
           <div className="lg:col-span-4 space-y-6">
             {/* Selección de Cliente */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100">
+              <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <FaUser className="text-blue-600" /> Cliente
               </h2>
               <select
@@ -794,7 +794,7 @@ export default function NewSalePage() {
                   );
                   setSelectedCustomer(customer || null);
                 }}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-slate-950 hover:bg-white dark:bg-slate-900 transition-colors"
               >
                 <option value="">Seleccionar cliente...</option>
                 {customers.map((customer) => (
@@ -820,22 +820,22 @@ export default function NewSalePage() {
             </div>
 
             {/* Resumen de Venta */}
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 sticky top-6">
-              <h2 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-lg border border-gray-100 sticky top-6">
+              <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-6 flex items-center gap-2">
                 <FaMoneyBillWave className="text-green-600" /> Resumen
               </h2>
 
               <div className="space-y-4 mb-8">
-                <div className="flex justify-between items-center text-gray-600">
+                <div className="flex justify-between items-center text-gray-600 dark:text-slate-300">
                   <span>Subtotal</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center text-gray-600">
+                <div className="flex justify-between items-center text-gray-600 dark:text-slate-300">
                   <span>Impuestos</span>
                   <span>$0.00</span>
                 </div>
-                <div className="border-t border-dashed border-gray-200 pt-4 flex justify-between items-center">
-                  <span className="text-xl font-bold text-gray-900">Total</span>
+                <div className="border-t border-dashed border-gray-200 dark:border-slate-700 pt-4 flex justify-between items-center">
+                  <span className="text-xl font-bold text-gray-900 dark:text-slate-50">Total</span>
                   <span className="text-3xl font-bold text-green-600">
                     ${total.toFixed(2)}
                   </span>
@@ -857,7 +857,7 @@ export default function NewSalePage() {
                 className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 text-lg"
               >
                 <span>Pagar</span>
-                <span className="bg-white/20 px-2 py-0.5 rounded text-sm font-normal">
+                <span className="bg-white dark:bg-slate-900/20 px-2 py-0.5 rounded text-sm font-normal">
                   F12
                 </span>
               </button>

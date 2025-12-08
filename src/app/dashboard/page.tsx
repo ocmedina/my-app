@@ -51,14 +51,14 @@ function DashboardCard({
   note: string;
 }) {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm text-gray-500 mb-1">{title}</p>
-          <p className="text-2xl font-semibold text-gray-900">{value}</p>
-          <p className="text-xs text-gray-400 mt-1">{note}</p>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mb-1">{title}</p>
+          <p className="text-2xl font-semibold text-gray-900 dark:text-slate-50">{value}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-slate-400 mt-1">{note}</p>
         </div>
-        <div className="text-gray-300 text-2xl">{icon}</div>
+        <div className="text-gray-300 dark:text-gray-600 dark:text-slate-300 text-2xl">{icon}</div>
       </div>
     </div>
   );
@@ -86,12 +86,10 @@ async function getDashboardData() {
   );
 
   // Formatear fechas con zona horaria Argentina
-  const startOfMonth = `${
-    firstDayOfMonth.toISOString().split("T")[0]
-  }T00:00:00-03:00`;
-  const startOfNextMonth = `${
-    firstDayOfNextMonth.toISOString().split("T")[0]
-  }T00:00:00-03:00`;
+  const startOfMonth = `${firstDayOfMonth.toISOString().split("T")[0]
+    }T00:00:00-03:00`;
+  const startOfNextMonth = `${firstDayOfNextMonth.toISOString().split("T")[0]
+    }T00:00:00-03:00`;
 
   const { count: productCount } = await supabase
     .from("products")
@@ -270,27 +268,27 @@ export default async function DashboardPage() {
       </div>
 
       {/* Balance: Ventas Local vs Reparto */}
-      <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 p-6 rounded-xl shadow-lg border-2 border-purple-200">
+      <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-purple-950/30 dark:via-blue-950/30 dark:to-cyan-950/30 p-6 rounded-xl shadow-lg border-2 border-purple-200 dark:border-purple-900">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
             <FaBalanceScale className="text-white text-xl" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-gray-800">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-slate-100">
               Balance de Ventas del Mes
             </h3>
-            <p className="text-sm text-gray-600">{currentMonth}</p>
+            <p className="text-sm text-gray-600 dark:text-slate-300">{currentMonth}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Ventas Local */}
-          <div className="bg-white rounded-xl p-5 shadow-md border-2 border-green-200">
+          <div className="bg-white dark:bg-slate-900 rounded-xl p-5 shadow-md border-2 border-green-200 dark:border-green-900">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <FaStore className="text-green-600 text-lg" />
+              <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                <FaStore className="text-green-600 dark:text-green-400 text-lg" />
               </div>
-              <h4 className="font-bold text-gray-800">Ventas Local</h4>
+              <h4 className="font-bold text-gray-800 dark:text-slate-100">Ventas Local</h4>
             </div>
             <p className="text-3xl font-bold text-green-600 mb-2">
               $
@@ -300,24 +298,23 @@ export default async function DashboardPage() {
               })}
             </p>
             <div className="flex items-center gap-2">
-              <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="flex-1 bg-gray-300 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                 <div
                   className="bg-gradient-to-r from-green-500 to-emerald-500 h-full rounded-full"
                   style={{
-                    width: `${
-                      totalSales + totalOrderSales > 0
-                        ? (totalSales / (totalSales + totalOrderSales)) * 100
-                        : 0
-                    }%`,
+                    width: `${totalSales + totalOrderSales > 0
+                      ? (totalSales / (totalSales + totalOrderSales)) * 100
+                      : 0
+                      }%`,
                   }}
                 />
               </div>
-              <span className="text-sm font-bold text-gray-700">
+              <span className="text-sm font-bold text-gray-700 dark:text-slate-200">
                 {totalSales + totalOrderSales > 0
                   ? (
-                      (totalSales / (totalSales + totalOrderSales)) *
-                      100
-                    ).toFixed(1)
+                    (totalSales / (totalSales + totalOrderSales)) *
+                    100
+                  ).toFixed(1)
                   : 0}
                 %
               </span>
@@ -325,12 +322,12 @@ export default async function DashboardPage() {
           </div>
 
           {/* Ventas Reparto */}
-          <div className="bg-white rounded-xl p-5 shadow-md border-2 border-blue-200">
+          <div className="bg-white dark:bg-slate-900 rounded-xl p-5 shadow-md border-2 border-blue-200 dark:border-blue-900">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <FaTruck className="text-blue-600 text-lg" />
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                <FaTruck className="text-blue-600 dark:text-blue-400 text-lg" />
               </div>
-              <h4 className="font-bold text-gray-800">Ventas Reparto</h4>
+              <h4 className="font-bold text-gray-800 dark:text-slate-100">Ventas Reparto</h4>
             </div>
             <p className="text-3xl font-bold text-blue-600 mb-2">
               $
@@ -340,25 +337,24 @@ export default async function DashboardPage() {
               })}
             </p>
             <div className="flex items-center gap-2">
-              <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="flex-1 bg-gray-300 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                 <div
                   className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full rounded-full"
                   style={{
-                    width: `${
-                      totalSales + totalOrderSales > 0
-                        ? (totalOrderSales / (totalSales + totalOrderSales)) *
-                          100
-                        : 0
-                    }%`,
+                    width: `${totalSales + totalOrderSales > 0
+                      ? (totalOrderSales / (totalSales + totalOrderSales)) *
+                      100
+                      : 0
+                      }%`,
                   }}
                 />
               </div>
-              <span className="text-sm font-bold text-gray-700">
+              <span className="text-sm font-bold text-gray-700 dark:text-slate-200">
                 {totalSales + totalOrderSales > 0
                   ? (
-                      (totalOrderSales / (totalSales + totalOrderSales)) *
-                      100
-                    ).toFixed(1)
+                    (totalOrderSales / (totalSales + totalOrderSales)) *
+                    100
+                  ).toFixed(1)
                   : 0}
                 %
               </span>
@@ -368,7 +364,7 @@ export default async function DashboardPage() {
           {/* Total Combinado */}
           <div className="bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl p-5 shadow-md text-white">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center">
                 <FaChartPie className="text-purple-600 text-lg" />
               </div>
               <h4 className="font-bold">Total General</h4>
@@ -385,8 +381,8 @@ export default async function DashboardPage() {
                 <FaStore className="text-xs" />
                 {totalSales > 0
                   ? Math.round(
-                      (totalSales / (totalSales + totalOrderSales)) * 100
-                    )
+                    (totalSales / (totalSales + totalOrderSales)) * 100
+                  )
                   : 0}
                 %
               </span>
@@ -395,8 +391,8 @@ export default async function DashboardPage() {
                 <FaTruck className="text-xs" />
                 {totalOrderSales > 0
                   ? Math.round(
-                      (totalOrderSales / (totalSales + totalOrderSales)) * 100
-                    )
+                    (totalOrderSales / (totalSales + totalOrderSales)) * 100
+                  )
                   : 0}
                 %
               </span>
@@ -406,8 +402,8 @@ export default async function DashboardPage() {
 
         {/* Indicador de dominancia */}
         {totalSales + totalOrderSales > 0 && (
-          <div className="mt-4 p-4 bg-white rounded-lg border border-purple-200">
-            <p className="text-sm text-gray-700">
+          <div className="mt-4 p-4 bg-white dark:bg-slate-900 rounded-lg border border-purple-200 dark:border-purple-900">
+            <p className="text-sm text-gray-700 dark:text-slate-300">
               <span className="font-bold">
                 {totalSales > totalOrderSales ? (
                   <span className="text-green-600">
@@ -436,12 +432,12 @@ export default async function DashboardPage() {
 
       {/* Tarjeta de Cuenta Corriente */}
       {totalDebt > 0 && (
-        <div className="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-lg shadow-sm border-2 border-orange-200">
+        <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 p-6 rounded-lg shadow-sm border-2 border-orange-200 dark:border-orange-900">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl">📋</span>
-                <h3 className="text-lg font-semibold text-gray-800">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100">
                   Cuenta Corriente Pendiente
                 </h3>
               </div>
@@ -452,7 +448,7 @@ export default async function DashboardPage() {
                   maximumFractionDigits: 2,
                 })}
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-slate-300">
                 {customersWithDebtCount}{" "}
                 {customersWithDebtCount === 1 ? "cliente" : "clientes"} con
                 deuda pendiente
@@ -471,13 +467,13 @@ export default async function DashboardPage() {
       {/* Grid de información */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pedidos Pendientes */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-800">
+        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
+          <div className="p-4 border-b border-gray-100 dark:border-slate-700 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-gray-800 dark:text-slate-100">
               Pedidos Pendientes
             </h2>
             {pendingOrders.length > 0 && (
-              <span className="bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-1 rounded-full">
+              <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-semibold px-2 py-1 rounded-full">
                 {pendingOrders.length}
               </span>
             )}
@@ -488,13 +484,13 @@ export default async function DashboardPage() {
                 {pendingOrders.map((order: any) => (
                   <li
                     key={order.id}
-                    className="flex justify-between items-center pb-3 border-b border-gray-100 last:border-0 last:pb-0"
+                    className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-slate-700 last:border-0 last:pb-0"
                   >
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
                         {order.customers?.full_name ?? "Cliente N/A"}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                         {order.created_at &&
                           new Date(order.created_at).toLocaleDateString(
                             "es-ES"
@@ -519,13 +515,13 @@ export default async function DashboardPage() {
         </div>
 
         {/* Stock Crítico */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-800">
+        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
+          <div className="p-4 border-b border-gray-100 dark:border-slate-700 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-gray-800 dark:text-slate-100">
               Stock Crítico
             </h2>
             {criticalStockProducts.length > 0 && (
-              <span className="bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded-full">
+              <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-xs font-semibold px-2 py-1 rounded-full">
                 {criticalStockProducts.length}
               </span>
             )}
@@ -536,19 +532,18 @@ export default async function DashboardPage() {
                 {criticalStockProducts.map((product) => (
                   <li
                     key={product.id}
-                    className="flex justify-between items-center pb-3 border-b border-gray-100 last:border-0 last:pb-0"
+                    className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-slate-700 last:border-0 last:pb-0"
                   >
-                    <span className="text-sm font-medium text-gray-900 truncate pr-2">
+                    <span className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate pr-2">
                       {product.name}
                     </span>
                     <span
-                      className={`text-sm font-semibold px-2 py-1 rounded ${
-                        product.stock === 0
-                          ? "bg-red-50 text-red-700"
-                          : product.stock <= 2
-                          ? "bg-orange-50 text-orange-700"
-                          : "bg-yellow-50 text-yellow-700"
-                      }`}
+                      className={`text-sm font-semibold px-2 py-1 rounded ${product.stock === 0
+                        ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+                        : product.stock <= 2
+                          ? "bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300"
+                          : "bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300"
+                        }`}
                     >
                       {product.stock} u.
                     </span>
@@ -564,9 +559,9 @@ export default async function DashboardPage() {
         </div>
 
         {/* Últimas Ventas */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-          <div className="p-4 border-b border-gray-100">
-            <h2 className="text-base font-semibold text-gray-800">
+        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
+          <div className="p-4 border-b border-gray-100 dark:border-slate-700">
+            <h2 className="text-base font-semibold text-gray-800 dark:text-slate-100">
               Últimas Ventas
             </h2>
           </div>
@@ -576,19 +571,19 @@ export default async function DashboardPage() {
                 {recentSales.map((sale: any) => (
                   <li
                     key={sale.id}
-                    className="flex justify-between items-center pb-3 border-b border-gray-100 last:border-0 last:pb-0"
+                    className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-slate-700 last:border-0 last:pb-0"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">
                         {sale.customers?.full_name ?? "Cliente N/A"}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                         {sale.created_at &&
                           new Date(sale.created_at).toLocaleDateString("es-ES")}
                       </p>
                     </div>
                     <div className="text-right ml-4">
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">
                         $
                         {sale.total_amount?.toLocaleString("es-AR", {
                           minimumFractionDigits: 2,

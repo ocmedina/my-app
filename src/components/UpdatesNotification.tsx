@@ -17,6 +17,46 @@ interface Update {
 
 const UPDATES: Update[] = [
   {
+    id: "2025-12-08-dark-mode-complete",
+    date: "8 Dic 2025",
+    title: "🌙 Modo Oscuro Completo",
+    description:
+      "Implementación completa de dark mode en toda la aplicación. Todos los elementos, botones, inputs y gradientes ahora se adaptan perfectamente al tema oscuro.",
+    icon: "🌙",
+    isNew: true,
+    type: "improvement",
+  },
+  {
+    id: "2025-12-08-top-products-chart",
+    date: "8 Dic 2025",
+    title: "📊 Gráfico Top 10 Productos Corregido",
+    description:
+      "Corregido el gráfico de productos más vendidos con visualización vertical mejorada y colores optimizados para mejor visibilidad en ambos modos.",
+    icon: "📊",
+    isNew: true,
+    type: "fix",
+  },
+  {
+    id: "2025-12-08-growth-calculation",
+    date: "8 Dic 2025",
+    title: "📈 Cálculo de Tendencia Real",
+    description:
+      "Implementado cálculo real de tendencia de ventas comparando el período actual con el período anterior. Ahora verás porcentajes de crecimiento precisos.",
+    icon: "📈",
+    isNew: true,
+    type: "feature",
+  },
+  {
+    id: "2025-12-08-timezone-fix",
+    date: "8 Dic 2025",
+    title: "🕐 Zona Horaria Argentina Corregida",
+    description:
+      "Corregido el manejo de fechas y horas para usar correctamente la zona horaria de Argentina (GMT-3). Todas las ventas, pedidos y registros ahora muestran la hora local correcta.",
+    icon: "🕐",
+    isNew: true,
+    type: "fix",
+  },
+  {
     id: "2025-11-27-reparto-ux",
     date: "27 Nov 2025",
     title: "🚚 Rediseño de Reparto (UX/UI)",
@@ -170,9 +210,8 @@ export default function UpdatesNotification() {
 
       {/* Drawer / Panel Lateral (Desliza desde la derecha) */}
       <div
-        className={`fixed inset-y-0 right-0 z-[100] w-full sm:w-[450px] bg-white shadow-2xl transform transition-transform duration-500 ease-out flex flex-col ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed inset-y-0 right-0 z-[100] w-full sm:w-[450px] bg-white shadow-2xl transform transition-transform duration-500 ease-out flex flex-col ${isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         {/* Header Llamativo con Gradiente */}
         <div className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white p-6 shrink-0 overflow-hidden">
@@ -185,13 +224,13 @@ export default function UpdatesNotification() {
           <div className="relative z-10">
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-2">
-                <span className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold border border-white/10 flex items-center gap-1 text-blue-200">
+                <span className="bg-white dark:bg-slate-900/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold border border-white/10 flex items-center gap-1 text-blue-200">
                   <HiSparkles className="text-yellow-400" /> NOVEDADES
                 </span>
               </div>
               <button
                 onClick={handleClose}
-                className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors backdrop-blur-md text-white/80 hover:text-white"
+                className="bg-white dark:bg-slate-900/10 hover:bg-white/20 p-2 rounded-full transition-colors backdrop-blur-md text-white/80 hover:text-white"
               >
                 <FaTimes className="w-5 h-5" />
               </button>
@@ -208,11 +247,10 @@ export default function UpdatesNotification() {
             <div className="flex gap-6 mt-8 border-b border-white/10">
               <button
                 onClick={() => setActiveTab("new")}
-                className={`pb-3 text-sm font-bold transition-all relative ${
-                  activeTab === "new"
-                    ? "text-white"
-                    : "text-blue-300/70 hover:text-white"
-                }`}
+                className={`pb-3 text-sm font-bold transition-all relative ${activeTab === "new"
+                  ? "text-white"
+                  : "text-blue-300/70 hover:text-white"
+                  }`}
               >
                 Nuevas
                 {newUpdatesList.length > 0 && (
@@ -226,11 +264,10 @@ export default function UpdatesNotification() {
               </button>
               <button
                 onClick={() => setActiveTab("all")}
-                className={`pb-3 text-sm font-bold transition-all relative ${
-                  activeTab === "all"
-                    ? "text-white"
-                    : "text-blue-300/70 hover:text-white"
-                }`}
+                className={`pb-3 text-sm font-bold transition-all relative ${activeTab === "all"
+                  ? "text-white"
+                  : "text-blue-300/70 hover:text-white"
+                  }`}
               >
                 Historial
                 {activeTab === "all" && (
@@ -245,11 +282,11 @@ export default function UpdatesNotification() {
         <div className="flex-1 overflow-y-auto bg-slate-50 p-6">
           {displayedUpdates.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-4">
-              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
+              <div className="w-20 h-20 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
                 <FaCheckDouble className="w-8 h-8 text-gray-300" />
               </div>
               <div className="text-center">
-                <p className="text-gray-900 font-medium">¡Estás al día!</p>
+                <p className="text-gray-900 dark:text-slate-50 font-medium">¡Estás al día!</p>
                 <p className="text-sm">No tienes notificaciones nuevas.</p>
               </div>
               <button
@@ -264,11 +301,10 @@ export default function UpdatesNotification() {
               {displayedUpdates.map((update, index) => (
                 <div
                   key={update.id}
-                  className={`group relative bg-white rounded-2xl p-5 border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-in slide-in-from-right-8 fade-in duration-500 ${
-                    update.isNew && !seenUpdates.includes(update.id)
-                      ? "border-blue-200 shadow-md ring-1 ring-blue-50"
-                      : "border-gray-100 shadow-sm"
-                  }`}
+                  className={`group relative bg-white rounded-2xl p-5 border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-in slide-in-from-right-8 fade-in duration-500 ${update.isNew && !seenUpdates.includes(update.id)
+                    ? "border-blue-200 shadow-md ring-1 ring-blue-50"
+                    : "border-gray-100 shadow-sm"
+                    }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {/* Indicador de Nuevo (Punto pulsante) */}
@@ -282,13 +318,12 @@ export default function UpdatesNotification() {
                   <div className="flex items-start gap-4">
                     {/* Icono con fondo */}
                     <div
-                      className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm ${
-                        update.type === "feature"
-                          ? "bg-purple-50 text-purple-600"
-                          : update.type === "fix"
+                      className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm ${update.type === "feature"
+                        ? "bg-purple-50 text-purple-600"
+                        : update.type === "fix"
                           ? "bg-red-50 text-red-600"
                           : "bg-blue-50 text-blue-600"
-                      }`}
+                        }`}
                     >
                       {update.icon}
                     </div>
@@ -296,13 +331,12 @@ export default function UpdatesNotification() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                            update.type === "feature"
-                              ? "bg-purple-100 text-purple-700"
-                              : update.type === "fix"
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${update.type === "feature"
+                            ? "bg-purple-100 text-purple-700"
+                            : update.type === "fix"
                               ? "bg-red-100 text-red-700"
                               : "bg-blue-100 text-blue-700"
-                          }`}
+                            }`}
                         >
                           {update.type || "Update"}
                         </span>
@@ -311,11 +345,11 @@ export default function UpdatesNotification() {
                         </span>
                       </div>
 
-                      <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-base font-bold text-gray-900 dark:text-slate-50 mb-1 group-hover:text-blue-600 transition-colors">
                         {update.title}
                       </h3>
 
-                      <p className="text-gray-600 text-sm leading-relaxed">
+                      <p className="text-gray-600 dark:text-slate-300 text-sm leading-relaxed">
                         {update.description}
                       </p>
                     </div>
@@ -328,7 +362,7 @@ export default function UpdatesNotification() {
 
         {/* Footer con Acción */}
         {newUpdatesList.length > 0 && activeTab === "new" && (
-          <div className="p-4 bg-white border-t border-gray-100 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+          <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <button
               onClick={markAllAsRead}
               className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200"

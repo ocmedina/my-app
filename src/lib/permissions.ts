@@ -47,7 +47,7 @@ export function hasPermission(
   permission: keyof typeof PERMISSIONS
 ): boolean {
   if (!userRole) return false
-  return PERMISSIONS[permission].includes(userRole as any)
+  return (PERMISSIONS[permission] as readonly string[]).includes(userRole)
 }
 
 export function isAdmin(userRole: Role | null | undefined): boolean {

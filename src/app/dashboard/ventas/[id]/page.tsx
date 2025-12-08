@@ -39,8 +39,8 @@ export default async function SaleDetailPage({
   if (error || !sale) {
     console.error("Error al obtener detalles de la venta:", error?.message);
     return (
-      <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
-        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center border border-gray-200">
+      <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen flex items-center justify-center">
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-lg max-w-md w-full text-center border border-gray-200 dark:border-slate-700">
           <div className="mb-6">
             <div className="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
               <svg
@@ -57,10 +57,10 @@ export default async function SaleDetailPage({
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-50 mb-2">
               Venta no encontrada
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-slate-300">
               No se pudieron cargar los detalles de esta venta.
             </p>
           </div>

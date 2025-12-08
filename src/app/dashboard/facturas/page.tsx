@@ -197,29 +197,29 @@ export default function InvoicesPage() {
         <h1 className="text-2xl font-bold">Historial de Facturas</h1>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+          <thead className="bg-gray-50 dark:bg-slate-950">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Fecha</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Número</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Cliente</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Total</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
             {loading ? (
-              <tr><td colSpan={5} className="text-center py-10 text-gray-500">Cargando facturas...</td></tr>
+              <tr><td colSpan={5} className="text-center py-10 text-gray-500 dark:text-slate-400">Cargando facturas...</td></tr>
             ) : invoices.length === 0 ? (
-              <tr><td colSpan={5} className="text-center py-10 text-gray-500">No hay facturas generadas.</td></tr>
+              <tr><td colSpan={5} className="text-center py-10 text-gray-500 dark:text-slate-400">No hay facturas generadas.</td></tr>
             ) : (
               invoices.map((invoice) => (
                 <tr key={invoice.id}>
-                  <td className="px-6 py-4 text-sm text-gray-500">{new Date(invoice.created_at).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-800">{invoice.invoice_number}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{invoice.customer_data?.full_name ?? 'N/A'}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-gray-800">${invoice.total_amount?.toFixed(2)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">{new Date(invoice.created_at).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-sm font-semibold text-gray-800 dark:text-slate-100">{invoice.invoice_number}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-slate-50">{invoice.customer_data?.full_name ?? 'N/A'}</td>
+                  <td className="px-6 py-4 text-sm font-bold text-gray-800 dark:text-slate-100">${invoice.total_amount?.toFixed(2)}</td>
                   <td className="px-6 py-4 text-sm">
                     <DownloadInvoiceButton invoiceId={invoice.id} />
                   </td>

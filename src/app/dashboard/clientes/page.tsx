@@ -149,14 +149,14 @@ function CustomersPageContent() {
   }, [customers, searchTerm]);
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       {/* HEADER */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
             <FaUsers className="text-blue-600" /> Gestión de Clientes
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-slate-300 mt-1">
             Administra tu cartera de clientes y sus cuentas
           </p>
         </div>
@@ -177,7 +177,7 @@ function CustomersPageContent() {
       </div>
 
       {/* BÚSQUEDA Y FILTROS */}
-      <div className="bg-white rounded-xl shadow-lg mb-6 p-4 border border-gray-200">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg mb-6 p-4 border border-gray-200 dark:border-slate-700">
         <div className="flex flex-col lg:flex-row gap-3">
           {/* Barra de búsqueda */}
           <div className="flex-1 relative">
@@ -187,11 +187,11 @@ function CustomersPageContent() {
               placeholder="Buscar por nombre, teléfono o email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-24 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+              className="w-full pl-10 pr-24 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-50"
             />
             {searchTerm && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                <span className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-full">
                   {filteredCustomers.length}
                 </span>
               </div>
@@ -205,14 +205,14 @@ function CustomersPageContent() {
               id="debtFilter"
               value={debtFilter}
               onChange={(e) => setDebtFilter(e.target.value)}
-              className="px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm min-w-[180px]"
+              className="px-3 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm min-w-[180px] bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-50"
             >
               <option value="all">Todos</option>
               <option value="with_debt">Con deudas</option>
               <option value="no_debt">Sin deudas</option>
             </select>
             {debtFilter === "with_debt" && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg border border-red-200">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-lg border border-red-200 dark:border-red-900">
                 <FaExclamationTriangle className="text-xs" />
                 <span className="text-xs font-semibold whitespace-nowrap">
                   Filtrado activo
@@ -224,48 +224,48 @@ function CustomersPageContent() {
       </div>
 
       {/* TABLA DE CLIENTES */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-900">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaUser /> Nombre
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaPhone /> Teléfono
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaEnvelope /> Email
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaUserTag /> Tipo
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaDollarSign /> Deuda Pendiente
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                      <span className="text-gray-500 font-medium">
+                      <span className="text-gray-500 dark:text-slate-400 font-medium">
                         Cargando clientes...
                       </span>
                     </div>
@@ -276,7 +276,7 @@ function CustomersPageContent() {
                   <td colSpan={6} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <FaInbox className="text-6xl text-gray-300" />
-                      <span className="text-gray-500 font-medium">
+                      <span className="text-gray-500 dark:text-slate-400 font-medium">
                         {searchTerm
                           ? "No se encontraron clientes con ese criterio"
                           : "No hay clientes para mostrar"}
@@ -306,11 +306,10 @@ function CustomersPageContent() {
                 filteredCustomers.map((customer) => (
                   <tr
                     key={customer.id}
-                    className={`hover:bg-gray-50 transition-colors ${
-                      customer.debt && customer.debt > 0
-                        ? "bg-red-50/30 border-l-4 border-red-400"
-                        : ""
-                    }`}
+                    className={`hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors ${customer.debt && customer.debt > 0
+                      ? "bg-red-50/30 border-l-4 border-red-400"
+                      : ""
+                      }`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Link
@@ -323,13 +322,13 @@ function CustomersPageContent() {
                         {customer.full_name}
                       </Link>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-300">
                       <div className="flex items-center gap-2">
                         <FaPhone className="text-gray-400" />
                         {customer.phone || "—"}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-300">
                       <div className="flex items-center gap-2">
                         <FaEnvelope className="text-gray-400" />
                         {customer.email || "—"}
@@ -337,11 +336,10 @@ function CustomersPageContent() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                          customer.customer_type === "mayorista"
-                            ? "bg-purple-100 text-purple-800 border border-purple-300"
-                            : "bg-blue-100 text-blue-800 border border-blue-300"
-                        }`}
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${customer.customer_type === "mayorista"
+                          ? "bg-purple-100 text-purple-800 border border-purple-300"
+                          : "bg-blue-100 text-blue-800 border border-blue-300"
+                          }`}
                       >
                         <FaUserTag />
                         {customer.customer_type === "mayorista"
@@ -385,7 +383,7 @@ export default function CustomersPage() {
     <Suspense
       fallback={
         <div className="flex justify-center items-center min-h-screen">
-          <div className="text-gray-500">Cargando...</div>
+          <div className="text-gray-500 dark:text-slate-400">Cargando...</div>
         </div>
       }
     >

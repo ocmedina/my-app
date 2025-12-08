@@ -70,14 +70,14 @@ export default function RemitoModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-md w-full">
         <div className="bg-gradient-to-r from-gray-700 to-gray-900 px-6 py-5 rounded-t-3xl flex justify-between items-center">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <FaPrint /> Generar Remito
           </h2>
           <button
             onClick={onClose}
-            className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2"
+            className="text-white hover:bg-white dark:bg-slate-900 hover:bg-opacity-20 rounded-full p-2"
           >
             <FaTimes size={20} />
           </button>
@@ -86,11 +86,11 @@ export default function RemitoModal({
           {loading || !orderData ? (
             <div className="flex flex-col items-center justify-center h-48">
               <FaSpinner className="animate-spin text-4xl text-blue-600" />
-              <p className="mt-4 text-gray-600">Cargando datos del pedido...</p>
+              <p className="mt-4 text-gray-600 dark:text-slate-300">Cargando datos del pedido...</p>
             </div>
           ) : (
             <>
-              <p className="mb-4 text-gray-700 text-center">
+              <p className="mb-4 text-gray-700 dark:text-slate-200 text-center">
                 El remito para{" "}
                 <span className="font-bold">
                   {orderData.customers?.full_name}
@@ -100,7 +100,7 @@ export default function RemitoModal({
 
               {/* Selector de formato */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                   Formato de Impresión:
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -140,7 +140,7 @@ export default function RemitoModal({
 
               <button
                 onClick={onClose}
-                className="w-full mt-3 py-3 text-gray-600 font-semibold hover:bg-gray-100 rounded-xl"
+                className="w-full mt-3 py-3 text-gray-600 dark:text-slate-300 font-semibold hover:bg-gray-100 dark:hover:bg-slate-800/80 dark:bg-slate-800 rounded-xl"
               >
                 Cerrar
               </button>

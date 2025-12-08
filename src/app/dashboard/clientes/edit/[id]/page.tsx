@@ -95,7 +95,7 @@ export default function EditCustomerPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">
+          <p className="text-gray-600 dark:text-slate-300 font-medium">
             Cargando datos del cliente...
           </p>
         </div>
@@ -123,11 +123,11 @@ export default function EditCustomerPage() {
       </div>
 
       {/* Formulario */}
-      <div className="bg-white rounded-b-xl shadow-lg p-8">
+      <div className="bg-white dark:bg-slate-900 rounded-b-xl shadow-lg p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Información Básica */}
           <div className="border-l-4 border-blue-500 pl-4 mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
               <FaUserTag className="text-blue-600" />
               Información Básica
             </h2>
@@ -137,7 +137,7 @@ export default function EditCustomerPage() {
             <div>
               <label
                 htmlFor="fullName"
-                className="flex text-sm font-semibold text-gray-700 mb-2 items-center gap-2"
+                className="flex text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 items-center gap-2"
               >
                 <FaUser className="text-gray-400" />
                 Nombre Completo <span className="text-red-500">*</span>
@@ -148,13 +148,13 @@ export default function EditCustomerPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
             <div>
               <label
                 htmlFor="customerType"
-                className="flex text-sm font-semibold text-gray-700 mb-2 items-center gap-2"
+                className="flex text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 items-center gap-2"
               >
                 <FaUserTag className="text-gray-400" />
                 Tipo de Cliente <span className="text-red-500">*</span>
@@ -164,7 +164,7 @@ export default function EditCustomerPage() {
                 value={customerType}
                 onChange={(e) => setCustomerType(e.target.value)}
                 required
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               >
                 <option value="minorista">🛒 Minorista</option>
                 <option value="mayorista">📦 Mayorista</option>
@@ -174,7 +174,7 @@ export default function EditCustomerPage() {
 
           {/* Contacto */}
           <div className="border-l-4 border-green-500 pl-4 mb-6 mt-8">
-            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
               <FaPhone className="text-green-600" />
               Información de Contacto
             </h2>
@@ -184,7 +184,7 @@ export default function EditCustomerPage() {
             <div>
               <label
                 htmlFor="phone"
-                className="flex text-sm font-semibold text-gray-700 mb-2 items-center gap-2"
+                className="flex text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 items-center gap-2"
               >
                 <FaPhone className="text-gray-400" />
                 Teléfono
@@ -194,13 +194,13 @@ export default function EditCustomerPage() {
                 id="phone"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               />
             </div>
             <div>
               <label
                 htmlFor="email"
-                className="flex text-sm font-semibold text-gray-700 mb-2 items-center gap-2"
+                className="flex text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 items-center gap-2"
               >
                 <FaEnvelope className="text-gray-400" />
                 Email
@@ -210,14 +210,14 @@ export default function EditCustomerPage() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
 
           {/* Ubicación */}
           <div className="border-l-4 border-orange-500 pl-4 mb-6 mt-8">
-            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
               <FaMapMarkerAlt className="text-orange-600" />
               Ubicación
             </h2>
@@ -227,7 +227,7 @@ export default function EditCustomerPage() {
             <div>
               <label
                 htmlFor="address"
-                className="flex text-sm font-semibold text-gray-700 mb-2 items-center gap-2"
+                className="flex text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 items-center gap-2"
               >
                 <FaMapMarkerAlt className="text-gray-400" />
                 Dirección
@@ -237,14 +237,14 @@ export default function EditCustomerPage() {
                 id="address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                 placeholder="Ej: Av. Corrientes 1234, CABA"
               />
             </div>
             <div>
               <label
                 htmlFor="reference"
-                className="flex text-sm font-semibold text-gray-700 mb-2 items-center gap-2"
+                className="flex text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 items-center gap-2"
               >
                 <FaInfoCircle className="text-gray-400" />
                 Referencia
@@ -254,18 +254,18 @@ export default function EditCustomerPage() {
                 id="reference"
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
-                className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                 placeholder="Ej: Entre Callao y Rodríguez Peña"
               />
             </div>
           </div>
 
           {/* Botones */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-8 border-t border-gray-200 mt-8">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-8 border-t border-gray-200 dark:border-slate-700 mt-8">
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors"
+              className="px-6 py-3 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-200 dark:bg-slate-700 font-medium transition-colors"
             >
               Cancelar
             </button>

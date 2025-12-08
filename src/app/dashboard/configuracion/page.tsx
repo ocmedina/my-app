@@ -131,10 +131,10 @@ export default function SettingsPage() {
   // Mientras verifica autenticación y permisos
   if (checkingAuth || (userRole !== 'administrador' && userRole !== null)) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Verificando permisos...</p>
+          <p className="text-gray-600 dark:text-slate-300">Verificando permisos...</p>
         </div>
       </div>
     );
@@ -143,27 +143,27 @@ export default function SettingsPage() {
   // Mientras carga la configuración
   if (loading && !Object.keys(settings).length) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando configuración...</p>
+          <p className="text-gray-600 dark:text-slate-300">Cargando configuración...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Configuración del Negocio</h1>
-          <p className="text-gray-600">Administra la información y apariencia de tu negocio</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-50 mb-2">Configuración del Negocio</h1>
+          <p className="text-gray-600 dark:text-slate-300">Administra la información y apariencia de tu negocio</p>
         </div>
 
         <div className="grid gap-6">
           {/* Información General */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
               <h2 className="text-xl font-semibold text-white flex items-center gap-2">
                 <FaStore className="text-lg" />
@@ -173,7 +173,7 @@ export default function SettingsPage() {
             
             <div className="p-6 space-y-5">
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2">
                   <FaStore className="text-blue-600" />
                   Nombre del Negocio
                 </label>
@@ -182,12 +182,12 @@ export default function SettingsPage() {
                   value={settings.business_name || ''}
                   onChange={e => handleInputChange('business_name', e.target.value)}
                   placeholder="Ej: Mi Empresa S.A."
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
                 />
               </div>
 
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2">
                   <FaMapMarkerAlt className="text-blue-600" />
                   Dirección
                 </label>
@@ -196,12 +196,12 @@ export default function SettingsPage() {
                   value={settings.business_address || ''}
                   onChange={e => handleInputChange('business_address', e.target.value)}
                   placeholder="Ej: Av. San Martín 1234"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
                 />
               </div>
 
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2">
                   <FaPhone className="text-blue-600" />
                   Teléfono
                 </label>
@@ -210,14 +210,14 @@ export default function SettingsPage() {
                   value={settings.business_phone || ''}
                   onChange={e => handleInputChange('business_phone', e.target.value)}
                   placeholder="Ej: +54 261 123-4567"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
                 />
               </div>
             </div>
           </div>
 
           {/* Logo del Negocio */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden">
             <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
               <h2 className="text-xl font-semibold text-white flex items-center gap-2">
                 <FaImage className="text-lg" />
@@ -229,8 +229,8 @@ export default function SettingsPage() {
               <div className="flex flex-col md:flex-row gap-6 items-start">
                 {/* Vista previa del logo actual */}
                 <div className="flex-shrink-0">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">Logo Actual</p>
-                  <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
+                  <p className="text-sm font-semibold text-gray-700 dark:text-slate-200 mb-3">Logo Actual</p>
+                  <div className="w-32 h-32 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-slate-950">
                     {settings.logo_url ? (
                       <img 
                         src={settings.logo_url} 
@@ -249,7 +249,7 @@ export default function SettingsPage() {
                 {/* Vista previa del nuevo logo */}
                 {previewUrl && (
                   <div className="flex-shrink-0">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">Vista Previa</p>
+                    <p className="text-sm font-semibold text-gray-700 dark:text-slate-200 mb-3">Vista Previa</p>
                     <div className="w-32 h-32 border-2 border-dashed border-purple-300 rounded-lg flex items-center justify-center bg-purple-50">
                       <img 
                         src={previewUrl} 
@@ -262,7 +262,7 @@ export default function SettingsPage() {
 
                 {/* Selector de archivo y botón de subida */}
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">Seleccionar Nuevo Logo</p>
+                  <p className="text-sm font-semibold text-gray-700 dark:text-slate-200 mb-3">Seleccionar Nuevo Logo</p>
                   <div className="space-y-3">
                     <label className="block">
                       <span className="sr-only">Elegir archivo</span>
@@ -270,7 +270,7 @@ export default function SettingsPage() {
                         type="file" 
                         accept="image/*" 
                         onChange={handleFileSelect}
-                        className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer cursor-pointer"
+                        className="block w-full text-sm text-gray-600 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer cursor-pointer"
                       />
                     </label>
                     
@@ -293,9 +293,9 @@ export default function SettingsPage() {
                     </button>
 
                     {settings.logo_url && (
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-xs text-gray-500 font-medium mb-1">URL actual:</p>
-                        <p className="text-xs text-gray-700 break-all">{settings.logo_url}</p>
+                      <div className="bg-gray-50 dark:bg-slate-950 rounded-lg p-3">
+                        <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mb-1">URL actual:</p>
+                        <p className="text-xs text-gray-700 dark:text-slate-200 break-all">{settings.logo_url}</p>
                       </div>
                     )}
                   </div>

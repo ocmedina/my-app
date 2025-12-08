@@ -81,7 +81,7 @@ export default function DeliveryConfirmationModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-md w-full">
         <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-5 rounded-t-3xl flex justify-between items-center">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <FaTruck /> Confirmar Entrega y Pago
@@ -89,25 +89,25 @@ export default function DeliveryConfirmationModal({
           <button
             onClick={onClose}
             disabled={isDelivering}
-            className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all"
+            className="text-white hover:bg-white dark:bg-slate-900 hover:bg-opacity-20 rounded-full p-2 transition-all"
           >
             <FaTimes size={20} />
           </button>
         </div>
         <div className="p-8 space-y-5">
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">Cliente</p>
-            <p className="text-xl font-bold text-gray-800">
+            <p className="text-sm text-gray-600 dark:text-slate-300 mb-2">Cliente</p>
+            <p className="text-xl font-bold text-gray-800 dark:text-slate-100">
               {order.customers.full_name}
             </p>
             {order.customers.address && (
-              <div className="mt-3 text-sm text-gray-600">
+              <div className="mt-3 text-sm text-gray-600 dark:text-slate-300">
                 <div className="flex items-center justify-center gap-2">
                   <FaMapMarkerAlt className="text-purple-500" />
                   <span>{order.customers.address}</span>
                 </div>
                 {order.customers.reference && (
-                  <p className="text-xs italic text-gray-500 mt-1">
+                  <p className="text-xs italic text-gray-500 dark:text-slate-400 mt-1">
                     Ref: {order.customers.reference}
                   </p>
                 )}
@@ -118,7 +118,7 @@ export default function DeliveryConfirmationModal({
             </p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
               Método de Pago
             </label>
             <select
@@ -130,7 +130,7 @@ export default function DeliveryConfirmationModal({
                   setAmountTransfer("");
                 }
               }}
-              className="mt-1 w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50"
+              className="mt-1 w-full p-3 border-2 border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50 dark:bg-slate-950"
             >
               <option value="efectivo">💵 Efectivo</option>
               <option value="transferencia">🏦 Transferencia</option>
@@ -144,7 +144,7 @@ export default function DeliveryConfirmationModal({
           {paymentMethod === "mixto" ? (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
                   💵 Efectivo
                 </label>
                 <input
@@ -154,11 +154,11 @@ export default function DeliveryConfirmationModal({
                   step="0.01"
                   min="0"
                   placeholder="0.00"
-                  className="mt-1 w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50"
+                  className="mt-1 w-full p-3 border-2 border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50 dark:bg-slate-950"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
                   🏦 Transferencia
                 </label>
                 <input
@@ -168,7 +168,7 @@ export default function DeliveryConfirmationModal({
                   step="0.01"
                   min="0"
                   placeholder="0.00"
-                  className="mt-1 w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50"
+                  className="mt-1 w-full p-3 border-2 border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50 dark:bg-slate-950"
                 />
               </div>
               <div className="bg-purple-50 p-3 rounded-xl border-2 border-purple-200">
@@ -182,7 +182,7 @@ export default function DeliveryConfirmationModal({
             </>
           ) : (
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
                 Monto Recibido
               </label>
               <input
@@ -191,7 +191,7 @@ export default function DeliveryConfirmationModal({
                 onChange={(e) => setAmountPaid(e.target.value)}
                 step="0.01"
                 min="0"
-                className="mt-1 w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50"
+                className="mt-1 w-full p-3 border-2 border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50 dark:bg-slate-950"
               />
             </div>
           )}
@@ -219,7 +219,7 @@ export default function DeliveryConfirmationModal({
           <button
             onClick={onClose}
             disabled={isDelivering}
-            className="w-full mt-3 py-3 text-gray-600 font-semibold hover:bg-gray-100 rounded-xl transition-all disabled:opacity-50"
+            className="w-full mt-3 py-3 text-gray-600 dark:text-slate-300 font-semibold hover:bg-gray-100 dark:hover:bg-slate-800/80 dark:bg-slate-800 rounded-xl transition-all disabled:opacity-50"
           >
             Cancelar
           </button>

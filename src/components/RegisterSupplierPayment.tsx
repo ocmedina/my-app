@@ -70,14 +70,14 @@ export default function RegisterSupplierPayment({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-bold mb-4">Registrar Pago a Proveedor</h2>
       <form
         onSubmit={handleRegisterPayment}
         className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"
       >
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
             Monto Pagado
           </label>
           <input
@@ -85,20 +85,20 @@ export default function RegisterSupplierPayment({
             step="0.01"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md"
             placeholder="0.00"
             required
           />
         </div>
         <div className="md:col-span-1">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
             Comentario
           </label>
           <input
             type="text"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md"
             placeholder="Ej: Pago factura #123"
           />
         </div>

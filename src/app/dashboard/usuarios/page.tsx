@@ -40,12 +40,12 @@ function NewUserModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md overflow-y-auto max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-xl w-full max-w-md overflow-y-auto max-h-[90vh]">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Crear Nuevo Empleado</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-800"
+            className="text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:text-slate-100"
           >
             ✕
           </button>
@@ -53,45 +53,45 @@ function NewUserModal({
 
         <form action={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
               Nombre Completo
             </label>
             <input
               name="fullName"
               required
-              className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md"
               placeholder="Juan Pérez"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
               Usuario
             </label>
             <input
               name="username"
               pattern="[a-zA-Z0-9._-]+"
               required
-              className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md"
               placeholder="juan.perez"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
               Email
             </label>
             <input
               name="email"
               type="email"
               required
-              className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md"
               placeholder="juan@empresa.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
               Contraseña Temporal
             </label>
             <input
@@ -99,20 +99,20 @@ function NewUserModal({
               type="password"
               required
               minLength={6}
-              className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md"
               placeholder="******"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
               Rol
             </label>
             <select
               name="role"
               defaultValue="vendedor"
               required
-              className="mt-1 w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md"
             >
               <option value="vendedor">Vendedor</option>
               <option value="administrador">Administrador</option>
@@ -124,7 +124,7 @@ function NewUserModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+              className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded-md hover:bg-gray-300"
             >
               Cancelar
             </button>
@@ -244,9 +244,9 @@ function UsersPageContent() {
       )}
 
       {/* TABLA DE USUARIOS */}
-      <div className="bg-white shadow-md rounded-lg overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
+      <div className="bg-white dark:bg-slate-900 shadow-md rounded-lg overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+          <thead className="bg-gray-50 dark:bg-slate-950 text-gray-600 dark:text-slate-300 uppercase text-xs">
             <tr>
               <th className="px-6 py-3 text-left">Nombre</th>
               <th className="px-6 py-3 text-left">Usuario</th>
@@ -255,7 +255,7 @@ function UsersPageContent() {
               <th className="px-6 py-3 text-left">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
             {loading ? (
               <tr>
                 <td colSpan={5} className="text-center py-10">
@@ -264,7 +264,7 @@ function UsersPageContent() {
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-10 text-gray-500">
+                <td colSpan={5} className="text-center py-10 text-gray-500 dark:text-slate-400">
                   No hay usuarios
                 </td>
               </tr>
@@ -292,11 +292,10 @@ function UsersPageContent() {
                   </td>
                   <td className="px-6 py-3">
                     <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        u.is_active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${u.is_active
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                          : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                        }`}
                     >
                       {u.is_active ? 'Activo' : 'Inactivo'}
                     </span>
@@ -308,7 +307,7 @@ function UsersPageContent() {
                           onClick={() =>
                             handleStatusChange(u.id, u.is_active)
                           }
-                          className="text-gray-600 hover:text-gray-900"
+                          className="text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:text-slate-50"
                         >
                           {u.is_active ? 'Desactivar' : 'Activar'}
                         </button>

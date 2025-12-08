@@ -85,7 +85,7 @@ export default function NewOrderView({
 
   return (
     <main className="p-4 space-y-4 pb-32">
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-visible">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 overflow-visible">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-3 rounded-t-2xl">
           <label className="flex items-center gap-2 text-sm font-semibold text-white">
             <FaUser /> Cliente Seleccionado
@@ -109,7 +109,7 @@ export default function NewOrderView({
               }}
               onFocus={() => setIsDropdownOpen(true)}
               placeholder="Buscar cliente..."
-              className="w-full py-3 pl-12 pr-10 border-2 border-gray-200 rounded-xl text-lg font-semibold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none text-gray-800"
+              className="w-full py-3 pl-12 pr-10 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-lg font-semibold bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none text-gray-800 dark:text-slate-100"
             />
             {searchTerm && (
               <button
@@ -118,7 +118,7 @@ export default function NewOrderView({
                   setSelectedCustomer(null);
                   setIsDropdownOpen(true);
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-slate-300"
               >
                 <FaTimes />
               </button>
@@ -126,7 +126,7 @@ export default function NewOrderView({
           </div>
 
           {isDropdownOpen && (
-            <div className="absolute z-50 left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto mx-5">
+            <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto mx-5">
               {filteredCustomers.length > 0 ? (
                 filteredCustomers.map((c) => (
                   <div
@@ -138,7 +138,7 @@ export default function NewOrderView({
                     }}
                     className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 flex justify-between items-center group"
                   >
-                    <span className="font-medium text-gray-700 group-hover:text-blue-700">
+                    <span className="font-medium text-gray-700 dark:text-slate-200 group-hover:text-blue-700">
                       {c.full_name}
                     </span>
                     <span
@@ -155,7 +155,7 @@ export default function NewOrderView({
                   </div>
                 ))
               ) : (
-                <div className="p-4 text-center text-gray-500">
+                <div className="p-4 text-center text-gray-500 dark:text-slate-400">
                   No se encontraron clientes.
                 </div>
               )}
@@ -188,9 +188,9 @@ export default function NewOrderView({
         </div>
       </div>
 
-      <div className="bg-white p-5 rounded-2xl shadow-lg border border-gray-200">
+      <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-bold text-gray-800 flex items-center gap-2">
+          <h2 className="font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
             <FaShoppingCart className="text-blue-600" /> Productos del Pedido
           </h2>
           <button
@@ -213,10 +213,10 @@ export default function NewOrderView({
             cart.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200"
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-950 rounded-xl border border-gray-200 dark:border-slate-700"
               >
                 <div className="flex-1">
-                  <p className="font-semibold text-gray-800">{item.name}</p>
+                  <p className="font-semibold text-gray-800 dark:text-slate-100">{item.name}</p>
                   <p className="text-sm text-green-600 font-medium mt-1">
                     $
                     {selectedCustomer?.customer_type === "mayorista"
@@ -227,7 +227,7 @@ export default function NewOrderView({
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                    className="w-8 h-8 flex items-center justify-center bg-white border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-all font-bold"
+                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-all font-bold"
                   >
                     <FaMinus size={12} />
                   </button>
@@ -236,7 +236,7 @@ export default function NewOrderView({
                   </span>
                   <button
                     onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                    className="w-8 h-8 flex items-center justify-center bg-white border-2 border-green-200 text-green-600 rounded-lg hover:bg-green-50 transition-all font-bold"
+                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-green-200 text-green-600 rounded-lg hover:bg-green-50 transition-all font-bold"
                   >
                     <FaPlus size={12} />
                   </button>
@@ -248,14 +248,14 @@ export default function NewOrderView({
       </div>
 
       {/* Summary Section */}
-      <div className="bg-white p-5 rounded-2xl shadow-lg border border-gray-200 space-y-4">
-        <div className="flex justify-between items-center text-gray-600">
+      <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 space-y-4">
+        <div className="flex justify-between items-center text-gray-600 dark:text-slate-300">
           <span className="font-medium">Subtotal:</span>
           <span className="font-bold text-lg">${subTotal.toFixed(2)}</span>
         </div>
 
         <div className="flex justify-between items-center gap-4">
-          <label className="font-medium text-gray-600 whitespace-nowrap">
+          <label className="font-medium text-gray-600 dark:text-slate-300 whitespace-nowrap">
             Descuento (%):
           </label>
           <input
@@ -264,12 +264,12 @@ export default function NewOrderView({
             max="100"
             value={discount}
             onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-            className="w-24 p-2 border border-gray-300 rounded-lg text-right font-semibold focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-24 p-2 border border-gray-300 dark:border-slate-600 rounded-lg text-right font-semibold focus:ring-2 focus:ring-blue-500 outline-none"
           />
         </div>
 
         <div className="flex justify-between items-center gap-4">
-          <label className="font-medium text-gray-600 whitespace-nowrap">
+          <label className="font-medium text-gray-600 dark:text-slate-300 whitespace-nowrap">
             Envío ($):
           </label>
           <input
@@ -277,12 +277,12 @@ export default function NewOrderView({
             min="0"
             value={shipping}
             onChange={(e) => setShipping(parseFloat(e.target.value) || 0)}
-            className="w-24 p-2 border border-gray-300 rounded-lg text-right font-semibold focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-24 p-2 border border-gray-300 dark:border-slate-600 rounded-lg text-right font-semibold focus:ring-2 focus:ring-blue-500 outline-none"
           />
         </div>
 
-        <div className="pt-4 border-t border-gray-200 flex justify-between items-center">
-          <span className="font-bold text-xl text-gray-800">Total:</span>
+        <div className="pt-4 border-t border-gray-200 dark:border-slate-700 flex justify-between items-center">
+          <span className="font-bold text-xl text-gray-800 dark:text-slate-100">Total:</span>
           <span className="font-bold text-3xl text-green-600">
             ${total.toFixed(2)}
           </span>

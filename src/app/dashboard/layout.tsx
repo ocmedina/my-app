@@ -10,7 +10,7 @@ export default function DashboardLayout({
 }) {
   return (
     <DashboardWrapper>
-      <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 overflow-x-hidden">
         <Navbar />
         <main className="w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="max-w-full">{children}</div>

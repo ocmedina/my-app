@@ -44,7 +44,7 @@ export default function CancelOrderModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-md w-full">
         <div className="bg-gradient-to-r from-red-600 to-red-700 px-6 py-5 rounded-t-3xl flex justify-between items-center">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <FaExclamationTriangle /> Cancelar Pedido
@@ -52,7 +52,7 @@ export default function CancelOrderModal({
           <button
             onClick={onClose}
             disabled={isCanceling}
-            className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all"
+            className="text-white hover:bg-white dark:bg-slate-900 hover:bg-opacity-20 rounded-full p-2 transition-all"
           >
             <FaTimes size={20} />
           </button>
@@ -62,10 +62,10 @@ export default function CancelOrderModal({
             <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
               <FaBan className="text-red-600 text-3xl" />
             </div>
-            <p className="text-lg font-semibold text-gray-800 mb-2">
+            <p className="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-2">
               ¿Estás seguro de cancelar este pedido?
             </p>
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm text-gray-600 dark:text-slate-300 mb-2">
               Cliente:{" "}
               <span className="font-bold">{order.customers.full_name}</span>
             </p>
@@ -96,7 +96,7 @@ export default function CancelOrderModal({
           <button
             onClick={onClose}
             disabled={isCanceling}
-            className="w-full mt-3 py-3 text-gray-600 font-semibold hover:bg-gray-100 rounded-xl transition-all disabled:opacity-50"
+            className="w-full mt-3 py-3 text-gray-600 dark:text-slate-300 font-semibold hover:bg-gray-100 dark:hover:bg-slate-800/80 dark:bg-slate-800 rounded-xl transition-all disabled:opacity-50"
           >
             No, Mantener Pedido
           </button>

@@ -119,7 +119,7 @@ export default function InventoryKardexPage() {
       case "cancelacion":
         return <FaArrowUp className="text-green-500" />;
       default:
-        return <FaExchangeAlt className="text-gray-500" />;
+        return <FaExchangeAlt className="text-gray-500 dark:text-slate-400" />;
     }
   };
 
@@ -157,7 +157,7 @@ export default function InventoryKardexPage() {
         );
       default:
         return (
-          <span className="text-gray-700 bg-gray-100 px-2 py-1 rounded text-xs font-bold">
+          <span className="text-gray-700 dark:text-slate-200 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded text-xs font-bold">
             {type}
           </span>
         );
@@ -198,14 +198,14 @@ export default function InventoryKardexPage() {
   const netChange = totalEntries - totalExits;
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50 dark:bg-slate-950 min-h-screen">
       <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-3">
             <FaHistory className="text-blue-600" /> Historial de Movimientos
             (Kardex)
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 dark:text-slate-300 mt-2">
             Auditoría completa de entradas y salidas de inventario.
           </p>
         </div>
@@ -227,18 +227,18 @@ export default function InventoryKardexPage() {
 
       {/* Tarjetas de Resumen */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-          <p className="text-sm text-gray-500 font-medium">Total Entradas</p>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+          <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">Total Entradas</p>
           <p className="text-2xl font-bold text-green-600">+{totalEntries}</p>
           <p className="text-xs text-gray-400 mt-1">Unidades ingresadas</p>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500">
-          <p className="text-sm text-gray-500 font-medium">Total Salidas</p>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border-l-4 border-red-500">
+          <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">Total Salidas</p>
           <p className="text-2xl font-bold text-red-600">-{totalExits}</p>
           <p className="text-xs text-gray-400 mt-1">Unidades retiradas</p>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-          <p className="text-sm text-gray-500 font-medium">Cambio Neto</p>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+          <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">Cambio Neto</p>
           <p
             className={`text-2xl font-bold ${
               netChange >= 0 ? "text-blue-600" : "text-orange-600"
@@ -252,9 +252,9 @@ export default function InventoryKardexPage() {
       </div>
 
       {/* Filtros */}
-      <div className="bg-white p-4 rounded-xl shadow-md mb-6 flex flex-col md:flex-row gap-4 items-end">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-md mb-6 flex flex-col md:flex-row gap-4 items-end">
         <div className="flex-1 w-full">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
             Buscar Producto
           </label>
           <div className="relative">
@@ -270,7 +270,7 @@ export default function InventoryKardexPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
             Tipo de Movimiento
           </label>
           <div className="relative">
@@ -278,7 +278,7 @@ export default function InventoryKardexPage() {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="pl-10 pr-8 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+              className="pl-10 pr-8 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-900"
             >
               <option value="all">Todos</option>
               <option value="venta">Venta</option>
@@ -291,7 +291,7 @@ export default function InventoryKardexPage() {
 
         <div className="flex gap-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
               Desde
             </label>
             <input
@@ -302,7 +302,7 @@ export default function InventoryKardexPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
               Hasta
             </label>
             <input
@@ -316,37 +316,37 @@ export default function InventoryKardexPage() {
       </div>
 
       {/* Tabla (Desktop) */}
-      <div className="hidden md:block bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="hidden md:block bg-white dark:bg-slate-900 rounded-xl shadow-md overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <thead className="bg-gray-50 dark:bg-slate-950">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                   Fecha
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                   Producto
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                   Tipo
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                   Cantidad
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                   Stock Resultante
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                   Usuario / Notas
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
               {loading ? (
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-6 py-10 text-center text-gray-500"
+                    className="px-6 py-10 text-center text-gray-500 dark:text-slate-400"
                   >
                     Cargando movimientos...
                   </td>
@@ -355,22 +355,22 @@ export default function InventoryKardexPage() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-6 py-10 text-center text-gray-500"
+                    className="px-6 py-10 text-center text-gray-500 dark:text-slate-400"
                   >
                     No se encontraron movimientos en este período.
                   </td>
                 </tr>
               ) : (
                 movements.map((movement) => (
-                  <tr key={movement.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <tr key={movement.id} className="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
                       {new Date(movement.created_at).toLocaleString("es-AR")}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-900 dark:text-slate-50">
                         {movement.products?.name || "Producto Eliminado"}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-slate-400">
                         {movement.products?.sku}
                       </div>
                     </td>
@@ -390,19 +390,19 @@ export default function InventoryKardexPage() {
                       {movement.quantity > 0 ? "+" : ""}
                       {movement.quantity}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      <span className="bg-gray-100 px-2 py-1 rounded">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-slate-200">
+                      <span className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
                         {movement.new_stock}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 font-medium">
+                      <div className="text-sm text-gray-900 dark:text-slate-50 font-medium">
                         {movement.profiles?.full_name ||
                           movement.profiles?.username ||
                           "Sistema"}
                       </div>
                       {movement.notes && (
-                        <div className="text-xs text-gray-500 mt-1 italic">
+                        <div className="text-xs text-gray-500 dark:text-slate-400 mt-1 italic">
                           "{movement.notes}"
                         </div>
                       )}
@@ -418,25 +418,25 @@ export default function InventoryKardexPage() {
       {/* Tarjetas (Mobile) */}
       <div className="md:hidden space-y-4">
         {loading ? (
-          <div className="text-center py-10 text-gray-500">
+          <div className="text-center py-10 text-gray-500 dark:text-slate-400">
             Cargando movimientos...
           </div>
         ) : movements.length === 0 ? (
-          <div className="text-center py-10 text-gray-500 bg-white rounded-xl shadow-sm">
+          <div className="text-center py-10 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-900 rounded-xl shadow-sm">
             No se encontraron movimientos en este período.
           </div>
         ) : (
           movements.map((movement) => (
             <div
               key={movement.id}
-              className="bg-white rounded-xl shadow-sm p-4 border border-gray-100"
+              className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 border border-gray-100"
             >
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="font-bold text-gray-900 dark:text-slate-50">
                     {movement.products?.name || "Producto Eliminado"}
                   </h3>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-slate-400">
                     {movement.products?.sku}
                   </p>
                 </div>
@@ -469,11 +469,11 @@ export default function InventoryKardexPage() {
               </div>
 
               <div className="flex justify-between items-center pt-3 border-t border-gray-100 text-sm">
-                <div className="text-gray-600">
+                <div className="text-gray-600 dark:text-slate-300">
                   Stock:{" "}
                   <span className="font-medium">{movement.new_stock}</span>
                 </div>
-                <div className="text-gray-500 text-xs">
+                <div className="text-gray-500 dark:text-slate-400 text-xs">
                   {movement.profiles?.full_name ||
                     movement.profiles?.username ||
                     "Sistema"}
@@ -481,7 +481,7 @@ export default function InventoryKardexPage() {
               </div>
 
               {movement.notes && (
-                <div className="mt-2 text-xs text-gray-500 italic bg-gray-50 p-2 rounded">
+                <div className="mt-2 text-xs text-gray-500 dark:text-slate-400 italic bg-gray-50 dark:bg-slate-950 p-2 rounded">
                   "{movement.notes}"
                 </div>
               )}

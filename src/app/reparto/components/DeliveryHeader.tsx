@@ -24,7 +24,7 @@ export default function DeliveryHeader({
   onLogout,
 }: DeliveryHeaderProps) {
   return (
-    <header className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-40">
+    <header className="bg-white dark:bg-slate-900 shadow-md border-b border-gray-200 dark:border-slate-700 sticky top-0 z-40">
       <div className="px-4 py-3 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <FaTruck className="text-blue-600 text-2xl" />
@@ -32,7 +32,7 @@ export default function DeliveryHeader({
             <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               FrontStock
             </h1>
-            <p className="text-xs text-gray-500 font-medium">Modo Reparto</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">Modo Reparto</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -40,7 +40,7 @@ export default function DeliveryHeader({
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
               <FaUserCircle className="text-white text-lg" />
             </div>
-            <span className="font-semibold text-sm text-gray-700 max-w-[120px] truncate">
+            <span className="font-semibold text-sm text-gray-700 dark:text-slate-200 max-w-[120px] truncate">
               {currentUser?.email?.split("@")[0]}
             </span>
           </div>
@@ -53,7 +53,7 @@ export default function DeliveryHeader({
           </button>
         </div>
       </div>
-      <div className="flex border-t border-gray-200">
+      <div className="flex border-t border-gray-200 dark:border-slate-700">
         <button
           onClick={() => setView("new_order")}
           className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 ${

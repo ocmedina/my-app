@@ -70,7 +70,7 @@ export default function PaymentModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all scale-100">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all scale-100">
         {/* Header */}
         <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 rounded-t-2xl">
           <div className="flex justify-between items-start">
@@ -95,12 +95,12 @@ export default function PaymentModal({
             </div>
             <button
               onClick={onClose}
-              className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all"
+              className="text-white/80 hover:text-white hover:bg-white dark:bg-slate-900/20 rounded-full p-2 transition-all"
             >
               <FaTimes size={24} />
             </button>
           </div>
-          <div className="mt-6 bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+          <div className="mt-6 bg-white dark:bg-slate-900/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
             <p className="text-green-100 text-sm font-medium uppercase tracking-wider">
               Total a Pagar
             </p>
@@ -113,17 +113,17 @@ export default function PaymentModal({
         {/* Body */}
         <div className="p-8 space-y-8">
           {/* Atajos de teclado */}
-          <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center text-sm text-gray-600">
+          <div className="bg-gray-50 dark:bg-slate-950 p-3 rounded-lg border border-gray-200 dark:border-slate-700 flex justify-between items-center text-sm text-gray-600 dark:text-slate-300">
             <span className="font-medium">⌨️ Atajos:</span>
             <div className="flex gap-4">
               <span>
-                <kbd className="px-2 py-0.5 bg-white rounded border shadow-sm font-sans">
+                <kbd className="px-2 py-0.5 bg-white dark:bg-slate-900 rounded border shadow-sm font-sans">
                   F12
                 </kbd>{" "}
                 Cerrar
               </span>
               <span>
-                <kbd className="px-2 py-0.5 bg-white rounded border shadow-sm font-sans">
+                <kbd className="px-2 py-0.5 bg-white dark:bg-slate-900 rounded border shadow-sm font-sans">
                   F2
                 </kbd>{" "}
                 Confirmar
@@ -135,7 +135,7 @@ export default function PaymentModal({
             <div className="space-y-6">
               {/* Método de pago simple */}
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-2 uppercase tracking-wide">
                   Método de Pago
                 </label>
                 <select
@@ -151,7 +151,7 @@ export default function PaymentModal({
                       setAmountPaid(total.toFixed(2));
                     }
                   }}
-                  className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg bg-white shadow-sm transition-all hover:border-green-400"
+                  className="w-full p-4 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg bg-white dark:bg-slate-900 shadow-sm transition-all hover:border-green-400"
                 >
                   <option value="efectivo">💵 Efectivo</option>
                   <option value="tarjeta_debito">💳 Tarjeta de Débito</option>
@@ -166,11 +166,11 @@ export default function PaymentModal({
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-2 uppercase tracking-wide">
                   Monto Pagado
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-lg">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 font-bold text-lg">
                     $
                   </span>
                   <input
@@ -180,7 +180,7 @@ export default function PaymentModal({
                     onChange={(e) => setAmountPaid(e.target.value)}
                     step="0.01"
                     min="0"
-                    className="w-full pl-10 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-2xl font-bold text-gray-800 shadow-sm"
+                    className="w-full pl-10 p-4 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-2xl font-bold text-gray-800 dark:text-slate-100 shadow-sm"
                     placeholder="0.00"
                   />
                 </div>
@@ -218,7 +218,7 @@ export default function PaymentModal({
                             e.target.value
                           )
                         }
-                        className="flex-1 p-3 border border-gray-300 rounded-lg text-sm"
+                        className="flex-1 p-3 border border-gray-300 dark:border-slate-600 rounded-lg text-sm"
                       >
                         <option value="efectivo">Efectivo</option>
                         <option value="tarjeta_debito">Débito</option>
@@ -227,7 +227,7 @@ export default function PaymentModal({
                         <option value="mercado_pago">Mercado Pago</option>
                       </select>
                       <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400">
                           $
                         </span>
                         <input
@@ -240,7 +240,7 @@ export default function PaymentModal({
                               e.target.value
                             )
                           }
-                          className="w-full pl-7 p-3 border border-gray-300 rounded-lg font-medium"
+                          className="w-full pl-7 p-3 border border-gray-300 dark:border-slate-600 rounded-lg font-medium"
                           placeholder="0.00"
                         />
                       </div>
@@ -294,16 +294,16 @@ export default function PaymentModal({
                         setSelectedSupplierId(null);
                       }
                     }}
-                    className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500 border-gray-300"
+                    className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500 border-gray-300 dark:border-slate-600"
                   />
                   <label
                     htmlFor="payToSupplier"
                     className="flex-1 cursor-pointer select-none"
                   >
-                    <div className="font-bold text-gray-900">
+                    <div className="font-bold text-gray-900 dark:text-slate-50">
                       Pagar directo a proveedor
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 dark:text-slate-400">
                       El dinero ingresa y se paga automáticamente a un proveedor
                     </div>
                   </label>
@@ -316,7 +316,7 @@ export default function PaymentModal({
                       onChange={(e) =>
                         setSelectedSupplierId(e.target.value || null)
                       }
-                      className="w-full p-3 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white"
+                      className="w-full p-3 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-slate-900"
                       required
                     >
                       <option value="">Seleccione un proveedor...</option>
@@ -362,7 +362,7 @@ export default function PaymentModal({
           <div className="flex gap-4 pt-4">
             <button
               onClick={onClose}
-              className="flex-1 py-4 px-6 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+              className="flex-1 py-4 px-6 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 font-bold rounded-xl hover:bg-gray-200 dark:bg-slate-700 transition-colors"
             >
               Cancelar
             </button>

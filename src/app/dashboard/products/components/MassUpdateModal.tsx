@@ -167,7 +167,7 @@ export default function MassUpdateModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-slideUp">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-slideUp">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -199,13 +199,13 @@ export default function MassUpdateModal({
           <div className="grid grid-cols-2 gap-4">
             {/* Filtro Marca/Proveedor */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                 Marca / Proveedor
               </label>
               <select
                 value={selectedSupplier}
                 onChange={(e) => setSelectedSupplier(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               >
                 <option value="">Todas las marcas</option>
                 {/* Usamos la lista de proveedores como marcas por ahora, o deberíamos cargar marcas reales */}
@@ -225,13 +225,13 @@ export default function MassUpdateModal({
 
             {/* Filtro Categoría */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                 Categoría
               </label>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               >
                 <option value="">Todas las categorías</option>
                 {categories.map((c) => (
@@ -246,7 +246,7 @@ export default function MassUpdateModal({
           <div className="grid grid-cols-2 gap-4">
             {/* Porcentaje */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                 Porcentaje de Aumento
               </label>
               <div className="relative">
@@ -254,7 +254,7 @@ export default function MassUpdateModal({
                   type="number"
                   value={percentage}
                   onChange={(e) => setPercentage(e.target.value)}
-                  className="w-full pl-4 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg"
+                  className="w-full pl-4 pr-8 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg"
                   placeholder="0"
                   step="0.01"
                 />
@@ -266,13 +266,13 @@ export default function MassUpdateModal({
 
             {/* Tipo de Precio */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                 Precio a Actualizar
               </label>
               <select
                 value={priceType}
                 onChange={(e) => setPriceType(e.target.value as any)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               >
                 <option value="both">Ambos Precios</option>
                 <option value="minorista">Solo Minorista</option>
@@ -282,8 +282,8 @@ export default function MassUpdateModal({
           </div>
 
           {/* Preview */}
-          <div className="bg-gray-50 p-4 rounded-xl text-center">
-            <p className="text-sm text-gray-600">Productos afectados:</p>
+          <div className="bg-gray-50 dark:bg-slate-950 p-4 rounded-xl text-center">
+            <p className="text-sm text-gray-600 dark:text-slate-300">Productos afectados:</p>
             <p className="text-3xl font-bold text-blue-600">
               {previewCount !== null ? previewCount : "..."}
             </p>
@@ -294,7 +294,7 @@ export default function MassUpdateModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-200 rounded-lg transition-colors"
+              className="px-4 py-2 text-gray-700 dark:text-slate-200 font-medium hover:bg-gray-200 dark:bg-slate-700 rounded-lg transition-colors"
             >
               Cancelar
             </button>

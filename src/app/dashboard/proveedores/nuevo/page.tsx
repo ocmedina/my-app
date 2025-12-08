@@ -57,21 +57,21 @@ export default function NewSupplierPage() {
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       {/* HEADER */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center gap-3">
           <FaPlus className="text-orange-600" /> Agregar Nuevo Proveedor
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-gray-600 dark:text-slate-300 mt-1">
           Completa la información del proveedor
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-6">
         {/* SECCIÓN 1: INFORMACIÓN BÁSICA */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-          <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
             <FaTruck className="text-orange-600" /> Información Básica
           </h2>
           <div className="space-y-4">
@@ -79,7 +79,7 @@ export default function NewSupplierPage() {
             <div>
               <label
                 htmlFor="name"
-                className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
               >
                 <FaBuilding className="text-orange-600" /> Nombre / Razón Social
                 *
@@ -90,9 +90,9 @@ export default function NewSupplierPage() {
                 type="text"
                 required
                 placeholder="Ej: Distribuidora San Juan S.A."
-                className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                className="w-full px-4 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                 Este campo es obligatorio
               </p>
             </div>
@@ -102,7 +102,7 @@ export default function NewSupplierPage() {
               <div>
                 <label
                   htmlFor="contact_person"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   <FaUser className="text-blue-600" /> Persona de Contacto
                 </label>
@@ -111,7 +111,7 @@ export default function NewSupplierPage() {
                   name="contact_person"
                   type="text"
                   placeholder="Ej: Juan Pérez"
-                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>
 
@@ -119,7 +119,7 @@ export default function NewSupplierPage() {
               <div>
                 <label
                   htmlFor="cuit"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   <FaIdCard className="text-purple-600" /> CUIT / CUIL
                 </label>
@@ -128,7 +128,7 @@ export default function NewSupplierPage() {
                   name="cuit"
                   type="text"
                   placeholder="Ej: 20-12345678-9"
-                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                  className="w-full px-4 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
                 />
               </div>
             </div>
@@ -136,8 +136,8 @@ export default function NewSupplierPage() {
         </div>
 
         {/* SECCIÓN 2: INFORMACIÓN DE CONTACTO */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-          <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
             <FaPhone className="text-green-600" /> Información de Contacto
           </h2>
           <div className="space-y-4">
@@ -146,7 +146,7 @@ export default function NewSupplierPage() {
               <div>
                 <label
                   htmlFor="phone"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   <FaPhone className="text-green-600" /> Teléfono
                 </label>
@@ -155,7 +155,7 @@ export default function NewSupplierPage() {
                   name="phone"
                   type="tel"
                   placeholder="Ej: +54 9 264 123-4567"
-                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                  className="w-full px-4 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
                 />
               </div>
 
@@ -163,7 +163,7 @@ export default function NewSupplierPage() {
               <div>
                 <label
                   htmlFor="email"
-                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
                 >
                   <FaEnvelope className="text-blue-600" /> Email
                 </label>
@@ -172,7 +172,7 @@ export default function NewSupplierPage() {
                   name="email"
                   type="email"
                   placeholder="Ej: contacto@proveedor.com"
-                  className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function NewSupplierPage() {
             <div>
               <label
                 htmlFor="address"
-                className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
               >
                 <FaMapMarkerAlt className="text-red-600" /> Dirección
               </label>
@@ -190,7 +190,7 @@ export default function NewSupplierPage() {
                 name="address"
                 type="text"
                 placeholder="Ej: Av. Libertador 1234, San Juan Capital"
-                className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                className="w-full px-4 py-2.5 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
               />
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function NewSupplierPage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-semibold flex items-center gap-2"
+            className="px-6 py-2.5 bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-slate-100 rounded-lg hover:bg-gray-300 transition-all font-semibold flex items-center gap-2"
           >
             <FaTimes /> Cancelar
           </button>

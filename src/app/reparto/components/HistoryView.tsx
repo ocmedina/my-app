@@ -47,15 +47,15 @@ export default function HistoryView({
 }: HistoryViewProps) {
   return (
     <main className="p-4 space-y-4">
-      <div className="bg-white p-5 rounded-2xl shadow-lg border border-gray-200">
+      <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-gray-800 flex items-center gap-2 text-lg">
+          <h2 className="font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2 text-lg">
             <FaHistory className="text-blue-600" /> Historial Completo
           </h2>
           <select
             value={historyFilter}
             onChange={(e) => setHistoryFilter(e.target.value)}
-            className="px-4 py-2 border-2 border-gray-200 rounded-xl text-sm font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+            className="px-4 py-2 border-2 border-gray-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
           >
             <option value="all">Todos</option>
             <option value="pendiente">Pendientes</option>
@@ -64,7 +64,7 @@ export default function HistoryView({
           </select>
         </div>
 
-        <div className="text-sm text-gray-600 mb-4">
+        <div className="text-sm text-gray-600 dark:text-slate-300 mb-4">
           Mostrando {filteredHistoryOrders.length} pedido(s)
         </div>
 
@@ -73,21 +73,21 @@ export default function HistoryView({
             filteredHistoryOrders.map((order) => (
               <li
                 key={order.id}
-                className="p-4 border-2 border-gray-200 rounded-xl hover:border-blue-300 transition-all"
+                className="p-4 border-2 border-gray-200 dark:border-slate-700 rounded-xl hover:border-blue-300 transition-all"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-800">
+                    <p className="font-semibold text-gray-800 dark:text-slate-100">
                       {order.customers.full_name}
                     </p>
                     {order.customers.address && (
-                      <div className="text-xs text-gray-600 mt-1 flex flex-col gap-1">
+                      <div className="text-xs text-gray-600 dark:text-slate-300 mt-1 flex flex-col gap-1">
                         <div className="flex items-start gap-1">
                           <FaMapMarkerAlt className="text-gray-400 mt-0.5" />
                           <div>
                             <span>{order.customers.address}</span>
                             {order.customers.reference && (
-                              <span className="block italic text-gray-500">
+                              <span className="block italic text-gray-500 dark:text-slate-400">
                                 Ref: {order.customers.reference}
                               </span>
                             )}
@@ -105,7 +105,7 @@ export default function HistoryView({
                         </a>
                       </div>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                       {new Date(order.created_at).toLocaleDateString("es-AR", {
                         day: "2-digit",
                         month: "2-digit",

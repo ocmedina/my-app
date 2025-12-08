@@ -94,10 +94,10 @@ export default function StartingFloatModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative animate-slideDown">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full p-6 relative animate-slideDown">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-slate-300 transition-colors"
           disabled={loading}
           title="Cerrar"
           aria-label="Cerrar modal"
@@ -110,10 +110,10 @@ export default function StartingFloatModal({
             <FaCashRegister className="text-green-600 text-xl" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-800">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100">
               Apertura de Caja
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-slate-400">
               {new Date().toLocaleDateString("es-AR", {
                 weekday: "long",
                 year: "numeric",
@@ -135,12 +135,12 @@ export default function StartingFloatModal({
           <div className="mb-6">
             <label
               htmlFor="startingFloat"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2"
             >
               ¿Con cuánto dinero abre la caja hoy?
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-lg">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 text-lg">
                 $
               </span>
               <input
@@ -152,11 +152,11 @@ export default function StartingFloatModal({
                 step="0.01"
                 min="0"
                 autoFocus
-                className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-semibold focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-lg font-semibold focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 disabled={loading}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-2">
               Ejemplo: billetes y monedas en la caja al iniciar
             </p>
           </div>
@@ -166,7 +166,7 @@ export default function StartingFloatModal({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-3 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>

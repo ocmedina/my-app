@@ -216,33 +216,33 @@ export default function NewPurchaseOrderPage() {
   );
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 border border-gray-200 transition-all font-medium mb-4"
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-200 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 border border-gray-200 dark:border-slate-700 transition-all font-medium mb-4"
           >
             <FaArrowLeft /> Volver
           </button>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Nueva Orden de Compra
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-slate-300 mt-1">
             Crea una nueva orden de compra para un proveedor
           </p>
         </div>
 
         {/* Supplier Selection */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
-          <label className="block text-sm font-bold text-gray-700 mb-2">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 mb-6 border border-gray-200 dark:border-slate-700">
+          <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-2">
             Proveedor *
           </label>
           <select
             value={selectedSupplier || ""}
             onChange={(e) => setSelectedSupplier(Number(e.target.value))}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 font-medium"
+            className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 dark:text-slate-200 font-medium"
           >
             <option value="">Selecciona un proveedor</option>
             {suppliers.map((supplier) => (
@@ -254,9 +254,9 @@ export default function NewPurchaseOrderPage() {
         </div>
 
         {/* Products Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 mb-6 border border-gray-200 dark:border-slate-700">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-800">Productos</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100">Productos</h2>
             <button
               onClick={() => setShowProductSelector(!showProductSelector)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center gap-2"
@@ -267,33 +267,33 @@ export default function NewPurchaseOrderPage() {
 
           {/* Product Selector */}
           {showProductSelector && (
-            <div className="mb-4 p-4 bg-gray-50 rounded-lg border-2 border-blue-200">
+            <div className="mb-4 p-4 bg-gray-50 dark:bg-slate-950 rounded-lg border-2 border-blue-200">
               <input
                 type="text"
                 placeholder="Buscar producto por nombre o SKU..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg mb-3"
               />
               <div className="max-h-60 overflow-y-auto space-y-2">
                 {filteredProducts.map((product) => (
                   <button
                     key={product.id}
                     onClick={() => addProduct(product)}
-                    className="w-full text-left px-4 py-3 bg-white hover:bg-blue-50 rounded-lg border border-gray-200 transition-colors"
+                    className="w-full text-left px-4 py-3 bg-white dark:bg-slate-900 hover:bg-blue-50 rounded-lg border border-gray-200 dark:border-slate-700 transition-colors"
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="font-semibold text-gray-900">
+                        <p className="font-semibold text-gray-900 dark:text-slate-50">
                           {product.name}
                         </p>
-                        <p className="text-sm text-gray-500">{product.sku}</p>
+                        <p className="text-sm text-gray-500 dark:text-slate-400">{product.sku}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-blue-600">
                           ${product.price_mayorista?.toFixed(2) || "0.00"}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-slate-400">
                           Stock: {product.stock}
                         </p>
                       </div>
@@ -306,7 +306,7 @@ export default function NewPurchaseOrderPage() {
 
           {/* Order Items Table */}
           {orderItems.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-500 dark:text-slate-400">
               <p>No hay productos en la orden</p>
               <p className="text-sm mt-2">
                 Haz clic en "Agregar Producto" para comenzar
@@ -314,35 +314,35 @@ export default function NewPurchaseOrderPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+                <thead className="bg-gray-50 dark:bg-slate-950">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase">
                       Producto
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">
+                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-slate-200 uppercase">
                       Cantidad
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase">
+                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-700 dark:text-slate-200 uppercase">
                       Precio Unit.
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase">
+                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-700 dark:text-slate-200 uppercase">
                       Subtotal
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">
+                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-slate-200 uppercase">
                       Acciones
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
                   {orderItems.map((item, index) => (
                     <tr key={item.product_id}>
                       <td className="px-4 py-4">
                         <div>
-                          <p className="font-semibold text-gray-900">
+                          <p className="font-semibold text-gray-900 dark:text-slate-50">
                             {item.product_name}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 dark:text-slate-400">
                             {item.product_sku}
                           </p>
                         </div>
@@ -355,7 +355,7 @@ export default function NewPurchaseOrderPage() {
                           onChange={(e) =>
                             updateQuantity(index, parseInt(e.target.value) || 1)
                           }
-                          className="w-20 px-2 py-1 text-center border border-gray-300 rounded"
+                          className="w-20 px-2 py-1 text-center border border-gray-300 dark:border-slate-600 rounded"
                         />
                       </td>
                       <td className="px-4 py-4 text-right">
@@ -367,10 +367,10 @@ export default function NewPurchaseOrderPage() {
                           onChange={(e) =>
                             updatePrice(index, parseFloat(e.target.value) || 0)
                           }
-                          className="w-24 px-2 py-1 text-right border border-gray-300 rounded"
+                          className="w-24 px-2 py-1 text-right border border-gray-300 dark:border-slate-600 rounded"
                         />
                       </td>
-                      <td className="px-4 py-4 text-right font-bold text-gray-900">
+                      <td className="px-4 py-4 text-right font-bold text-gray-900 dark:text-slate-50">
                         ${item.subtotal.toFixed(2)}
                       </td>
                       <td className="px-4 py-4 text-center">
@@ -384,11 +384,11 @@ export default function NewPurchaseOrderPage() {
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-gray-50">
+                <tfoot className="bg-gray-50 dark:bg-slate-950">
                   <tr>
                     <td
                       colSpan={3}
-                      className="px-4 py-4 text-right font-bold text-gray-700 uppercase"
+                      className="px-4 py-4 text-right font-bold text-gray-700 dark:text-slate-200 uppercase"
                     >
                       Total:
                     </td>
@@ -406,15 +406,15 @@ export default function NewPurchaseOrderPage() {
         </div>
 
         {/* Notes */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
-          <label className="block text-sm font-bold text-gray-700 mb-2">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 mb-6 border border-gray-200 dark:border-slate-700">
+          <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-2">
             Notas / Observaciones
           </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={4}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700"
+            className="w-full px-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700 dark:text-slate-200"
             placeholder="Agrega notas o instrucciones especiales para esta orden..."
           />
         </div>

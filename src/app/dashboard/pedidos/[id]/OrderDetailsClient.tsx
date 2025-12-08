@@ -97,7 +97,7 @@ export default function OrderDetailsClient({
   const nextStatus = statusOptions[order.status];
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       <div className="max-w-6xl mx-auto">
         {/* HEADER */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
@@ -105,7 +105,7 @@ export default function OrderDetailsClient({
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-3">
               <FaBox className="text-purple-600" /> Detalle del Pedido
             </h1>
-            <p className="text-gray-600 mt-1 flex items-center gap-2">
+            <p className="text-gray-600 dark:text-slate-300 mt-1 flex items-center gap-2">
               <FaHashtag className="text-gray-400 text-sm" />
               ID:{" "}
               <span className="font-mono font-semibold">
@@ -115,7 +115,7 @@ export default function OrderDetailsClient({
           </div>
           <Link
             href="/dashboard/pedidos"
-            className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-semibold flex items-center gap-2"
+            className="px-6 py-2.5 bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-slate-100 rounded-lg hover:bg-gray-300 transition-all font-semibold flex items-center gap-2"
           >
             <FaArrowLeft /> Volver al listado
           </Link>
@@ -124,14 +124,14 @@ export default function OrderDetailsClient({
         {/* INFORMACIÓN DEL PEDIDO */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Fecha */}
-          <div className="bg-white rounded-xl shadow-lg p-5 border border-gray-200">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-5 border border-gray-200 dark:border-slate-700">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                 <FaCalendarAlt className="text-blue-600" />
               </div>
-              <p className="text-sm font-semibold text-gray-600">Fecha</p>
+              <p className="text-sm font-semibold text-gray-600 dark:text-slate-300">Fecha</p>
             </div>
-            <p className="text-lg font-bold text-gray-800">
+            <p className="text-lg font-bold text-gray-800 dark:text-slate-100">
               {new Date(order.created_at).toLocaleDateString("es-AR", {
                 day: "2-digit",
                 month: "2-digit",
@@ -141,25 +141,25 @@ export default function OrderDetailsClient({
           </div>
 
           {/* Cliente */}
-          <div className="bg-white rounded-xl shadow-lg p-5 border border-gray-200">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-5 border border-gray-200 dark:border-slate-700">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                 <FaUser className="text-green-600" />
               </div>
-              <p className="text-sm font-semibold text-gray-600">Cliente</p>
+              <p className="text-sm font-semibold text-gray-600 dark:text-slate-300">Cliente</p>
             </div>
-            <p className="text-lg font-bold text-gray-800">
+            <p className="text-lg font-bold text-gray-800 dark:text-slate-100">
               {order.customers?.full_name ?? "N/A"}
             </p>
           </div>
 
           {/* Estado */}
-          <div className="bg-white rounded-xl shadow-lg p-5 border border-gray-200">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-5 border border-gray-200 dark:border-slate-700">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                 <FaCheckCircle className="text-purple-600" />
               </div>
-              <p className="text-sm font-semibold text-gray-600">Estado</p>
+              <p className="text-sm font-semibold text-gray-600 dark:text-slate-300">Estado</p>
             </div>
             <p className="text-lg font-bold text-purple-600 capitalize">
               {order.status}
@@ -167,12 +167,12 @@ export default function OrderDetailsClient({
           </div>
 
           {/* Método de Pago */}
-          <div className="bg-white rounded-xl shadow-lg p-5 border border-gray-200">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-5 border border-gray-200 dark:border-slate-700">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                 <FaMoneyBillWave className="text-orange-600" />
               </div>
-              <p className="text-sm font-semibold text-gray-600">Pago</p>
+              <p className="text-sm font-semibold text-gray-600 dark:text-slate-300">Pago</p>
             </div>
             {order.payment_method === "fiado" ? (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold bg-orange-100 text-orange-800 border border-orange-300">
@@ -195,52 +195,52 @@ export default function OrderDetailsClient({
         </div>
 
         {/* TABLA DE PRODUCTOS */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-6">
-          <div className="p-5 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700 mb-6">
+          <div className="p-5 border-b border-gray-200 dark:border-slate-700">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
               <FaBoxes className="text-purple-600" /> Productos del Pedido
             </h2>
           </div>
 
           {/* Tabla Desktop */}
           <div className="hidden sm:block overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-900">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
                       <FaBox /> Producto
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
                       <FaCubes /> Cantidad
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
                       <FaDollarSign /> Precio Unit.
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
                       <FaDollarSign /> Subtotal
                     </div>
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
                 {order.order_items?.map((item: any, index: number) => (
                   <tr
                     key={index}
-                    className="hover:bg-gray-50 transition-colors"
+                    className="hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition-colors"
                   >
                     <td className="px-6 py-4">
-                      <div className="text-sm font-semibold text-gray-900">
+                      <div className="text-sm font-semibold text-gray-900 dark:text-slate-50">
                         {item.products?.name ?? "Producto no disponible"}
                       </div>
                       {item.products?.sku && (
-                        <div className="text-xs text-gray-500 font-mono mt-0.5">
+                        <div className="text-xs text-gray-500 dark:text-slate-400 font-mono mt-0.5">
                           SKU: {item.products.sku}
                         </div>
                       )}
@@ -251,7 +251,7 @@ export default function OrderDetailsClient({
                         {item.quantity}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-700">
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-700 dark:text-slate-200">
                       ${item.price?.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 text-sm font-bold text-green-600">
@@ -260,11 +260,11 @@ export default function OrderDetailsClient({
                   </tr>
                 ))}
               </tbody>
-              <tfoot className="bg-gradient-to-r from-green-50 to-emerald-50">
+              <tfoot className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
                 <tr>
                   <td
                     colSpan={3}
-                    className="px-6 py-4 text-right text-base font-bold text-gray-800"
+                    className="px-6 py-4 text-right text-base font-bold text-gray-800 dark:text-slate-100"
                   >
                     <div className="flex items-center justify-end gap-2">
                       <FaDollarSign className="text-green-600" />
@@ -278,32 +278,32 @@ export default function OrderDetailsClient({
                 {(order as any).amount_paid !== undefined &&
                   (order as any).amount_paid !== null && (
                     <>
-                      <tr className="bg-green-100 border-t-2 border-green-300">
+                      <tr className="bg-green-100 dark:bg-green-900/30 border-t-2 border-green-300 dark:border-green-900">
                         <td
                           colSpan={3}
-                          className="px-6 py-3 text-right text-sm font-bold text-green-800"
+                          className="px-6 py-3 text-right text-sm font-bold text-green-800 dark:text-green-300"
                         >
                           <div className="flex items-center justify-end gap-2">
                             <FaCheckCircle />
                             Entrega Recibida
                           </div>
                         </td>
-                        <td className="px-6 py-3 text-left text-lg font-bold text-green-800">
+                        <td className="px-6 py-3 text-left text-lg font-bold text-green-800 dark:text-green-300">
                           ${((order as any).amount_paid || 0).toFixed(2)}
                         </td>
                       </tr>
                       {((order as any).amount_pending || 0) > 0 && (
-                        <tr className="bg-orange-100 border-t-2 border-orange-300">
+                        <tr className="bg-orange-100 dark:bg-orange-900/30 border-t-2 border-orange-300 dark:border-orange-900">
                           <td
                             colSpan={3}
-                            className="px-6 py-3 text-right text-sm font-bold text-orange-800"
+                            className="px-6 py-3 text-right text-sm font-bold text-orange-800 dark:text-orange-300"
                           >
                             <div className="flex items-center justify-end gap-2">
                               <FaInfoCircle />
                               Saldo Pendiente
                             </div>
                           </td>
-                          <td className="px-6 py-3 text-left text-lg font-bold text-orange-800">
+                          <td className="px-6 py-3 text-left text-lg font-bold text-orange-800 dark:text-orange-300">
                             ${((order as any).amount_pending || 0).toFixed(2)}
                           </td>
                         </tr>
@@ -319,18 +319,18 @@ export default function OrderDetailsClient({
             {order.order_items?.map((item: any, index: number) => (
               <div
                 key={index}
-                className="bg-white rounded-xl p-4 space-y-3 shadow-md border border-gray-200 hover:shadow-lg transition-shadow"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 space-y-3 shadow-md border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-shadow"
               >
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                     <FaBox className="text-purple-600 text-lg" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-sm text-gray-900 line-clamp-2">
+                    <div className="font-bold text-sm text-gray-900 dark:text-slate-50 line-clamp-2">
                       {item.products?.name ?? "Producto no disponible"}
                     </div>
                     {item.products?.sku && (
-                      <div className="text-xs text-gray-500 font-mono mt-1">
+                      <div className="text-xs text-gray-500 dark:text-slate-400 font-mono mt-1">
                         SKU: {item.products.sku}
                       </div>
                     )}
@@ -341,27 +341,27 @@ export default function OrderDetailsClient({
                   <div className="flex items-center gap-2 bg-blue-50 rounded-lg p-2">
                     <FaCubes className="text-blue-600" />
                     <div>
-                      <div className="text-gray-500 text-[10px]">Cantidad</div>
+                      <div className="text-gray-500 dark:text-slate-400 text-[10px]">Cantidad</div>
                       <div className="font-bold text-blue-800">
                         {item.quantity}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-2">
-                    <FaDollarSign className="text-gray-600" />
+                  <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-950 rounded-lg p-2">
+                    <FaDollarSign className="text-gray-600 dark:text-slate-300" />
                     <div>
-                      <div className="text-gray-500 text-[10px]">
+                      <div className="text-gray-500 dark:text-slate-400 text-[10px]">
                         Precio Unit.
                       </div>
-                      <div className="font-bold text-gray-800">
+                      <div className="font-bold text-gray-800 dark:text-slate-100">
                         ${item.price?.toFixed(2)}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-gray-200 flex items-center justify-between">
-                  <span className="text-xs text-gray-600 font-semibold">
+                <div className="pt-2 border-t border-gray-200 dark:border-slate-700 flex items-center justify-between">
+                  <span className="text-xs text-gray-600 dark:text-slate-300 font-semibold">
                     Subtotal:
                   </span>
                   <span className="text-base font-bold text-green-600">
@@ -374,7 +374,7 @@ export default function OrderDetailsClient({
             {/* Totales Mobile */}
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 space-y-3 border-2 border-green-300 shadow-lg">
               <div className="flex justify-between items-center pb-3 border-b-2 border-green-300">
-                <span className="font-bold text-gray-800 flex items-center gap-2">
+                <span className="font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
                   <FaDollarSign className="text-green-600" />
                   TOTAL
                 </span>

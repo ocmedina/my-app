@@ -98,15 +98,15 @@ export default function AdjustmentModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-slideUp">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-slideUp">
         {/* Header */}
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <div className="bg-gray-50 dark:bg-slate-950 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
             <FaExchangeAlt className="text-blue-600" /> Ajuste de Stock
           </h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 dark:text-slate-300 transition-colors"
           >
             <FaTimes size={24} />
           </button>
@@ -116,16 +116,16 @@ export default function AdjustmentModal({
         <div className="p-6 space-y-6">
           {/* Selección de Producto */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
               Producto
             </label>
             {selectedProduct ? (
               <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-100 rounded-xl">
                 <div>
-                  <p className="font-bold text-gray-900">
+                  <p className="font-bold text-gray-900 dark:text-slate-50">
                     {selectedProduct.name}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-slate-300">
                     SKU: {selectedProduct.sku || "N/A"} | Stock Actual:{" "}
                     <span className="font-bold">{selectedProduct.stock}</span>
                   </p>
@@ -150,10 +150,10 @@ export default function AdjustmentModal({
               {/* Tipo de Ajuste */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                     Acción
                   </label>
-                  <div className="flex bg-gray-100 p-1 rounded-lg">
+                  <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
                     <button
                       type="button"
                       onClick={() => setDirection("increment")}
@@ -180,14 +180,14 @@ export default function AdjustmentModal({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                     Cantidad
                   </label>
                   <input
                     type="number"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                     placeholder="0"
                     min="1"
                   />
@@ -196,13 +196,13 @@ export default function AdjustmentModal({
 
               {/* Notas */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
                   Motivo / Notas
                 </label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none h-24"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none h-24"
                   placeholder="Ej: Rotura, Conteo de inventario, Regalo..."
                 />
               </div>
@@ -211,10 +211,10 @@ export default function AdjustmentModal({
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+        <div className="bg-gray-50 dark:bg-slate-950 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-200 rounded-lg transition-colors"
+            className="px-4 py-2 text-gray-700 dark:text-slate-200 font-medium hover:bg-gray-200 dark:bg-slate-700 rounded-lg transition-colors"
           >
             Cancelar
           </button>

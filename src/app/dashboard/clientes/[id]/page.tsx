@@ -48,7 +48,7 @@ export default async function CustomerDetailPage(
 
   if (customerError || !customer) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-red-600">
           Cliente no encontrado
         </h1>
@@ -95,7 +95,7 @@ export default async function CustomerDetailPage(
 
   return (
     <div className="space-y-6">
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
         <Link
           href="/dashboard/clientes"
           className="text-blue-600 mb-4 inline-flex items-center gap-2 hover:underline text-sm"
@@ -105,41 +105,41 @@ export default async function CustomerDetailPage(
 
         <div className="flex justify-between items-start mt-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100">
               {customer.full_name}
             </h1>
-            <p className="text-sm text-gray-500 capitalize mt-1">
+            <p className="text-sm text-gray-500 dark:text-slate-400 capitalize mt-1">
               Tipo: {customer.customer_type}
             </p>
             {customer.email && (
-              <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
+              <p className="text-sm text-gray-500 dark:text-slate-400 mt-1 flex items-center gap-2">
                 <span className="text-gray-400">📧</span> {customer.email}
               </p>
             )}
             {customer.phone && (
-              <p className="text-sm text-gray-500 flex items-center gap-2">
+              <p className="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-2">
                 <span className="text-gray-400">📱</span> {customer.phone}
               </p>
             )}
             {customer.address && (
-              <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-700 flex items-center gap-2 font-medium">
+              <div className="mt-2 p-3 bg-gray-50 dark:bg-slate-950 rounded-lg border border-gray-200 dark:border-slate-700">
+                <p className="text-sm text-gray-700 dark:text-slate-200 flex items-center gap-2 font-medium">
                   <FaMapMarkerAlt className="text-blue-500" />
                   <span>Dirección:</span>
                 </p>
-                <p className="text-sm text-gray-600 ml-6 mt-1">
+                <p className="text-sm text-gray-600 dark:text-slate-300 ml-6 mt-1">
                   {customer.address}
                 </p>
                 {customer.reference && (
-                  <p className="text-xs text-gray-500 ml-6 mt-1 italic">
+                  <p className="text-xs text-gray-500 dark:text-slate-400 ml-6 mt-1 italic">
                     Ref: {customer.reference}
                   </p>
                 )}
               </div>
             )}
           </div>
-          <div className="text-right bg-gray-50 px-6 py-4 rounded-lg border-2 border-gray-200">
-            <p className="text-sm text-gray-500 font-medium uppercase">
+          <div className="text-right bg-gray-50 dark:bg-slate-950 px-6 py-4 rounded-lg border-2 border-gray-200 dark:border-slate-700">
+            <p className="text-sm text-gray-500 dark:text-slate-400 font-medium uppercase">
               Deuda Pendiente
             </p>
             <p
@@ -165,7 +165,7 @@ export default async function CustomerDetailPage(
 
       {/* Pedidos y Ventas con saldo pendiente */}
       {currentDebt > 0 && (ordersData?.length || salesData?.length) && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <span className="text-orange-600">📋</span> Fiados Pendientes
           </h2>
@@ -174,7 +174,7 @@ export default async function CustomerDetailPage(
             {/* Pedidos Fiados */}
             {ordersData && ordersData.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
+                <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-300 uppercase mb-2">
                   Pedidos
                 </h3>
                 <div className="space-y-2">
@@ -186,7 +186,7 @@ export default async function CustomerDetailPage(
                         className="flex justify-between items-center p-4 border-2 border-orange-200 bg-orange-50 rounded-lg"
                       >
                         <div>
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-semibold text-gray-800 dark:text-slate-100">
                             Pedido #{order.id?.substring(0, 8)}
                           </p>
                           <Link
@@ -197,7 +197,7 @@ export default async function CustomerDetailPage(
                           </Link>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-slate-300">
                             Saldo Pendiente
                           </p>
                           <p className="text-2xl font-bold text-orange-600">
@@ -213,7 +213,7 @@ export default async function CustomerDetailPage(
             {/* Ventas en Cuenta Corriente */}
             {salesData && salesData.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
+                <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-300 uppercase mb-2">
                   Ventas
                 </h3>
                 <div className="space-y-2">
@@ -225,7 +225,7 @@ export default async function CustomerDetailPage(
                         className="flex justify-between items-center p-4 border-2 border-red-200 bg-red-50 rounded-lg"
                       >
                         <div>
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-semibold text-gray-800 dark:text-slate-100">
                             Venta #{sale.id?.substring(0, 8)}
                           </p>
                           <Link
@@ -236,7 +236,7 @@ export default async function CustomerDetailPage(
                           </Link>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-slate-300">
                             Saldo Pendiente
                           </p>
                           <p className="text-2xl font-bold text-red-600">
@@ -252,7 +252,7 @@ export default async function CustomerDetailPage(
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-4">Historial de Movimientos</h2>
         {!payments || payments.length === 0 ? (
           <div className="text-center py-12">
@@ -270,7 +270,7 @@ export default async function CustomerDetailPage(
               return (
                 <div
                   key={payment.id}
-                  className="flex justify-between items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                  className="flex justify-between items-center p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition"
                 >
                   <div className="flex items-center gap-4">
                     <div
@@ -285,10 +285,10 @@ export default async function CustomerDetailPage(
                       )}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-800">
+                      <p className="font-semibold text-gray-800 dark:text-slate-100">
                         {isCompra ? "🛒 Compra a Crédito" : "💰 Pago Recibido"}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-slate-400">
                         {new Date(payment.created_at).toLocaleString("es-AR", {
                           dateStyle: "medium",
                           timeStyle: "short",
@@ -310,7 +310,7 @@ export default async function CustomerDetailPage(
                       {isCompra ? "+" : "-"}$
                       {Math.abs(payment.amount).toFixed(2)}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                       {isCompra ? "Suma a la deuda" : "Resta a la deuda"}
                     </p>
                   </div>

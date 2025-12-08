@@ -123,14 +123,14 @@ export default function DeudoresPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando deudores...</p>
+          <p className="text-gray-600 dark:text-slate-300">Cargando deudores...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       {/* HEADER */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 sm:mb-8 gap-4">
         <div className="w-full lg:w-auto">
@@ -144,13 +144,13 @@ export default function DeudoresPage() {
             <FaExclamationTriangle className="text-red-600 text-xl sm:text-2xl" />{" "}
             Clientes Deudores
           </h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">
+          <p className="text-gray-600 dark:text-slate-300 mt-1 text-sm sm:text-base">
             Todos los clientes con deudas pendientes ({deudores.length}{" "}
             clientes)
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-red-200 w-full lg:w-auto">
-          <p className="text-xs sm:text-sm text-gray-600 mb-1">Deuda Total</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-4 border-2 border-red-200 w-full lg:w-auto">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 mb-1">Deuda Total</p>
           <p className="text-2xl sm:text-3xl font-bold text-red-600">
             ${deudores.reduce((sum, d) => sum + d.totalDebt, 0).toFixed(2)}
           </p>
@@ -159,12 +159,12 @@ export default function DeudoresPage() {
 
       {/* LISTA DE DEUDORES */}
       {deudores.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-12 text-center">
           <FaDollarSign className="text-6xl text-green-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-slate-100 mb-2">
             ¡No hay deudores!
           </h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-slate-300">
             Todos los clientes tienen sus cuentas al día
           </p>
         </div>
@@ -173,7 +173,7 @@ export default function DeudoresPage() {
           {deudores.map((deudor) => (
             <div
               key={deudor.id}
-              className="bg-white rounded-xl shadow-lg border-2 border-gray-200 hover:border-red-300 transition-all overflow-hidden"
+              className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border-2 border-gray-200 dark:border-slate-700 hover:border-red-300 transition-all overflow-hidden"
             >
               <div className="p-6">
                 <div className="flex flex-col lg:flex-row justify-between gap-4">
@@ -184,12 +184,12 @@ export default function DeudoresPage() {
                         <FaUser className="text-red-600 text-xl" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-gray-800">
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-slate-100">
                           {deudor.full_name}
                         </h3>
                         <div className="flex gap-3 mt-1">
                           {deudor.phone && (
-                            <p className="text-sm text-gray-600 flex items-center gap-1">
+                            <p className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-1">
                               <FaPhone className="text-xs" /> {deudor.phone}
                             </p>
                           )}
@@ -285,12 +285,12 @@ export default function DeudoresPage() {
       {/* MODAL DE PAGO */}
       {showPaymentModal && selectedCustomer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 sm:p-6 border-b border-gray-200">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-slate-700">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100">
                 Registrar Pago
               </h3>
-              <p className="text-xs sm:text-sm text-gray-600 mt-1">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 mt-1">
                 Cliente: {selectedCustomer.full_name}
               </p>
               <p className="text-xs sm:text-sm text-red-600 font-semibold mt-1">
@@ -304,10 +304,10 @@ export default function DeudoresPage() {
                 onSuccess={handleClosePayment}
               />
             </div>
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-gray-200 dark:border-slate-700">
               <button
                 onClick={handleClosePayment}
-                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm sm:text-base"
+                className="w-full px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm sm:text-base"
               >
                 Cancelar
               </button>

@@ -129,7 +129,9 @@ export default function GraficosPage() {
         ordersRes.data || [],
         saleItemsRes.data || [],
         orderItemsRes.data || [],
-        productsRes.data || []
+        productsRes.data || [],
+        start,
+        end
       );
 
       toast.success("Datos cargados correctamente", { id: loadingToast });
@@ -148,7 +150,9 @@ export default function GraficosPage() {
     orders: any[],
     saleItems: any[],
     orderItems: any[],
-    products: any[]
+    products: any[],
+    start: string,
+    end: string
   ) => {
     const productMap = new Map(products.map((p) => [p.id, p.name]));
 
@@ -215,9 +219,14 @@ export default function GraficosPage() {
     });
 
     const topProductsData = Object.entries(productTotals)
-      .map(([name, quantity]) => ({ name, quantity }))
+      .map(([name, quantity]) => ({ name, quantity: quantity as number }))
       .sort((a, b) => b.quantity - a.quantity)
       .slice(0, 10);
+
+    console.log('📊 Top Products Data:', topProductsData);
+    console.log('📦 Product Totals:', productTotals);
+    console.log('🛒 Sale Items Count:', saleItems.length);
+    console.log('📋 Order Items Count:', orderItems.length);
 
     // 4. Métodos de pago
     const paymentTotals: Record<string, number> = {};
@@ -264,12 +273,37 @@ export default function GraficosPage() {
 
     const monthlyTrendData = Object.values(monthlyMap);
 
-    // 6. Calcular estadísticas
-    const previousPeriodTotal = 0; // Simplificado por ahora
+    // 6. Calcular estadísticas y tendencia
+    // Calcular el total del período anterior para comparar
+    const { start: prevStart, end: prevEnd } = (() => {
+      const currentStart = new Date(start);
+      const currentEnd = new Date(end);
+      const diff = currentEnd.getTime() - currentStart.getTime();
+
+      const prevEndDate = new Date(currentStart);
+      prevEndDate.setMilliseconds(prevEndDate.getMilliseconds() - 1);
+
+      const prevStartDate = new Date(prevEndDate);
+      prevStartDate.setMilliseconds(prevStartDate.getMilliseconds() - diff);
+
+      return {
+        start: prevStartDate.toISOString(),
+        end: prevEndDate.toISOString()
+      };
+    })();
+
+    // Obtener ventas del período anterior
+    const previousSales = sales.filter(s => s.created_at >= prevStart && s.created_at <= prevEnd);
+    const previousOrders = orders.filter((o: any) => o.created_at >= prevStart && o.created_at <= prevEnd && o.status === 'entregado');
+
+    const previousPeriodTotal =
+      previousSales.reduce((sum, s) => sum + Number(s.total_amount), 0) +
+      previousOrders.reduce((sum: number, o: any) => sum + Number(o.total_amount), 0);
+
     const growth =
       previousPeriodTotal > 0
         ? ((total - previousPeriodTotal) / previousPeriodTotal) * 100
-        : 0;
+        : total > 0 ? 100 : 0;
 
     setSalesByDay(salesByDayData);
     setLocalVsReparto(localVsRepartoData);
@@ -286,16 +320,16 @@ export default function GraficosPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-950 p-6">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100 mb-8 flex items-center gap-3">
             <FaChartLine className="text-blue-600" />
             Dashboard de Análisis
           </h1>
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
               <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Cargando datos...</p>
+              <p className="text-gray-600 dark:text-slate-300">Cargando datos...</p>
             </div>
           </div>
         </div>
@@ -304,15 +338,15 @@ export default function GraficosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-950 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-3 flex items-center gap-3">
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-slate-100 mb-3 flex items-center gap-3">
             <FaChartLine className="text-blue-600" />
             Dashboard de Análisis
           </h1>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 dark:text-slate-300 mb-4">
             Visualización completa de toda la información de tu negocio
           </p>
 
@@ -320,32 +354,29 @@ export default function GraficosPage() {
           <div className="flex gap-3 flex-wrap">
             <button
               onClick={() => setDateRange("week")}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                dateRange === "week"
-                  ? "bg-blue-600 text-white shadow-lg"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${dateRange === "week"
+                ? "bg-blue-600 text-white shadow-lg"
+                : "bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700"
+                }`}
             >
               <FaCalendarAlt className="inline mr-2" />7 días
             </button>
             <button
               onClick={() => setDateRange("month")}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                dateRange === "month"
-                  ? "bg-blue-600 text-white shadow-lg"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${dateRange === "month"
+                ? "bg-blue-600 text-white shadow-lg"
+                : "bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700"
+                }`}
             >
               <FaCalendarAlt className="inline mr-2" />
               30 días
             </button>
             <button
               onClick={() => setDateRange("year")}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                dateRange === "year"
-                  ? "bg-blue-600 text-white shadow-lg"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${dateRange === "year"
+                ? "bg-blue-600 text-white shadow-lg"
+                : "bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700"
+                }`}
             >
               <FaCalendarAlt className="inline mr-2" />1 año
             </button>
@@ -356,7 +387,7 @@ export default function GraficosPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-white rounded-lg p-3">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-3">
                 <FaDollarSign className="w-6 h-6 text-green-600" />
               </div>
             </div>
@@ -372,7 +403,7 @@ export default function GraficosPage() {
 
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-white rounded-lg p-3">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-3">
                 <FaStore className="w-6 h-6 text-blue-600" />
               </div>
             </div>
@@ -388,7 +419,7 @@ export default function GraficosPage() {
 
           <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-white rounded-lg p-3">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-3">
                 <FaTruck className="w-6 h-6 text-purple-600" />
               </div>
             </div>
@@ -404,7 +435,7 @@ export default function GraficosPage() {
 
           <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-white rounded-lg p-3">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-3">
                 {stats.growth > 0 ? (
                   <FaArrowUp className="w-6 h-6 text-orange-600" />
                 ) : stats.growth < 0 ? (
@@ -423,16 +454,16 @@ export default function GraficosPage() {
         </div>
 
         {/* Gráfico: Evolución diaria */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex items-center mb-6">
             <div className="bg-blue-100 rounded-lg p-2 mr-3">
               <FaChartLine className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                 Evolución de Ventas Diarias
               </h2>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 dark:text-slate-400 text-sm">
                 Comparación Local vs Reparto por día
               </p>
             </div>
@@ -509,22 +540,22 @@ export default function GraficosPage() {
         {/* Row: Balance Distribution + Payment Methods */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Balance Distribution */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6">
             <div className="flex items-center mb-6">
               <div className="bg-purple-100 rounded-lg p-2 mr-3">
                 <FaChartPie className="w-6 h-6 text-purple-600" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                   Distribución de Ventas
                 </h2>
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-500 dark:text-slate-400 text-sm">
                   Balance Local vs Reparto
                 </p>
               </div>
             </div>
             {localVsReparto.length > 0 &&
-            localVsReparto.some((d) => d.value > 0) ? (
+              localVsReparto.some((d) => d.value > 0) ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -572,16 +603,16 @@ export default function GraficosPage() {
           </div>
 
           {/* Payment Methods */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6">
             <div className="flex items-center mb-6">
               <div className="bg-green-100 rounded-lg p-2 mr-3">
                 <FaDollarSign className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                   Métodos de Pago
                 </h2>
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-500 dark:text-slate-400 text-sm">
                   Distribución por método de pago
                 </p>
               </div>
@@ -627,35 +658,38 @@ export default function GraficosPage() {
         </div>
 
         {/* Top Productos */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex items-center mb-6">
             <div className="bg-orange-100 rounded-lg p-2 mr-3">
               <FaBox className="w-6 h-6 text-orange-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                 Top 10 Productos
               </h2>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 dark:text-slate-400 text-sm">
                 Productos más vendidos por cantidad
               </p>
             </div>
           </div>
           {topProducts.length > 0 ? (
             <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={topProducts} layout="horizontal">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis type="number" tick={{ fontSize: 12, fill: "#6b7280" }} />
-                <YAxis
-                  type="category"
+              <BarChart data={topProducts}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#94a3b8" opacity={0.3} />
+                <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                  width={150}
+                  tick={{ fontSize: 12, fill: "#64748b" }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={100}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: "#64748b" }}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#1f2937",
-                    border: "none",
+                    backgroundColor: "#1e293b",
+                    border: "1px solid #334155",
                     borderRadius: "8px",
                     color: "#fff",
                   }}
@@ -665,7 +699,7 @@ export default function GraficosPage() {
                   ]}
                   labelStyle={{ color: "#fff", fontWeight: "bold" }}
                 />
-                <Bar dataKey="quantity" fill="#f59e0b" radius={[0, 8, 8, 0]} />
+                <Bar dataKey="quantity" fill="#f59e0b" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -678,16 +712,16 @@ export default function GraficosPage() {
         </div>
 
         {/* Tendencia Mensual */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6">
           <div className="flex items-center mb-6">
             <div className="bg-indigo-100 rounded-lg p-2 mr-3">
               <FaChartLine className="w-6 h-6 text-indigo-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                 Tendencia Mensual
               </h2>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 dark:text-slate-400 text-sm">
                 Evolución de ventas en los últimos 6 meses
               </p>
             </div>

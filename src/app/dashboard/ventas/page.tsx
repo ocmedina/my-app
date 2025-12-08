@@ -28,6 +28,7 @@ import {
   FaChevronRight,
   FaChartBar,
 } from "react-icons/fa";
+import { getUTCInterval } from "@/lib/date-utils";
 
 const ITEMS_PER_PAGE = 10; // Puedes ajustar cuántas ventas mostrar por página
 
@@ -64,9 +65,8 @@ export default function SalesHistoryPage() {
 
     // --- FILTRO POR DÍA ESPECÍFICO (Zona Horaria Argentina UTC-3) ---
     if (date) {
-      const startDate = `${date}T00:00:00-03:00`;
-      const endDate = `${date}T23:59:59.999-03:00`;
-      query = query.gte("created_at", startDate).lte("created_at", endDate);
+      const { startUTC, endUTC } = getUTCInterval(date, 'America/Argentina/Buenos_Aires');
+      query = query.gte("created_at", startUTC).lte("created_at", endUTC);
     }
 
     // --- FILTRO POR MÉTODO DE PAGO ---
@@ -254,14 +254,14 @@ export default function SalesHistoryPage() {
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
       {/* HEADER */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
             <FaChartLine className="text-blue-600" /> Historial de Ventas
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-slate-400 mt-1">
             Gestiona y revisa todas las ventas realizadas
           </p>
         </div>
@@ -282,8 +282,8 @@ export default function SalesHistoryPage() {
       </div>
 
       {/* FILTROS */}
-      <div className="bg-white rounded-xl shadow-lg mb-6 p-6 border border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg mb-6 p-6 border border-gray-200 dark:border-slate-700">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
           <FaSearch className="text-blue-600" /> Filtros de Búsqueda
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -291,7 +291,7 @@ export default function SalesHistoryPage() {
           <div className="space-y-2">
             <label
               htmlFor="saleDate"
-              className="block text-sm font-medium text-gray-700 flex items-center gap-2"
+              className="block text-sm font-medium text-gray-700 dark:text-slate-300 flex items-center gap-2"
             >
               <FaCalendarAlt className="text-blue-500" /> Filtrar por fecha
             </label>
@@ -310,7 +310,7 @@ export default function SalesHistoryPage() {
                   window.scrollTo(0, currentScrollPos);
                 }, 100);
               }}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-50"
             />
           </div>
 
@@ -318,7 +318,7 @@ export default function SalesHistoryPage() {
           <div className="space-y-2">
             <label
               htmlFor="paymentFilter"
-              className="block text-sm font-medium text-gray-700 flex items-center gap-2"
+              className="block text-sm font-medium text-gray-700 dark:text-slate-300 flex items-center gap-2"
             >
               <FaCreditCard className="text-blue-500" /> Método de pago
             </label>
@@ -330,7 +330,7 @@ export default function SalesHistoryPage() {
                   setPaymentFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="flex-1 p-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-50"
               >
                 <option value="all">Todos los métodos</option>
                 <option value="efectivo">Efectivo</option>
@@ -351,53 +351,53 @@ export default function SalesHistoryPage() {
       </div>
 
       {/* TABLA DE VENTAS */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaCalendarAlt /> Fecha
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaUser /> Cliente
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaUserTie /> Vendedor
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaCreditCard /> Método de Pago
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaDollarSign /> Total
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
                     <FaChartBar /> Estado
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
               {loading ? (
                 <tr>
                   <td colSpan={7} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                      <span className="text-gray-500 font-medium">
+                      <span className="text-gray-500 dark:text-slate-400 font-medium">
                         Cargando ventas...
                       </span>
                     </div>
@@ -408,7 +408,7 @@ export default function SalesHistoryPage() {
                   <td colSpan={7} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <FaInbox className="text-6xl text-gray-300" />
-                      <span className="text-gray-500 font-medium">
+                      <span className="text-gray-500 dark:text-slate-400 font-medium">
                         No hay ventas para la fecha seleccionada
                       </span>
                       <span className="text-gray-400 text-sm">
@@ -422,25 +422,24 @@ export default function SalesHistoryPage() {
                   <tr
                     key={sale.id}
                     className={`
-                      transition-all duration-150 hover:bg-gray-50
-                      ${sale.is_cancelled ? "bg-red-50/50 opacity-70" : ""}
-                      ${
-                        sale.payment_method === "cuenta_corriente" &&
+                      transition-all duration-150 hover:bg-gray-50 dark:hover:bg-slate-800/80
+                      ${sale.is_cancelled ? "bg-red-50/50 dark:bg-red-900/20 opacity-70" : ""}
+                      ${sale.payment_method === "cuenta_corriente" &&
                         !sale.is_cancelled
-                          ? "bg-orange-50/30 border-l-4 border-orange-400"
-                          : ""
+                        ? "bg-orange-50/30 border-l-4 border-orange-400"
+                        : ""
                       }
                     `}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-300">
                       <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2 font-medium text-gray-900">
+                        <div className="flex items-center gap-2 font-medium text-gray-900 dark:text-slate-100">
                           <FaCalendarAlt className="text-blue-500 text-xs" />
                           {new Date(sale.created_at).toLocaleDateString(
                             "es-AR"
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
                           <FaClock className="text-gray-400" />
                           {new Date(sale.created_at).toLocaleTimeString(
                             "es-AR",
@@ -456,13 +455,13 @@ export default function SalesHistoryPage() {
                             "?"}
                         </div>
                         <div className="ml-3">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-gray-900 dark:text-slate-100">
                             {sale.customers?.full_name ?? "Sin cliente"}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-300">
                       {sale.profiles?.full_name ?? "N/A"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -483,13 +482,13 @@ export default function SalesHistoryPage() {
                           <FaMobileAlt /> Mercado Pago
                         </span>
                       ) : (
-                        <span className="text-gray-500 capitalize">
+                        <span className="text-gray-500 dark:text-slate-400 capitalize">
                           {sale.payment_method?.replace("_", " ") ?? "N/A"}
                         </span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-lg font-bold text-gray-900">
+                      <div className="text-lg font-bold text-gray-900 dark:text-slate-100">
                         ${sale.total_amount?.toFixed(2)}
                       </div>
                     </td>
@@ -531,13 +530,13 @@ export default function SalesHistoryPage() {
       </div>
 
       {/* PAGINACIÓN */}
-      <div className="mt-6 bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+      <div className="mt-6 bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-700 bg-gray-100 px-4 py-2 rounded-lg flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 px-4 py-2 rounded-lg flex items-center gap-2">
               <FaChartBar className="text-blue-600" />
               Mostrando{" "}
-              <span className="font-bold text-blue-600">
+              <span className="font-bold text-blue-600 dark:text-blue-400">
                 {sales.length}
               </span> de <span className="font-bold">{totalCount}</span> ventas
             </span>
@@ -546,21 +545,21 @@ export default function SalesHistoryPage() {
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-gray-200 hover:to-gray-300 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+              className="px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-slate-200 rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
             >
               <FaChevronLeft /> Anterior
             </button>
-            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200">
-              <span className="text-sm font-semibold text-gray-700">
+            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg border-2 border-blue-200 dark:border-blue-800">
+              <span className="text-sm font-semibold text-gray-700 dark:text-slate-300">
                 Página{" "}
-                <span className="text-blue-600 text-lg">{currentPage}</span> de{" "}
-                <span className="text-gray-900">{totalPages}</span>
+                <span className="text-blue-600 dark:text-blue-400 text-lg">{currentPage}</span> de{" "}
+                <span className="text-gray-900 dark:text-slate-100">{totalPages}</span>
               </span>
             </div>
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage >= totalPages}
-              className="px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-gray-200 hover:to-gray-300 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+              className="px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-slate-200 rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
             >
               Siguiente <FaChevronRight />
             </button>

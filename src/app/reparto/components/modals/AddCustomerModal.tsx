@@ -95,14 +95,14 @@ export default function AddCustomerModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 rounded-t-lg flex justify-between items-center sticky top-0">
           <h2 className="text-xl font-bold text-white">
             Agregar Nuevo Cliente
           </h2>
           <button
             onClick={onClose}
-            className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all"
+            className="text-white hover:bg-white dark:bg-slate-900 hover:bg-opacity-20 rounded-full p-2 transition-all"
           >
             <FaTimes size={20} />
           </button>
@@ -114,7 +114,7 @@ export default function AddCustomerModal({
             <div>
               <label
                 htmlFor="fullName"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1"
               >
                 Nombre Completo *
               </label>
@@ -125,7 +125,7 @@ export default function AddCustomerModal({
                 onChange={(e) =>
                   setFormData({ ...formData, full_name: e.target.value })
                 }
-                className="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Ej: Juan Pérez"
                 required
               />
@@ -134,7 +134,7 @@ export default function AddCustomerModal({
             <div>
               <label
                 htmlFor="customerType"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1"
               >
                 Tipo de Cliente *
               </label>
@@ -147,7 +147,7 @@ export default function AddCustomerModal({
                     customer_type: e.target.value as "minorista" | "mayorista",
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 required
               >
                 <option value="minorista">Minorista</option>
@@ -161,7 +161,7 @@ export default function AddCustomerModal({
             <div>
               <label
                 htmlFor="phone"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1"
               >
                 Teléfono
               </label>
@@ -172,7 +172,7 @@ export default function AddCustomerModal({
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
-                className="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Ej: 2612345678"
               />
             </div>
@@ -180,7 +180,7 @@ export default function AddCustomerModal({
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1"
               >
                 Email
               </label>
@@ -191,7 +191,7 @@ export default function AddCustomerModal({
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Ej: cliente@email.com"
               />
             </div>
@@ -202,7 +202,7 @@ export default function AddCustomerModal({
             <div>
               <label
                 htmlFor="address"
-                className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1"
+                className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 flex items-center gap-1"
               >
                 <FaMapMarkerAlt className="text-gray-400" />
                 Dirección
@@ -214,7 +214,7 @@ export default function AddCustomerModal({
                 onChange={(e) =>
                   setFormData({ ...formData, address: e.target.value })
                 }
-                className="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Ej: Av. Corrientes 1234, CABA"
               />
             </div>
@@ -222,7 +222,7 @@ export default function AddCustomerModal({
             <div>
               <label
                 htmlFor="reference"
-                className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1"
+                className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 flex items-center gap-1"
               >
                 <FaInfoCircle className="text-gray-400" />
                 Referencia
@@ -234,7 +234,7 @@ export default function AddCustomerModal({
                 onChange={(e) =>
                   setFormData({ ...formData, reference: e.target.value })
                 }
-                className="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="Ej: Entre Callao y Rodríguez Peña"
               />
             </div>
@@ -244,7 +244,7 @@ export default function AddCustomerModal({
           <div>
             <label
               htmlFor="deliveryDay"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1"
             >
               Día de Reparto (Opcional)
             </label>
@@ -254,7 +254,7 @@ export default function AddCustomerModal({
               onChange={(e) =>
                 setFormData({ ...formData, delivery_day: e.target.value })
               }
-              className="w-full p-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
             >
               <option value="">Ninguno</option>
               {daysOfWeek.map((day) => (
@@ -271,7 +271,7 @@ export default function AddCustomerModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>

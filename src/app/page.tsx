@@ -39,11 +39,11 @@ export default function FrontStockWelcome() {
           <div className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-2xl shadow-2xl mb-6">
             <Package className="w-14 h-14 text-blue-600" />
           </div>
-          
+
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
             Bienvenido a <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">FrontStock</span>
           </h1>
-          
+
           <p className="text-xl text-blue-200 max-w-2xl mx-auto">
             Tu sistema de gestión de inventario inteligente
           </p>
@@ -62,7 +62,7 @@ export default function FrontStockWelcome() {
                   <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center flex-shrink-0`}>
                     <Icon className="w-7 h-7 text-white" />
                   </div>
-                  
+
                   <div className="flex-1">
                     <h3 className="text-2xl font-bold text-white mb-2">
                       {feature.title}

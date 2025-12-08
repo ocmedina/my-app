@@ -11,6 +11,7 @@ import {
   FaChartLine,
   FaExclamationTriangle,
 } from "react-icons/fa";
+import { getUTCInterval } from "@/lib/date-utils";
 
 interface DailyClosingData {
   startingFloat: number;
@@ -89,8 +90,7 @@ export default function ReportsPage() {
 
       // 2. Calcular datos para el arqueo
       // Usar la zona horaria de Argentina (UTC-3)
-      const startDate = `${date}T00:00:00-03:00`;
-      const endDate = `${date}T23:59:59.999-03:00`;
+      const { startUTC: startDate, endUTC: endDate } = getUTCInterval(date, 'America/Argentina/Buenos_Aires');
 
       // Obtener ventas de mostrador, pedidos y movimientos en paralelo
       const [salesResult, ordersResult, movementsResult, paymentsResult] =
@@ -275,17 +275,17 @@ export default function ReportsPage() {
   return (
     <div className="space-y-4 sm:space-y-6 print:space-y-4">
       <div className="print:hidden">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2 sm:gap-3">
           <FaCashRegister className="text-blue-600 text-xl sm:text-2xl" />
           Arqueo y Cierre de Caja
         </h1>
       </div>
 
       {/* Selector de fecha */}
-      <div className="p-3 sm:p-4 bg-white rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 print:shadow-none">
+      <div className="p-3 sm:p-4 bg-white dark:bg-slate-900 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 print:shadow-none">
         <label
           htmlFor="reportDate"
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-gray-700 dark:text-slate-300"
         >
           Fecha del Cierre:
         </label>
@@ -295,24 +295,24 @@ export default function ReportsPage() {
           value={date}
           onChange={(e) => setDate(e.target.value)}
           max={new Date().toISOString().split("T")[0]}
-          className="w-full sm:w-auto p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full sm:w-auto p-2 border border-gray-300 dark:border-slate-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-50"
           disabled={loading || isSaving}
         />
       </div>
 
       {/* Loading state */}
       {loading && (
-        <div className="text-center p-10 bg-white rounded-lg shadow-md">
+        <div className="text-center p-10 bg-white dark:bg-slate-900 rounded-lg shadow-md">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Calculando datos del día...</p>
+          <p className="mt-4 text-gray-600 dark:text-slate-400">Calculando datos del día...</p>
         </div>
       )}
 
       {/* No data state */}
       {!loading && !reportToDisplay && (
-        <div className="text-center p-10 bg-white rounded-lg shadow-md">
+        <div className="text-center p-10 bg-white dark:bg-slate-900 rounded-lg shadow-md">
           <FaExclamationTriangle className="mx-auto text-4xl text-yellow-500 mb-4" />
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-slate-300">
             No hay datos de ventas o movimientos para esta fecha.
           </p>
         </div>
@@ -320,13 +320,13 @@ export default function ReportsPage() {
 
       {/* VISTA DEL ARQUEO DE CAJA (Pendiente de finalizar) */}
       {!loading && closingData && !savedReport && (
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg space-y-4 sm:space-y-6">
+        <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-lg shadow-lg space-y-4 sm:space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-gray-800">
+            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-gray-800 dark:text-slate-100">
               <FaCalculator className="text-blue-600" />
               Arqueo de Caja
             </h2>
-            <span className="text-xs sm:text-sm text-gray-500">
+            <span className="text-xs sm:text-sm text-gray-500 dark:text-slate-400">
               {new Date(date + "T00:00:00").toLocaleDateString("es-AR", {
                 weekday: "long",
                 year: "numeric",
@@ -338,7 +338,7 @@ export default function ReportsPage() {
 
           {/* Resumen general */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <div className="bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200">
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-lg border border-blue-200 dark:border-blue-800">
               <p className="text-xs sm:text-sm text-blue-600 font-medium">
                 Total Ventas
               </p>
@@ -349,7 +349,7 @@ export default function ReportsPage() {
                 {closingData.transactionCount} transacciones
               </p>
             </div>
-            <div className="bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200">
+            <div className="bg-green-50 dark:bg-green-900/20 p-3 sm:p-4 rounded-lg border border-green-200 dark:border-green-800">
               <p className="text-xs sm:text-sm text-green-600 font-medium">
                 Efectivo Recibido
               </p>
@@ -366,7 +366,7 @@ export default function ReportsPage() {
                 ${closingData.startingFloat.toFixed(2)}
               </p>
             </div>
-            <div className="bg-orange-50 p-3 sm:p-4 rounded-lg border border-orange-200">
+            <div className="bg-orange-50 dark:bg-orange-900/20 p-3 sm:p-4 rounded-lg border border-orange-200 dark:border-orange-800">
               <p className="text-xs sm:text-sm text-orange-600 font-medium">
                 Cuenta Corriente
               </p>
@@ -378,40 +378,40 @@ export default function ReportsPage() {
           </div>
 
           {/* Sección: VENTAS DE MOSTRADOR */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-5 rounded-lg border-2 border-blue-300">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-4 sm:p-5 rounded-lg border-2 border-blue-300 dark:border-blue-700">
             <h3 className="text-base sm:text-lg font-bold text-blue-800 mb-3 flex items-center gap-2">
               🏪 Ventas de Mostrador
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-              <div className="bg-white p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-600">Total Ventas</p>
+              <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                <p className="text-xs text-gray-600 dark:text-slate-300">Total Ventas</p>
                 <p className="text-lg font-bold text-blue-700">
                   ${closingData.counterSales.total.toFixed(2)}
                 </p>
               </div>
-              <div className="bg-white p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-600">Efectivo</p>
+              <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                <p className="text-xs text-gray-600 dark:text-slate-300">Efectivo</p>
                 <p className="text-lg font-bold text-green-700">
                   ${closingData.counterSales.cash.toFixed(2)}
                 </p>
               </div>
-              <div className="bg-white p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-600">Transacciones</p>
-                <p className="text-lg font-bold text-gray-700">
+              <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                <p className="text-xs text-gray-600 dark:text-slate-300">Transacciones</p>
+                <p className="text-lg font-bold text-gray-700 dark:text-slate-200">
                   {closingData.counterSales.count}
                 </p>
               </div>
             </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="text-xs font-semibold text-gray-700 mb-2">
+            <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+              <p className="text-xs font-semibold text-gray-700 dark:text-slate-300 mb-2">
                 Métodos de Pago:
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {Object.entries(closingData.counterSales.breakdown).map(
                   ([method, amount]) => (
                     <div key={method} className="flex justify-between text-sm">
-                      <span className="text-gray-600">{method}:</span>
-                      <span className="font-semibold">
+                      <span className="text-gray-600 dark:text-slate-300">{method}:</span>
+                      <span className="font-semibold dark:text-slate-200">
                         ${amount.toFixed(2)}
                       </span>
                     </div>
@@ -422,32 +422,32 @@ export default function ReportsPage() {
           </div>
 
           {/* Sección: ENTREGAS DE REPARTO */}
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 sm:p-5 rounded-lg border-2 border-green-300">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 p-4 sm:p-5 rounded-lg border-2 border-green-300 dark:border-green-700">
             <h3 className="text-base sm:text-lg font-bold text-green-800 mb-3 flex items-center gap-2">
               🚚 Entregas de Reparto
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-              <div className="bg-white p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-600">Total Entregado</p>
+              <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                <p className="text-xs text-gray-600 dark:text-slate-300">Total Entregado</p>
                 <p className="text-lg font-bold text-green-700">
                   ${closingData.deliverySales.total.toFixed(2)}
                 </p>
               </div>
-              <div className="bg-white p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-600">Efectivo Recibido</p>
+              <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                <p className="text-xs text-gray-600 dark:text-slate-300">Efectivo Recibido</p>
                 <p className="text-lg font-bold text-green-700">
                   ${closingData.deliverySales.cashReceived.toFixed(2)}
                 </p>
               </div>
-              <div className="bg-white p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-600">En Cuenta Corriente</p>
+              <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                <p className="text-xs text-gray-600 dark:text-slate-300">En Cuenta Corriente</p>
                 <p className="text-lg font-bold text-orange-600">
                   ${closingData.deliverySales.pending.toFixed(2)}
                 </p>
               </div>
-              <div className="bg-white p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-600">Entregas</p>
-                <p className="text-lg font-bold text-gray-700">
+              <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                <p className="text-xs text-gray-600 dark:text-slate-300">Entregas</p>
+                <p className="text-lg font-bold text-gray-700 dark:text-slate-200">
                   {closingData.deliverySales.count}
                 </p>
               </div>
@@ -455,13 +455,13 @@ export default function ReportsPage() {
           </div>
 
           {/* Cálculo de efectivo esperado */}
-          <div className="p-4 sm:p-5 border-2 border-gray-300 rounded-lg space-y-3 bg-gradient-to-br from-gray-50 to-white">
-            <h3 className="font-bold text-base sm:text-lg text-gray-800 mb-4">
+          <div className="p-4 sm:p-5 border-2 border-gray-300 dark:border-slate-600 rounded-lg space-y-3 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700">
+            <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-slate-100 mb-4">
               Cálculo de Efectivo Esperado
             </h3>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm sm:text-base text-gray-600">
+              <span className="text-sm sm:text-base text-gray-600 dark:text-slate-300">
                 Fondo de Caja Inicial
               </span>
               <span className="font-medium text-green-600 text-base sm:text-lg">
@@ -470,7 +470,7 @@ export default function ReportsPage() {
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm sm:text-base text-gray-600">
+              <span className="text-sm sm:text-base text-gray-600 dark:text-slate-300">
                 Efectivo Mostrador
               </span>
               <span className="font-medium text-green-600 text-base sm:text-lg">
@@ -479,7 +479,7 @@ export default function ReportsPage() {
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm sm:text-base text-gray-600">
+              <span className="text-sm sm:text-base text-gray-600 dark:text-slate-300">
                 Efectivo Entregas
               </span>
               <span className="font-medium text-green-600 text-base sm:text-lg">
@@ -488,7 +488,7 @@ export default function ReportsPage() {
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm sm:text-base text-gray-600">
+              <span className="text-sm sm:text-base text-gray-600 dark:text-slate-300">
                 Gastos y Retiros
               </span>
               <span className="font-medium text-red-600 text-base sm:text-lg">
@@ -496,19 +496,19 @@ export default function ReportsPage() {
               </span>
             </div>
 
-            <hr className="my-3 border-gray-300" />
+            <hr className="my-3 border-gray-300 dark:border-slate-600" />
 
-            <div className="flex justify-between items-center text-base sm:text-xl font-bold bg-blue-100 p-2 sm:p-3 rounded-lg">
-              <span className="text-gray-800">Efectivo Esperado en Caja</span>
-              <span className="text-blue-700">
+            <div className="flex justify-between items-center text-base sm:text-xl font-bold bg-blue-100 dark:bg-blue-900/40 p-2 sm:p-3 rounded-lg">
+              <span className="text-gray-800 dark:text-slate-100">Efectivo Esperado en Caja</span>
+              <span className="text-blue-700 dark:text-blue-300">
                 ${closingData.expectedCash.toFixed(2)}
               </span>
             </div>
           </div>
 
           {/* Input para efectivo contado */}
-          <div className="bg-yellow-50 p-4 sm:p-5 rounded-lg border-2 border-yellow-300">
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 sm:p-5 rounded-lg border-2 border-yellow-300 dark:border-yellow-700">
+            <label className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-2">
               💰 Efectivo Real Contado en Caja
             </label>
             <input
@@ -517,36 +517,34 @@ export default function ReportsPage() {
               value={countedCash}
               onChange={(e) => setCountedCash(e.target.value)}
               placeholder="Ingresa el monto contado físicamente"
-              className="w-full p-2 sm:p-3 text-base sm:text-lg border-2 border-yellow-400 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              className="w-full p-2 sm:p-3 text-base sm:text-lg border-2 border-yellow-400 dark:border-yellow-600 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-50"
               disabled={isSaving}
             />
 
             {/* Diferencia en tiempo real */}
             {realTimeDifference !== null && (
               <div
-                className={`mt-4 p-3 sm:p-4 rounded-lg text-center bg-white border-2 ${
-                  realTimeDifference >= 0
-                    ? "border-green-500"
-                    : "border-red-500"
-                }`}
+                className={`mt-4 p-3 sm:p-4 rounded-lg text-center bg-white dark:bg-slate-900 border-2 ${realTimeDifference >= 0
+                  ? "border-green-500"
+                  : "border-red-500"
+                  }`}
               >
-                <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 mb-1">
                   Diferencia
                 </p>
                 <p
-                  className={`text-2xl sm:text-3xl font-bold ${
-                    realTimeDifference >= 0 ? "text-green-600" : "text-red-600"
-                  }`}
+                  className={`text-2xl sm:text-3xl font-bold ${realTimeDifference >= 0 ? "text-green-600" : "text-red-600"
+                    }`}
                 >
                   ${realTimeDifference >= 0 ? "+" : ""}
                   {Math.abs(realTimeDifference).toFixed(2)}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   {realTimeDifference > 0
                     ? "💚 Sobrante"
                     : realTimeDifference < 0
-                    ? "❌ Faltante"
-                    : "✅ Exacto"}
+                      ? "❌ Faltante"
+                      : "✅ Exacto"}
                 </p>
               </div>
             )}
@@ -565,10 +563,10 @@ export default function ReportsPage() {
 
       {/* VISTA DEL REPORTE GUARDADO */}
       {!loading && savedReport && (
-        <div className="bg-white p-6 rounded-lg shadow-lg">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-lg">
           <div className="flex justify-between items-start mb-6 print:mb-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
                 Cierre de Caja -{" "}
                 {new Date(date + "T00:00:00").toLocaleDateString("es-AR", {
                   weekday: "long",
@@ -583,7 +581,7 @@ export default function ReportsPage() {
             </div>
             <button
               onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 text-sm border-2 border-gray-300 hover:border-blue-500 hover:text-blue-600 rounded-md transition-colors print:hidden"
+              className="flex items-center gap-2 px-4 py-2 text-sm border-2 border-gray-300 dark:border-slate-600 hover:border-blue-500 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 rounded-md transition-colors print:hidden"
             >
               <FaPrint /> Imprimir
             </button>
@@ -638,27 +636,27 @@ export default function ReportsPage() {
                 🏪 Ventas de Mostrador
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                <div className="bg-white p-3 rounded shadow-sm">
-                  <span className="text-xs text-gray-600">Total:</span>
+                <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
+                  <span className="text-xs text-gray-600 dark:text-slate-300">Total:</span>
                   <p className="text-lg font-bold text-blue-700">
                     ${savedReport.counterSales.total.toFixed(2)}
                   </p>
                 </div>
-                <div className="bg-white p-3 rounded shadow-sm">
-                  <span className="text-xs text-gray-600">Efectivo:</span>
+                <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
+                  <span className="text-xs text-gray-600 dark:text-slate-300">Efectivo:</span>
                   <p className="text-lg font-bold text-green-700">
                     ${savedReport.counterSales.cash.toFixed(2)}
                   </p>
                 </div>
-                <div className="bg-white p-3 rounded shadow-sm">
-                  <span className="text-xs text-gray-600">Ventas:</span>
+                <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
+                  <span className="text-xs text-gray-600 dark:text-slate-300">Ventas:</span>
                   <p className="text-lg font-bold">
                     {savedReport.counterSales.count}
                   </p>
                 </div>
               </div>
-              <div className="bg-white p-3 rounded shadow-sm">
-                <p className="text-xs font-semibold text-gray-700 mb-2">
+              <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
+                <p className="text-xs font-semibold text-gray-700 dark:text-slate-200 mb-2">
                   Métodos de Pago:
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -668,7 +666,7 @@ export default function ReportsPage() {
                         key={method}
                         className="flex justify-between text-sm"
                       >
-                        <span className="text-gray-600">{method}:</span>
+                        <span className="text-gray-600 dark:text-slate-300">{method}:</span>
                         <span className="font-medium">
                           ${amount.toFixed(2)}
                         </span>
@@ -685,30 +683,30 @@ export default function ReportsPage() {
                 🚚 Entregas de Reparto
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div className="bg-white p-3 rounded shadow-sm">
-                  <span className="text-xs text-gray-600">
+                <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
+                  <span className="text-xs text-gray-600 dark:text-slate-300">
                     Total Entregado:
                   </span>
                   <p className="text-lg font-bold text-green-700">
                     ${savedReport.deliverySales.total.toFixed(2)}
                   </p>
                 </div>
-                <div className="bg-white p-3 rounded shadow-sm">
-                  <span className="text-xs text-gray-600">Efectivo:</span>
+                <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
+                  <span className="text-xs text-gray-600 dark:text-slate-300">Efectivo:</span>
                   <p className="text-lg font-bold text-green-700">
                     ${savedReport.deliverySales.cashReceived.toFixed(2)}
                   </p>
                 </div>
-                <div className="bg-white p-3 rounded shadow-sm">
-                  <span className="text-xs text-gray-600">
+                <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
+                  <span className="text-xs text-gray-600 dark:text-slate-300">
                     Cuenta Corriente:
                   </span>
                   <p className="text-lg font-bold text-orange-600">
                     ${savedReport.deliverySales.pending.toFixed(2)}
                   </p>
                 </div>
-                <div className="bg-white p-3 rounded shadow-sm">
-                  <span className="text-xs text-gray-600">Entregas:</span>
+                <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
+                  <span className="text-xs text-gray-600 dark:text-slate-300">Entregas:</span>
                   <p className="text-lg font-bold">
                     {savedReport.deliverySales.count}
                   </p>
@@ -718,30 +716,30 @@ export default function ReportsPage() {
 
             {/* Arqueo de Efectivo */}
             <div className="bg-blue-50 p-5 rounded-lg border border-blue-200">
-              <h3 className="font-semibold text-gray-700 mb-4">
+              <h3 className="font-semibold text-gray-700 dark:text-slate-200 mb-4">
                 💰 Arqueo de Efectivo
               </h3>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Fondo Inicial:</span>
+                  <span className="text-gray-600 dark:text-slate-300">Fondo Inicial:</span>
                   <span className="font-medium text-green-600">
                     + ${savedReport.startingFloat.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Efectivo Mostrador:</span>
+                  <span className="text-gray-600 dark:text-slate-300">Efectivo Mostrador:</span>
                   <span className="font-medium text-green-600">
                     + ${savedReport.counterSales.cash.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Efectivo Entregas:</span>
+                  <span className="text-gray-600 dark:text-slate-300">Efectivo Entregas:</span>
                   <span className="font-medium text-green-600">
                     + ${savedReport.deliverySales.cashReceived.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Gastos y Retiros:</span>
+                  <span className="text-gray-600 dark:text-slate-300">Gastos y Retiros:</span>
                   <span className="font-medium text-red-600">
                     - ${savedReport.totalExpenses.toFixed(2)}
                   </span>

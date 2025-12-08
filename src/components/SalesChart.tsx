@@ -13,8 +13,8 @@ const formatYAxis = (tickItem: number) => {
 
 export default function SalesChart({ data }: { data: any[] }) {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md h-80">
-      <h2 className="text-lg font-semibold mb-4 text-gray-800">Ventas de la Última Semana</h2>
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md h-80">
+      <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-slate-100">Ventas de la Última Semana</h2>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}

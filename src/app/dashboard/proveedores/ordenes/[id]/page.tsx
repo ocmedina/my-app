@@ -324,22 +324,22 @@ export default function OrderDetailPage({
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => router.push("/dashboard/proveedores/ordenes")}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 border border-gray-200 transition-all font-medium mb-4"
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-200 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 border border-gray-200 dark:border-slate-700 transition-all font-medium mb-4"
           >
             <FaArrowLeft /> Volver a Órdenes
           </button>
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100">
                 {order.order_number}
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-600 dark:text-slate-300 mt-1">
                 Creada el{" "}
                 {new Date(order.created_at).toLocaleDateString("es-AR")}
               </p>
@@ -357,88 +357,88 @@ export default function OrderDetailPage({
         </div>
 
         {/* Order Info */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 mb-6 border border-gray-200 dark:border-slate-700">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100 mb-4">
             Información de la Orden
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-500">Proveedor</p>
-              <p className="font-bold text-gray-900">
+              <p className="text-sm text-gray-500 dark:text-slate-400">Proveedor</p>
+              <p className="font-bold text-gray-900 dark:text-slate-50">
                 {order.brands?.name || "Sin proveedor"}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Creado por</p>
-              <p className="font-bold text-gray-900">
+              <p className="text-sm text-gray-500 dark:text-slate-400">Creado por</p>
+              <p className="font-bold text-gray-900 dark:text-slate-50">
                 {order.profiles?.full_name || order.profiles?.username}
               </p>
             </div>
             {order.sent_at && (
               <div>
-                <p className="text-sm text-gray-500">Fecha de envío</p>
-                <p className="font-bold text-gray-900">
+                <p className="text-sm text-gray-500 dark:text-slate-400">Fecha de envío</p>
+                <p className="font-bold text-gray-900 dark:text-slate-50">
                   {new Date(order.sent_at).toLocaleDateString("es-AR")}
                 </p>
               </div>
             )}
             {order.received_at && (
               <div>
-                <p className="text-sm text-gray-500">Fecha de recepción</p>
-                <p className="font-bold text-gray-900">
+                <p className="text-sm text-gray-500 dark:text-slate-400">Fecha de recepción</p>
+                <p className="font-bold text-gray-900 dark:text-slate-50">
                   {new Date(order.received_at).toLocaleDateString("es-AR")}
                 </p>
               </div>
             )}
           </div>
           {order.notes && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-500 mb-2">Observaciones</p>
-              <p className="text-gray-900">{order.notes}</p>
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
+              <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">Observaciones</p>
+              <p className="text-gray-900 dark:text-slate-50">{order.notes}</p>
             </div>
           )}
         </div>
 
         {/* Products */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Productos</h2>
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 mb-6 border border-gray-200 dark:border-slate-700">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100 mb-4">Productos</h2>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+              <thead className="bg-gray-50 dark:bg-slate-950">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase">
                     SKU
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-slate-200 uppercase">
                     Producto
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">
+                  <th className="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-slate-200 uppercase">
                     Cantidad
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase">
+                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-700 dark:text-slate-200 uppercase">
                     Precio Unit.
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase">
+                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-700 dark:text-slate-200 uppercase">
                     Subtotal
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
                 {order.purchase_order_items.map((item) => (
                   <tr key={item.id}>
-                    <td className="px-4 py-4 text-sm font-mono text-gray-600">
+                    <td className="px-4 py-4 text-sm font-mono text-gray-600 dark:text-slate-300">
                       {item.products.sku}
                     </td>
-                    <td className="px-4 py-4 text-sm font-semibold text-gray-900">
+                    <td className="px-4 py-4 text-sm font-semibold text-gray-900 dark:text-slate-50">
                       {item.products.name}
                     </td>
-                    <td className="px-4 py-4 text-center font-bold text-gray-900">
+                    <td className="px-4 py-4 text-center font-bold text-gray-900 dark:text-slate-50">
                       {item.quantity}
                     </td>
-                    <td className="px-4 py-4 text-right text-sm text-gray-600">
+                    <td className="px-4 py-4 text-right text-sm text-gray-600 dark:text-slate-300">
                       ${item.unit_price.toFixed(2)}
                     </td>
-                    <td className="px-4 py-4 text-right font-bold text-gray-900">
+                    <td className="px-4 py-4 text-right font-bold text-gray-900 dark:text-slate-50">
                       ${item.subtotal.toFixed(2)}
                     </td>
                   </tr>
@@ -448,7 +448,7 @@ export default function OrderDetailPage({
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-4 py-4 text-right font-bold text-gray-700 uppercase"
+                    className="px-4 py-4 text-right font-bold text-gray-700 dark:text-slate-200 uppercase"
                   >
                     Total:
                   </td>
@@ -462,8 +462,8 @@ export default function OrderDetailPage({
         </div>
 
         {/* Actions */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Acciones</h2>
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-slate-100 mb-4">Acciones</h2>
           <div className="flex flex-wrap gap-3">
             {order.status === "draft" && (
               <>

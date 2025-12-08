@@ -60,12 +60,12 @@ export default function AddProductModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] flex flex-col">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] flex flex-col">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 rounded-t-2xl flex justify-between items-center">
           <h2 className="text-xl font-bold text-white">Agregar Producto</h2>
           <button
             onClick={onClose}
-            className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all"
+            className="text-white hover:bg-white dark:bg-slate-900 hover:bg-opacity-20 rounded-full p-2 transition-all"
           >
             <FaTimes size={20} />
           </button>
@@ -79,7 +79,7 @@ export default function AddProductModal({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar producto por nombre..."
-              className="w-full py-3 pl-12 pr-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+              className="w-full py-3 pl-12 pr-4 border-2 border-gray-200 dark:border-slate-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
               autoFocus
             />
             {isSearching && (
@@ -111,10 +111,10 @@ export default function AddProductModal({
                     onProductAdd(product);
                     onClose();
                   }}
-                  className="p-4 border-2 border-gray-200 rounded-xl flex justify-between items-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                  className="p-4 border-2 border-gray-200 dark:border-slate-700 rounded-xl flex justify-between items-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group"
                 >
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-800 group-hover:text-blue-600">
+                    <p className="font-semibold text-gray-800 dark:text-slate-100 group-hover:text-blue-600">
                       {product.name}
                     </p>
                     <p className="text-sm text-green-600 font-medium mt-1">
@@ -122,7 +122,7 @@ export default function AddProductModal({
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    <span className="text-xs text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-3 py-1 rounded-full">
                       Stock: {product.stock}
                     </span>
                   </div>

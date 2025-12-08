@@ -174,7 +174,7 @@ export default function ProductSearch({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleInputKeyDown}
           placeholder="Buscar producto o escanear..."
-          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all text-lg"
+          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all text-lg"
         />
         {isLoading && (
           <div className="absolute right-3 top-3">
@@ -183,13 +183,13 @@ export default function ProductSearch({
         )}
       </div>
 
-      <div className="flex items-center gap-2 mt-2 text-xs text-gray-500 px-1">
+      <div className="flex items-center gap-2 mt-2 text-xs text-gray-500 dark:text-slate-400 px-1">
         <FaBarcode />
         <span>Escanea un código o escribe y presiona Enter</span>
       </div>
 
       {results.length > 0 && (
-        <ul className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-80 overflow-y-auto divide-y divide-gray-100 animate-fadeIn">
+        <ul className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl max-h-80 overflow-y-auto divide-y divide-gray-100 animate-fadeIn">
           {results.map((product) => (
             <li
               key={product.id}
@@ -198,11 +198,11 @@ export default function ProductSearch({
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="font-semibold text-gray-800 block group-hover:text-blue-700 transition-colors">
+                  <span className="font-semibold text-gray-800 dark:text-slate-100 block group-hover:text-blue-700 transition-colors">
                     {product.name}
                   </span>
                   {product.sku && (
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                    <span className="text-xs text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                       SKU: {product.sku}
                     </span>
                   )}

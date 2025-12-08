@@ -133,32 +133,32 @@ export default function ImportProductsPage() {
         </Link>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
         <h2 className="text-lg font-semibold mb-3">Instrucciones</h2>
-        <p className="text-sm text-gray-600 mb-2">
+        <p className="text-sm text-gray-600 dark:text-slate-300 mb-2">
           Sube un archivo Excel (.xlsx o .csv) con los productos. La primera fila debe contener los encabezados exactos:
         </p>
-        <code className="block bg-gray-100 p-2 rounded text-sm text-gray-800 mb-4">
+        <code className="block bg-gray-100 dark:bg-slate-800 p-2 rounded text-sm text-gray-800 dark:text-slate-100 mb-4">
           SKU | Nombre | PrecioMinorista | PrecioMayorista | Stock
         </code>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-slate-300">
           Las columnas <span className="font-semibold">SKU, Nombre, PrecioMinorista, PrecioMayorista</span> y <span className="font-semibold">Stock</span> son obligatorias. El SKU debe ser único para cada producto.
         </p>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <label htmlFor="file-upload" className="mb-4 flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
+        <label htmlFor="file-upload" className="mb-4 flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-slate-600 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-slate-950 hover:bg-gray-100 dark:bg-slate-700 dark:hover:bg-slate-800/80 dark:bg-slate-800">
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             <FaUpload className="w-10 h-10 mb-3 text-gray-400" />
-            <p className="mb-2 text-sm text-gray-500">
+            <p className="mb-2 text-sm text-gray-500 dark:text-slate-400">
               <span className="font-semibold">Haz clic para subir</span> o arrastra el archivo aquí
             </p>
-            <p className="text-xs text-gray-500">XLSX o CSV</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">XLSX o CSV</p>
           </div>
           <input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept=".xlsx, .csv"/>
         </label>
         
-        {file && <p className="text-sm text-center text-gray-700 mb-4">Archivo seleccionado: {file.name}</p>}
+        {file && <p className="text-sm text-center text-gray-700 dark:text-slate-200 mb-4">Archivo seleccionado: {file.name}</p>}
 
         <button 
           onClick={processImport} 
@@ -180,7 +180,7 @@ export default function ImportProductsPage() {
           <p className="text-sm">Filas con errores (omitidas): <span className="font-bold">{results.errors}</span></p>
           {/* <p className="text-sm">SKUs duplicados (omitidos): <span className="font-bold">{results.duplicates}</span></p> */}
           {errorDetails.length > 0 && (
-            <div className="mt-2 pt-2 border-t border-gray-300">
+            <div className="mt-2 pt-2 border-t border-gray-300 dark:border-slate-600">
               <p className="text-xs font-semibold text-red-700">Detalle de errores:</p>
               <ul className="list-disc list-inside text-xs text-red-600 max-h-32 overflow-y-auto">
                 {errorDetails.map((err, i) => <li key={i}>{err}</li>)}
