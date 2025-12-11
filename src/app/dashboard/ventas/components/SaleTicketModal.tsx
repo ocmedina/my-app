@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { FaPrint, FaTimes, FaSpinner } from "react-icons/fa";
+import CustomLoader from "@/components/CustomLoader";
+import { FaPrint, FaTimes } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import SaleTicketDownloadButton from "@/components/SaleTicketDownloadButton";
@@ -68,8 +69,7 @@ export default function SaleTicketModal({
                 <div className="p-8">
                     {loading || !saleData ? (
                         <div className="flex flex-col items-center justify-center h-48">
-                            <FaSpinner className="animate-spin text-4xl text-blue-600" />
-                            <p className="mt-4 text-gray-600 dark:text-slate-300">Cargando datos de la venta...</p>
+                            <CustomLoader size={60} text="Cargando ticket..." />
                         </div>
                     ) : (
                         <>
@@ -90,8 +90,8 @@ export default function SaleTicketModal({
                                     <button
                                         onClick={() => setPrintFormat("thermal")}
                                         className={`py-3 px-4 rounded-xl border-2 transition-all font-semibold text-sm ${printFormat === "thermal"
-                                                ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                                                : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
+                                            ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                                            : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
                                             }`}
                                     >
                                         <div className="flex flex-col items-center gap-1">
@@ -102,8 +102,8 @@ export default function SaleTicketModal({
                                     <button
                                         onClick={() => setPrintFormat("A4")}
                                         className={`py-3 px-4 rounded-xl border-2 transition-all font-semibold text-sm ${printFormat === "A4"
-                                                ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                                                : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
+                                            ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                                            : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
                                             }`}
                                     >
                                         <div className="flex flex-col items-center gap-1">

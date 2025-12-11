@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { FaPrint, FaTimes, FaSpinner } from "react-icons/fa";
+import CustomLoader from "@/components/CustomLoader";
+import { FaPrint, FaTimes } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import PDFDownloadButton from "@/components/PDFDownloadButton";
@@ -85,8 +86,7 @@ export default function RemitoModal({
         <div className="p-8">
           {loading || !orderData ? (
             <div className="flex flex-col items-center justify-center h-48">
-              <FaSpinner className="animate-spin text-4xl text-blue-600" />
-              <p className="mt-4 text-gray-600 dark:text-slate-300">Cargando datos del pedido...</p>
+              <CustomLoader size={60} text="Cargando remito..." />
             </div>
           ) : (
             <>
@@ -106,11 +106,10 @@ export default function RemitoModal({
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setPrintFormat("thermal")}
-                    className={`py-3 px-4 rounded-xl border-2 transition-all font-semibold text-sm ${
-                      printFormat === "thermal"
-                        ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                        : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
-                    }`}
+                    className={`py-3 px-4 rounded-xl border-2 transition-all font-semibold text-sm ${printFormat === "thermal"
+                      ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                      : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
+                      }`}
                   >
                     <div className="flex flex-col items-center gap-1">
                       <FaPrint className="text-xl" />
@@ -119,11 +118,10 @@ export default function RemitoModal({
                   </button>
                   <button
                     onClick={() => setPrintFormat("A4")}
-                    className={`py-3 px-4 rounded-xl border-2 transition-all font-semibold text-sm ${
-                      printFormat === "A4"
-                        ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                        : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
-                    }`}
+                    className={`py-3 px-4 rounded-xl border-2 transition-all font-semibold text-sm ${printFormat === "A4"
+                      ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                      : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
+                      }`}
                   >
                     <div className="flex flex-col items-center gap-1">
                       <FaPrint className="text-xl" />
