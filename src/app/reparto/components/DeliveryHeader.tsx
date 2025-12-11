@@ -57,8 +57,8 @@ export default function DeliveryHeader({
         <button
           onClick={() => setView("new_order")}
           className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 ${view === "new_order"
-              ? "bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600 text-blue-600"
-              : "text-gray-500 hover:bg-gray-50"
+            ? "bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600 text-blue-600"
+            : "text-gray-500 hover:bg-gray-50"
             }`}
         >
           <FaEdit className="text-lg" />
@@ -68,8 +68,8 @@ export default function DeliveryHeader({
         <button
           onClick={() => setView("daily")}
           className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 relative ${view === "daily"
-              ? "bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600 text-blue-600"
-              : "text-gray-500 hover:bg-gray-50"
+            ? "bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600 text-blue-600"
+            : "text-gray-500 hover:bg-gray-50"
             }`}
         >
           <FaClipboardList className="text-lg" />
@@ -83,13 +83,24 @@ export default function DeliveryHeader({
         <button
           onClick={() => setView("history")}
           className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 ${view === "history"
-              ? "bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600 text-blue-600"
-              : "text-gray-500 hover:bg-gray-50"
+            ? "bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600 text-blue-600"
+            : "text-gray-500 hover:bg-gray-50"
             }`}
         >
           <FaHistory className="text-lg" />
           <span className="hidden sm:inline">Historial</span>
           <span className="sm:hidden">Hist.</span>
+        </button>
+        <button
+          onClick={() => setView("debtors")}
+          className={`flex-1 py-3 text-center font-semibold transition-all flex items-center justify-center gap-2 ${view === "debtors"
+            ? "bg-blue-50 dark:bg-blue-900/30 border-b-2 border-blue-600 text-blue-600"
+            : "text-gray-500 hover:bg-gray-50"
+            }`}
+        >
+          <FaClipboardList className="text-lg" />
+          <span className="hidden sm:inline">Deudores</span>
+          <span className="sm:hidden">Deuda</span>
         </button>
       </div>
     </header>

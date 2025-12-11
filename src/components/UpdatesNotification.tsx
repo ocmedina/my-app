@@ -17,6 +17,36 @@ interface Update {
 
 const UPDATES: Update[] = [
   {
+    id: "2025-12-11-remitos-deuda",
+    date: "11 Dic 2025",
+    title: "📄 Generación de Remitos de Saldo",
+    description:
+      "Nueva funcionalidad en el panel de Deudores: Ahora puedes generar y descargar remitos PDF específicamente para pedidos con saldo pendiente, facilitando el control de cuentas corrientes.",
+    icon: "📄",
+    isNew: true,
+    type: "feature",
+  },
+  {
+    id: "2025-12-11-visual-fixes",
+    date: "11 Dic 2025",
+    title: "🎨 Ajustes Visuales & Modo Oscuro",
+    description:
+      "Refinamiento visual en tablas, modales y botones. Se solucionaron problemas de contraste en modo oscuro para una experiencia más consistente en toda la aplicación.",
+    icon: "🎨",
+    isNew: true,
+    type: "fix",
+  },
+  {
+    id: "2025-12-11-sidebar-redesign",
+    date: "11 Dic 2025",
+    title: "🧭 Nueva Navegación Lateral",
+    description:
+      "Reemplazamos la barra superior por un Sidebar lateral más intuitivo y espacioso, mejorando la organización de los módulos y el acceso rápido a todas las funciones.",
+    icon: "🧭",
+    isNew: true,
+    type: "improvement",
+  },
+  {
     id: "2025-12-08-dark-mode-complete",
     date: "8 Dic 2025",
     title: "🌙 Modo Oscuro Completo",
@@ -302,8 +332,8 @@ export default function UpdatesNotification() {
                 <div
                   key={update.id}
                   className={`group relative bg-white dark:bg-slate-800 rounded-2xl p-5 border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-in slide-in-from-right-8 fade-in duration-500 ${update.isNew && !seenUpdates.includes(update.id)
-                      ? "border-blue-200 dark:border-blue-700 shadow-md ring-1 ring-blue-50 dark:ring-blue-900/50"
-                      : "border-gray-100 dark:border-slate-700 shadow-sm"
+                    ? "border-blue-200 dark:border-blue-700 shadow-md ring-1 ring-blue-50 dark:ring-blue-900/50"
+                    : "border-gray-100 dark:border-slate-700 shadow-sm"
                     }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >

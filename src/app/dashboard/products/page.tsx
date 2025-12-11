@@ -26,6 +26,7 @@ import {
   FaPercentage,
 } from "react-icons/fa";
 import MassUpdateModal from "./components/MassUpdateModal";
+import BarcodeModal from "./components/BarcodeModal";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 const ITEMS_PER_PAGE = 10;
@@ -45,6 +46,7 @@ export default function ProductsPage() {
     total: 0,
   });
   const [isMassUpdateModalOpen, setIsMassUpdateModalOpen] = useState(false);
+  const [isBarcodeModalOpen, setIsBarcodeModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Obtener rol del usuario una sola vez
@@ -166,6 +168,12 @@ export default function ProductsPage() {
             className="px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0"
           >
             <FaPercentage /> Actualización Masiva
+          </button>
+          <button
+            onClick={() => setIsBarcodeModalOpen(true)}
+            className="px-5 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-lg hover:from-gray-800 hover:to-gray-900 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0"
+          >
+            <FaBarcode /> Etiquetas
           </button>
           <Link
             href="/dashboard/clasificacion"
@@ -641,6 +649,11 @@ export default function ProductsPage() {
         isOpen={isMassUpdateModalOpen}
         onClose={() => setIsMassUpdateModalOpen(false)}
         onSuccess={() => setRefreshKey((prev) => prev + 1)}
+      />
+
+      <BarcodeModal
+        isOpen={isBarcodeModalOpen}
+        onClose={() => setIsBarcodeModalOpen(false)}
       />
     </div>
   );

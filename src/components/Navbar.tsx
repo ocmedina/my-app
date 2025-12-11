@@ -20,6 +20,7 @@ import {
   HiOutlineTruck,
   HiOutlineArchive,
   HiOutlineClipboardList,
+  HiOutlineCash,
 } from "react-icons/hi";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -59,6 +60,12 @@ const navSections = {
     },
   ],
   administracion: [
+    {
+      href: "/dashboard/finanzas",
+      label: "Finanzas",
+      icon: HiOutlineCash, // WARNING: Make sure to import this icon
+      adminOnly: true,
+    },
     {
       href: "/dashboard/reportes",
       label: "Cierre de Caja",

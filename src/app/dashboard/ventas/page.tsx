@@ -27,8 +27,10 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaChartBar,
+  FaPrint,
 } from "react-icons/fa";
 import { getUTCInterval } from "@/lib/date-utils";
+import SaleTicketModal from "./components/SaleTicketModal";
 
 const ITEMS_PER_PAGE = 10; // Puedes ajustar cuántas ventas mostrar por página
 
@@ -39,6 +41,9 @@ export default function SalesHistoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
 
   const fetchSales = async () => {
     setLoading(true);
@@ -505,6 +510,16 @@ export default function SalesHistoryPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedSaleId(sale.id);
+                            setIsTicketModalOpen(true);
+                          }}
+                          className="px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-all shadow-sm hover:shadow-md font-medium flex items-center gap-2"
+                          title="Imprimir Ticket"
+                        >
+                          <FaPrint />
+                        </button>
                         <Link
                           href={`/dashboard/ventas/${sale.id}`}
                           className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-sm hover:shadow-md font-medium flex items-center gap-2"
@@ -566,6 +581,15 @@ export default function SalesHistoryPage() {
           </div>
         </div>
       </div>
+
+      <SaleTicketModal
+        isOpen={isTicketModalOpen}
+        onClose={() => {
+          setIsTicketModalOpen(false);
+          setSelectedSaleId(null);
+        }}
+        saleId={selectedSaleId}
+      />
     </div>
   );
 }

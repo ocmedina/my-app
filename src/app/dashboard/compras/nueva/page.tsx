@@ -287,8 +287,7 @@ function ProductSearch({
     return availableProducts.filter(
       (p) =>
         p.name?.toLowerCase().includes(search) ||
-        p.sku?.toLowerCase().includes(search) ||
-        p.category?.toLowerCase().includes(search)
+        p.sku?.toLowerCase().includes(search)
     );
   }, [availableProducts, searchTerm]);
 
@@ -777,6 +776,28 @@ export default function NewPurchasePage() {
                                   className="w-32 pl-7 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all font-medium"
                                 />
                               </div>
+                              {/* Cost Variation Indicator */}
+                              {(() => {
+                                const currentCost = item.product.cost_price || 0;
+                                const newCost = parseFloat(item.cost_price) || 0;
+
+                                if (!currentCost) return null; // No previous cost to compare
+
+                                const diff = newCost - currentCost;
+                                const percent = (diff / currentCost) * 100;
+
+                                if (Math.abs(diff) < 0.01) return null; // No change
+
+                                return (
+                                  <div className={`text-xs mt-1 font-bold flex items-center gap-1 ${diff > 0 ? "text-red-500" : "text-green-600"}`}>
+                                    {diff > 0 ? "▲" : "▼"}
+                                    {Math.abs(percent).toFixed(1)}%
+                                    <span className="text-gray-400 font-normal">
+                                      (${currentCost.toFixed(2)})
+                                    </span>
+                                  </div>
+                                );
+                              })()}
                             </td>
                             <td className="p-3 font-bold text-green-600 text-lg">
                               ${subtotal.toFixed(2)}

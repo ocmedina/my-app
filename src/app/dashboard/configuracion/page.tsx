@@ -1,19 +1,39 @@
-// src/app/dashboard/configuracion/page.tsx
-'use client'
+"use client";
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import toast from 'react-hot-toast';
-import { FaSave, FaUpload, FaStore, FaMapMarkerAlt, FaPhone, FaImage, FaCheck, FaLock } from 'react-icons/fa';
+import {
+  FaSave, FaUpload, FaStore, FaMapMarkerAlt, FaPhone,
+  FaImage, FaCheck, FaLock, FaPalette
+} from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
+import { useLayout } from '@/contexts/LayoutContext';
+import {
+  HiOutlineDesktopComputer,
+  HiTemplate,
+  HiOutlineOfficeBuilding,
+  HiOutlinePhotograph,
+  HiOutlineColorSwatch
+} from 'react-icons/hi';
+
+type Tab = 'general' | 'branding' | 'appearance';
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { layout, setLayout } = useLayout();
+  const [activeTab, setActiveTab] = useState<Tab>('general');
+
   const [settings, setSettings] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Logo states
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Auth states
   const [userRole, setUserRole] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -21,7 +41,7 @@ export default function SettingsPage() {
     const checkUserRole = async () => {
       setCheckingAuth(true);
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         router.push('/login');
         return;
@@ -67,9 +87,9 @@ export default function SettingsPage() {
   };
 
   const handleSaveSettings = async () => {
-    setLoading(true);
+    setSaving(true);
     const updates = Object.entries(settings).map(([key, value]) => ({ key, value }));
-    
+
     const { error } = await supabase.from('settings').upsert(updates, { onConflict: 'key' });
 
     if (error) {
@@ -77,13 +97,13 @@ export default function SettingsPage() {
     } else {
       toast.success('✓ Configuración guardada exitosamente');
     }
-    setLoading(false);
+    setSaving(false);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     setLogoFile(file);
-    
+
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -116,7 +136,7 @@ export default function SettingsPage() {
     const { data: publicUrlData } = supabase.storage
       .from('logos')
       .getPublicUrl(fileName);
-      
+
     if (publicUrlData?.publicUrl) {
       handleInputChange('logo_url', publicUrlData.publicUrl);
       toast.success('✓ Logo subido. ¡No olvides guardar!');
@@ -128,201 +148,278 @@ export default function SettingsPage() {
     setPreviewUrl(null);
   };
 
-  // Mientras verifica autenticación y permisos
   if (checkingAuth || (userRole !== 'administrador' && userRole !== null)) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-slate-300">Verificando permisos...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Mientras carga la configuración
-  if (loading && !Object.keys(settings).length) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-slate-300">Cargando configuración...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-950">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-50 mb-2">Configuración del Negocio</h1>
-          <p className="text-gray-600 dark:text-slate-300">Administra la información y apariencia de tu negocio</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-50 tracking-tight">
+            Configuración
+          </h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
+            Administra la información, marca y apariencia de tu sistema.
+          </p>
         </div>
 
-        <div className="grid gap-6">
-          {/* Información General */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                <FaStore className="text-lg" />
-                Información General
-              </h2>
-            </div>
-            
-            <div className="p-6 space-y-5">
-              <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2">
-                  <FaStore className="text-blue-600" />
-                  Nombre del Negocio
-                </label>
-                <input 
-                  type="text" 
-                  value={settings.business_name || ''}
-                  onChange={e => handleInputChange('business_name', e.target.value)}
-                  placeholder="Ej: Mi Empresa S.A."
-                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
-                />
-              </div>
-
-              <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2">
-                  <FaMapMarkerAlt className="text-blue-600" />
-                  Dirección
-                </label>
-                <input 
-                  type="text" 
-                  value={settings.business_address || ''}
-                  onChange={e => handleInputChange('business_address', e.target.value)}
-                  placeholder="Ej: Av. San Martín 1234"
-                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
-                />
-              </div>
-
-              <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2 flex items-center gap-2">
-                  <FaPhone className="text-blue-600" />
-                  Teléfono
-                </label>
-                <input 
-                  type="text" 
-                  value={settings.business_phone || ''}
-                  onChange={e => handleInputChange('business_phone', e.target.value)}
-                  placeholder="Ej: +54 261 123-4567"
-                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Logo del Negocio */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden">
-            <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
-              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                <FaImage className="text-lg" />
-                Logo del Negocio
-              </h2>
-            </div>
-            
-            <div className="p-6">
-              <div className="flex flex-col md:flex-row gap-6 items-start">
-                {/* Vista previa del logo actual */}
-                <div className="flex-shrink-0">
-                  <p className="text-sm font-semibold text-gray-700 dark:text-slate-200 mb-3">Logo Actual</p>
-                  <div className="w-32 h-32 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-slate-950">
-                    {settings.logo_url ? (
-                      <img 
-                        src={settings.logo_url} 
-                        alt="Logo actual" 
-                        className="max-w-full max-h-full object-contain p-2"
-                      />
-                    ) : (
-                      <div className="text-center text-gray-400">
-                        <FaImage className="text-3xl mx-auto mb-2" />
-                        <p className="text-xs">Sin logo</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Vista previa del nuevo logo */}
-                {previewUrl && (
-                  <div className="flex-shrink-0">
-                    <p className="text-sm font-semibold text-gray-700 dark:text-slate-200 mb-3">Vista Previa</p>
-                    <div className="w-32 h-32 border-2 border-dashed border-purple-300 rounded-lg flex items-center justify-center bg-purple-50">
-                      <img 
-                        src={previewUrl} 
-                        alt="Vista previa" 
-                        className="max-w-full max-h-full object-contain p-2"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Selector de archivo y botón de subida */}
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-700 dark:text-slate-200 mb-3">Seleccionar Nuevo Logo</p>
-                  <div className="space-y-3">
-                    <label className="block">
-                      <span className="sr-only">Elegir archivo</span>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleFileSelect}
-                        className="block w-full text-sm text-gray-600 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer cursor-pointer"
-                      />
-                    </label>
-                    
-                    <button 
-                      onClick={handleLogoUpload} 
-                      disabled={!logoFile || uploading}
-                      className="w-full md:w-auto px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
-                    >
-                      {uploading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                          Subiendo...
-                        </>
-                      ) : (
-                        <>
-                          <FaUpload />
-                          Subir Logo
-                        </>
-                      )}
-                    </button>
-
-                    {settings.logo_url && (
-                      <div className="bg-gray-50 dark:bg-slate-950 rounded-lg p-3">
-                        <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mb-1">URL actual:</p>
-                        <p className="text-xs text-gray-700 dark:text-slate-200 break-all">{settings.logo_url}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Botón de Guardar */}
-          <div className="sticky bottom-4">
-            <button 
-              onClick={handleSaveSettings} 
-              disabled={loading}
-              className="w-full px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-xl hover:from-green-700 hover:to-green-800 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar de Navegación */}
+          <nav className="lg:w-64 flex-shrink-0 space-y-1">
+            <button
+              onClick={() => setActiveTab('general')}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                ${activeTab === 'general'
+                  ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm ring-1 ring-gray-200 dark:ring-slate-700'
+                  : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800/50 hover:text-gray-900 dark:hover:text-slate-200'
+                }`}
             >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-3 border-white border-t-transparent"></div>
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <FaCheck className="text-xl" />
-                  Guardar Configuración
-                </>
-              )}
+              <HiOutlineOfficeBuilding className="text-lg flex-shrink-0" />
+              General
             </button>
+            <button
+              onClick={() => setActiveTab('branding')}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                ${activeTab === 'branding'
+                  ? 'bg-white dark:bg-slate-800 text-purple-600 dark:text-purple-400 shadow-sm ring-1 ring-gray-200 dark:ring-slate-700'
+                  : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800/50 hover:text-gray-900 dark:hover:text-slate-200'
+                }`}
+            >
+              <HiOutlinePhotograph className="text-lg flex-shrink-0" />
+              Marca y Logo
+            </button>
+            <button
+              onClick={() => setActiveTab('appearance')}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                ${activeTab === 'appearance'
+                  ? 'bg-white dark:bg-slate-800 text-teal-600 dark:text-teal-400 shadow-sm ring-1 ring-gray-200 dark:ring-slate-700'
+                  : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800/50 hover:text-gray-900 dark:hover:text-slate-200'
+                }`}
+            >
+              <HiOutlineDesktopComputer className="text-lg flex-shrink-0" />
+              Estilos y Apariencia
+            </button>
+          </nav>
+
+          {/* Área de Contenido */}
+          <div className="flex-1 min-w-0">
+            {loading ? (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-slate-800 flex justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+
+                {/* Header del Panel */}
+                <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 flex justify-between items-center">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+                    {activeTab === 'general' && 'Información General'}
+                    {activeTab === 'branding' && 'Marca y Logo'}
+                    {activeTab === 'appearance' && 'Estilos y Apariencia'}
+                  </h2>
+                  <button
+                    onClick={handleSaveSettings}
+                    disabled={saving}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-3 w-3 border-2 border-current border-t-transparent" />
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <FaSave /> Guardar Cambios
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="p-6 lg:p-8">
+                  {/* SECCIÓN GENERAL */}
+                  {activeTab === 'general' && (
+                    <div className="space-y-6 max-w-2xl">
+                      <div className="group">
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                          Nombre del Negocio
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <FaStore />
+                          </div>
+                          <input
+                            type="text"
+                            value={settings.business_name || ''}
+                            onChange={e => handleInputChange('business_name', e.target.value)}
+                            placeholder="Ej: Mi Empresa S.A."
+                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none text-gray-900 dark:text-white sm:text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="group">
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                          Dirección
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <FaMapMarkerAlt />
+                          </div>
+                          <input
+                            type="text"
+                            value={settings.business_address || ''}
+                            onChange={e => handleInputChange('business_address', e.target.value)}
+                            placeholder="Ej: Av. San Martín 1234"
+                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none text-gray-900 dark:text-white sm:text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="group">
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
+                          Teléfono
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <FaPhone />
+                          </div>
+                          <input
+                            type="text"
+                            value={settings.business_phone || ''}
+                            onChange={e => handleInputChange('business_phone', e.target.value)}
+                            placeholder="Ej: +54 9 11 1234-5678"
+                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none text-gray-900 dark:text-white sm:text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SECCIÓN BRANDING */}
+                  {activeTab === 'branding' && (
+                    <div className="space-y-8">
+                      <div className="flex flex-col sm:flex-row gap-8 items-start">
+                        {/* Preview Logo */}
+                        <div className="p-1 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-slate-800 dark:to-slate-900 border border-dashed border-gray-300 dark:border-slate-700 flex-shrink-0">
+                          <div className="w-40 h-40 bg-white dark:bg-slate-950 rounded-xl flex items-center justify-center p-4 relative overflow-hidden group">
+                            {previewUrl || settings.logo_url ? (
+                              <img
+                                src={previewUrl || settings.logo_url}
+                                alt="Logo"
+                                className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-110"
+                              />
+                            ) : (
+                              <div className="text-gray-300 dark:text-slate-700 flex flex-col items-center">
+                                <FaImage className="text-4xl mb-2" />
+                                <span className="text-xs">Sin Logo</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex-1 max-w-md space-y-4">
+                          <div className="relative group">
+                            <label htmlFor="logo-upload" className="flex items-center justify-center w-full px-4 py-10 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl cursor-pointer hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all">
+                              <div className="space-y-2 text-center">
+                                <FaUpload className="mx-auto h-8 w-8 text-gray-400 dark:text-slate-500 group-hover:text-purple-500 dark:group-hover:text-purple-400 transition-colors" />
+                                <div className="text-sm text-gray-600 dark:text-slate-300">
+                                  <span className="font-semibold text-purple-600 dark:text-purple-400">Clic para subir</span> o arrastra y suelta
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-slate-500">PNG, JPG hasta 5MB</p>
+                              </div>
+                              <input id="logo-upload" type="file" className="hidden" accept="image/*" onChange={handleFileSelect} />
+                            </label>
+                          </div>
+
+                          <button
+                            onClick={handleLogoUpload}
+                            disabled={!logoFile || uploading}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                          >
+                            {uploading ? 'Subiendo...' : 'Subir y Actualizar Logo'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SECCIÓN APARIENCIA */}
+                  {activeTab === 'appearance' && (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button
+                          onClick={() => setLayout('sidebar')}
+                          className={`relative group p-4 rounded-xl border-2 transition-all text-left flex flex-col gap-4 overflow-hidden
+                            ${layout === 'sidebar'
+                              ? 'border-teal-500 bg-teal-50/50 dark:bg-teal-900/10'
+                              : 'border-gray-200 dark:border-slate-800 hover:border-teal-200 dark:hover:border-teal-800/50'
+                            }`}
+                        >
+                          <div className="flex items-center justify-between w-full z-10">
+                            <span className={`text-base font-bold ${layout === 'sidebar' ? 'text-teal-700 dark:text-teal-400' : 'text-gray-900 dark:text-slate-200'}`}>
+                              Sidebar Lateral
+                            </span>
+                            {layout === 'sidebar' && (
+                              <div className="h-6 w-6 bg-teal-500 rounded-full flex items-center justify-center text-white text-xs">
+                                <FaCheck />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Miniatura Visual CSS */}
+                          <div className="flex gap-2 w-full h-32 bg-gray-100 dark:bg-slate-950 rounded-lg p-2 border border-black/5 dark:border-white/5">
+                            <div className="w-16 h-full bg-teal-600/20 dark:bg-teal-400/20 rounded border border-teal-600/30 dark:border-teal-400/30 animate-pulse"></div>
+                            <div className="flex-1 flex flex-col gap-2">
+                              <div className="w-full h-4 bg-gray-200 dark:bg-slate-800 rounded"></div>
+                              <div className="flex-1 bg-white dark:bg-slate-900 rounded border border-dashed border-gray-300 dark:border-slate-800"></div>
+                            </div>
+                          </div>
+
+                          <p className="text-sm text-gray-500 dark:text-slate-400 z-10">
+                            Navegación vertical fija a la izquierda.
+                          </p>
+                        </button>
+
+                        <button
+                          onClick={() => setLayout('navbar')}
+                          className={`relative group p-4 rounded-xl border-2 transition-all text-left flex flex-col gap-4 overflow-hidden
+                            ${layout === 'navbar'
+                              ? 'border-teal-500 bg-teal-50/50 dark:bg-teal-900/10'
+                              : 'border-gray-200 dark:border-slate-800 hover:border-teal-200 dark:hover:border-teal-800/50'
+                            }`}
+                        >
+                          <div className="flex items-center justify-between w-full z-10">
+                            <span className={`text-base font-bold ${layout === 'navbar' ? 'text-teal-700 dark:text-teal-400' : 'text-gray-900 dark:text-slate-200'}`}>
+                              Navbar Superior
+                            </span>
+                            {layout === 'navbar' && (
+                              <div className="h-6 w-6 bg-teal-500 rounded-full flex items-center justify-center text-white text-xs">
+                                <FaCheck />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Miniatura Visual CSS */}
+                          <div className="flex flex-col gap-2 w-full h-32 bg-gray-100 dark:bg-slate-950 rounded-lg p-2 border border-black/5 dark:border-white/5">
+                            <div className="w-full h-8 bg-teal-600/20 dark:bg-teal-400/20 rounded border border-teal-600/30 dark:border-teal-400/30 animate-pulse"></div>
+                            <div className="flex-1 w-full bg-white dark:bg-slate-900 rounded border border-dashed border-gray-300 dark:border-slate-800"></div>
+                          </div>
+
+                          <p className="text-sm text-gray-500 dark:text-slate-400 z-10">
+                            Barra superior horizontal compacta.
+                          </p>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

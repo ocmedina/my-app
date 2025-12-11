@@ -12,6 +12,7 @@ import DeliveryHeader from "./components/DeliveryHeader";
 import NewOrderView from "./components/NewOrderView";
 import DailyOrdersView from "./components/DailyOrdersView";
 import HistoryView from "./components/HistoryView";
+import DebtorsView from "./components/DebtorsView";
 
 // Modals
 import AddCustomerModal from "./components/modals/AddCustomerModal";
@@ -333,8 +334,7 @@ export default function RepartoPage() {
 
         if (!productData || item.quantity > productData.stock) {
           throw new Error(
-            `Stock insuficiente para "${item.name}". Solo quedan ${
-              productData?.stock || 0
+            `Stock insuficiente para "${item.name}". Solo quedan ${productData?.stock || 0
             }.`
           );
         }
@@ -543,7 +543,7 @@ export default function RepartoPage() {
   }, [allOrders, historyFilter]);
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen font-sans">
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen font-sans">
       <AddProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -675,6 +675,16 @@ export default function RepartoPage() {
           }}
         />
       )}
+
+      {view === "debtors" && (
+        <DebtorsView
+          onPrintRemito={(id) => {
+            setSelectedOrderIdForRemito(id);
+            setIsRemitoModalOpen(true);
+          }}
+        />
+      )}
     </div>
   );
 }
+

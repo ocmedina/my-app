@@ -1,0 +1,10 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tailwindGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" /> <stop offset="100%" stop-color="#9333EA" /> </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#tailwindGrad)" />
+
+  <path d="M256 80.5L426.7 177.8V349.5L256 448L85.3 349.5V177.8L256 80.5ZM256 118.1L128 191.1V324.9L234.7 385.7V245.8L305.8 205.2L333.5 189.4L256 145.2V118.1ZM277.3 130.2L384 191.1V203.8L313.2 244.3L362.7 272.6V324.9L277.3 385.7V130.2ZM384 228.4V248.1L334.5 219.8L384 228.4ZM319.1 267.7L341.3 280.4V327.9L319.1 315.2V267.7Z" fill="#0066FF"/>
+</svg>

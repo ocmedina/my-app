@@ -22,6 +22,7 @@ export default function NewProductPage() {
   const [sku, setSku] = useState("");
   const [barcode, setBarcode] = useState("");
   const [name, setName] = useState("");
+  const [costPrice, setCostPrice] = useState("");
   const [priceMinorista, setPriceMinorista] = useState("");
   const [priceMayorista, setPriceMayorista] = useState("");
   const [stock, setStock] = useState("");
@@ -83,6 +84,7 @@ export default function NewProductPage() {
         sku,
         barcode: barcode || null,
         name,
+        cost_price: costPrice ? parseFloat(costPrice) : null,
         price_minorista: parseFloat(priceMinorista),
         price_mayorista: parseFloat(priceMayorista),
         stock: parseInt(stock, 10),
@@ -265,7 +267,34 @@ export default function NewProductPage() {
             <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2">
               <FaDollarSign className="text-green-600" /> Precios y Stock
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* Costo */}
+              <div>
+                <label
+                  htmlFor="costPrice"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2"
+                >
+                  <FaDollarSign className="text-gray-500" /> Costo
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-slate-400 font-bold">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    id="costPrice"
+                    value={costPrice}
+                    onChange={(e) => setCostPrice(e.target.value)}
+                    step="0.01"
+                    placeholder="0.00"
+                    className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                  Costo de adquisición
+                </p>
+              </div>
+
               {/* Precio Minorista */}
               <div>
                 <label
