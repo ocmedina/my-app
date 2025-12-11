@@ -17,6 +17,56 @@ interface Update {
 
 const UPDATES: Update[] = [
   {
+    id: "2025-12-11-finance-module",
+    date: "11 Dic 2025",
+    title: "💰 Nuevo Módulo de Finanzas",
+    description:
+      "Control total de tu negocio: Visualiza Ingresos, Costos, Gastos y Ganancia Neta en tiempo real. Gestiona tus gastos operativos y toma decisiones basadas en datos reales.",
+    icon: "💰",
+    isNew: true,
+    type: "feature",
+  },
+  {
+    id: "2025-12-11-barcode-printing",
+    date: "11 Dic 2025",
+    title: "🏷️ Impresión de Etiquetas",
+    description:
+      "Genera e imprime etiquetas con códigos de barra para tus productos. Compatible con impresoras de etiquetas y hojas A4. Organiza tu stock profesionalmente.",
+    icon: "🏷️",
+    isNew: true,
+    type: "feature",
+  },
+  {
+    id: "2025-12-11-counter-receipts",
+    date: "11 Dic 2025",
+    title: "🧾 Tickets de Venta (Mostrador)",
+    description:
+      "Ahora puedes emitir comprobantes térmicos (80mm) o A4 para tus ventas de mostrador. Agiliza el cobro y entrega un comprobante profesional a tus clientes.",
+    icon: "🧾",
+    isNew: true,
+    type: "feature",
+  },
+  {
+    id: "2025-12-11-product-costs",
+    date: "11 Dic 2025",
+    title: "📉 Gestión de Costos y Márgenes",
+    description:
+      "Agregamos el campo 'Costo' a tus productos. Ahora puedes ver el margen de ganancia exacto y calcular la rentabilidad real de cada venta.",
+    icon: "📉",
+    isNew: true,
+    type: "improvement",
+  },
+  {
+    id: "2025-12-11-settings-redesign",
+    date: "11 Dic 2025",
+    title: "⚙️ Nueva Configuración",
+    description:
+      "Panel de configuración rediseñado y organizado por pestañas. Personaliza tu negocio, controla la apariencia y gestiona tus preferencias más fácilmente.",
+    icon: "⚙️",
+    isNew: true,
+    type: "improvement",
+  },
+  {
     id: "2025-12-11-remitos-deuda",
     date: "11 Dic 2025",
     title: "📄 Generación de Remitos de Saldo",
@@ -33,7 +83,7 @@ const UPDATES: Update[] = [
     description:
       "Refinamiento visual en tablas, modales y botones. Se solucionaron problemas de contraste en modo oscuro para una experiencia más consistente en toda la aplicación.",
     icon: "🎨",
-    isNew: true,
+    isNew: false,
     type: "fix",
   },
   {
@@ -53,7 +103,7 @@ const UPDATES: Update[] = [
     description:
       "Implementación completa de dark mode en toda la aplicación. Todos los elementos, botones, inputs y gradientes ahora se adaptan perfectamente al tema oscuro.",
     icon: "🌙",
-    isNew: true,
+    isNew: false,
     type: "improvement",
   },
   {
@@ -63,98 +113,8 @@ const UPDATES: Update[] = [
     description:
       "Corregido el gráfico de productos más vendidos con visualización vertical mejorada y colores optimizados para mejor visibilidad en ambos modos.",
     icon: "📊",
-    isNew: true,
-    type: "fix",
-  },
-  {
-    id: "2025-12-08-growth-calculation",
-    date: "8 Dic 2025",
-    title: "📈 Cálculo de Tendencia Real",
-    description:
-      "Implementado cálculo real de tendencia de ventas comparando el período actual con el período anterior. Ahora verás porcentajes de crecimiento precisos.",
-    icon: "📈",
-    isNew: true,
-    type: "feature",
-  },
-  {
-    id: "2025-12-08-timezone-fix",
-    date: "8 Dic 2025",
-    title: "🕐 Zona Horaria Argentina Corregida",
-    description:
-      "Corregido el manejo de fechas y horas para usar correctamente la zona horaria de Argentina (GMT-3). Todas las ventas, pedidos y registros ahora muestran la hora local correcta.",
-    icon: "🕐",
-    isNew: true,
-    type: "fix",
-  },
-  {
-    id: "2025-11-27-reparto-ux",
-    date: "27 Nov 2025",
-    title: "🚚 Rediseño de Reparto (UX/UI)",
-    description:
-      "Renovamos la experiencia en el módulo de Reparto. Una interfaz más limpia y eficiente para gestionar tus entregas y rutas de manera intuitiva.",
-    icon: "🚚",
-    isNew: true,
-    type: "improvement",
-  },
-  {
-    id: "2025-11-27-proveedores-ordenes",
-    date: "27 Nov 2025",
-    title: "📝 Proveedores: Generación de Órdenes",
-    description:
-      "Nueva funcionalidad para generar órdenes de compra a proveedores. Organiza tus pedidos de reposición de manera profesional (Funcionalidad en desarrollo).",
-    icon: "📝",
-    isNew: true,
-    type: "feature",
-  },
-  {
-    id: "2025-11-27-productos-mejoras",
-    date: "27 Nov 2025",
-    title: "🏷️ Productos: Clasificación y Códigos",
-    description:
-      "Mejoras importantes en gestión de productos: Ahora puedes clasificarlos mejor y utilizar el nuevo Generador de Códigos de Barras automático para agilizar la carga.",
-    icon: "🏷️",
-    isNew: true,
-    type: "feature",
-  },
-  {
-    id: "2025-11-27-nueva-venta-redesign-v2",
-    date: "27 Nov 2025",
-    title: "🛍️ Nueva Venta: Rediseño Total",
-    description:
-      "Experiencia de venta totalmente renovada. Incluye filtrado por Marcas y Categorías, y una interfaz optimizada para cobrar más rápido.",
-    icon: "🛍️",
-    isNew: true,
-    type: "improvement",
-  },
-  {
-    id: "2025-11-27-kardex-v2",
-    date: "27 Nov 2025",
-    title: "📦 Inventario: Historial (Kardex)",
-    description:
-      "Control total de tu stock. Registramos cada movimiento: ventas, compras y ajustes, para que sepas exactamente qué pasa con tu inventario.",
-    icon: "📦",
-    isNew: true,
-    type: "feature",
-  },
-  {
-    id: "2025-11-27-navbar-v2",
-    date: "27 Nov 2025",
-    title: "🧭 Nueva Barra de Navegación",
-    description:
-      "Reorganizamos el menú en 3 áreas clave: Comercial, Logística y Administración. Todo más ordenado y fácil de encontrar.",
-    icon: "🧭",
-    isNew: true,
-    type: "improvement",
-  },
-  {
-    id: "2025-11-18-pagos-pendientes",
-    date: "18 Nov 2025",
-    title: "💳 Registro de Pagos",
-    description:
-      "Registra pagos directamente desde Ventas Pendientes. Nuevo modal intuitivo para mantener las cuentas al día.",
-    icon: "💳",
     isNew: false,
-    type: "feature",
+    type: "fix",
   },
 ];
 
@@ -176,8 +136,25 @@ export default function UpdatesNotification() {
       );
       setHasNewUpdates(hasNew);
       if (!hasNew) setActiveTab("all");
+
+      // AUTO-OPEN: Si hay novedades no vistas, abrir el panel automáticamente después de 1.5s
+      if (hasNew) {
+        const timer = setTimeout(() => {
+          setIsOpen(true);
+        }, 1500);
+        return () => clearTimeout(timer);
+      }
     } else {
-      setHasNewUpdates(UPDATES.some((update) => update.isNew));
+      const hasNew = UPDATES.some((update) => update.isNew);
+      setHasNewUpdates(hasNew);
+
+      // Si es la primera vez que entra (no hay storage), también abrir
+      if (hasNew) {
+        const timer = setTimeout(() => {
+          setIsOpen(true);
+        }, 1500);
+        return () => clearTimeout(timer);
+      }
     }
   }, []);
 
