@@ -100,7 +100,7 @@ export default function PaymentModal({
               <FaTimes size={24} />
             </button>
           </div>
-          <div className="mt-6 bg-white dark:bg-slate-900/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+          <div className="mt-6 bg-white/20 backdrop-blur-md rounded-xl p-4 border border-white/30">
             <p className="text-green-100 text-sm font-medium uppercase tracking-wider">
               Total a Pagar
             </p>
@@ -180,7 +180,7 @@ export default function PaymentModal({
                     onChange={(e) => setAmountPaid(e.target.value)}
                     step="0.01"
                     min="0"
-                    className="w-full pl-10 p-4 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-2xl font-bold text-gray-800 dark:text-slate-100 shadow-sm"
+                    className="w-full pl-16 p-4 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-2xl font-bold text-gray-800 dark:text-slate-100 shadow-sm"
                     placeholder="0.00"
                   />
                 </div>
@@ -275,13 +275,12 @@ export default function PaymentModal({
 
           {/* Pago directo a proveedor */}
           {paymentMethod !== "cuenta_corriente" && (
-            <div className="border-t border-gray-100 pt-6">
+            <div className="border-t border-gray-100 dark:border-slate-800 pt-6">
               <div
-                className={`transition-all duration-300 ${
-                  payToSupplier
-                    ? "bg-yellow-50 border-yellow-200"
-                    : "bg-gray-50 border-gray-200"
-                } p-5 rounded-xl border`}
+                className={`transition-all duration-300 ${payToSupplier
+                  ? "bg-yellow-50 border-yellow-200 dark:bg-yellow-900/10 dark:border-yellow-700/30"
+                  : "bg-gray-50 border-gray-200 dark:bg-slate-800 dark:border-slate-700"
+                  } p-5 rounded-xl border`}
               >
                 <div className="flex items-center gap-3 mb-3">
                   <input
@@ -294,13 +293,13 @@ export default function PaymentModal({
                         setSelectedSupplierId(null);
                       }
                     }}
-                    className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500 border-gray-300 dark:border-slate-600"
+                    className="w-5 h-5 text-yellow-600 rounded focus:ring-yellow-500 border-gray-300 dark:border-slate-600 dark:bg-slate-700"
                   />
                   <label
                     htmlFor="payToSupplier"
                     className="flex-1 cursor-pointer select-none"
                   >
-                    <div className="font-bold text-gray-900 dark:text-slate-50">
+                    <div className="font-bold text-gray-900 dark:text-slate-100">
                       Pagar directo a proveedor
                     </div>
                     <div className="text-sm text-gray-500 dark:text-slate-400">
@@ -316,7 +315,7 @@ export default function PaymentModal({
                       onChange={(e) =>
                         setSelectedSupplierId(e.target.value || null)
                       }
-                      className="w-full p-3 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-slate-900"
+                      className="w-full p-3 border border-yellow-300 dark:border-yellow-700/50 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100"
                       required
                     >
                       <option value="">Seleccione un proveedor...</option>

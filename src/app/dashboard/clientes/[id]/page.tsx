@@ -9,6 +9,7 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa"; // Importa el ícono de dirección
 import RegisterPayment from "@/components/RegisterPayment";
+import PaymentHistoryList from "@/components/PaymentHistoryList";
 
 // Desactivar cache de Next.js
 export const dynamic = "force-dynamic";
@@ -143,9 +144,8 @@ export default async function CustomerDetailPage(
               Deuda Pendiente
             </p>
             <p
-              className={`text-4xl font-bold mt-2 ${
-                currentDebt > 0 ? "text-red-600" : "text-green-600"
-              }`}
+              className={`text-4xl font-bold mt-2 ${currentDebt > 0 ? "text-red-600" : "text-green-600"
+                }`}
             >
               ${currentDebt.toFixed(2)}
             </p>
@@ -254,71 +254,7 @@ export default async function CustomerDetailPage(
 
       <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-4">Historial de Movimientos</h2>
-        {!payments || payments.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">
-              No hay movimientos registrados
-            </p>
-            <p className="text-gray-300 text-sm mt-2">
-              Los pagos y compras aparecerán aquí
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {payments.map((payment) => {
-              const isCompra = payment.type === "compra";
-              return (
-                <div
-                  key={payment.id}
-                  className="flex justify-between items-center p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 transition"
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`p-3 rounded-full ${
-                        isCompra ? "bg-red-100" : "bg-green-100"
-                      }`}
-                    >
-                      {isCompra ? (
-                        <FaReceipt className="text-xl text-red-600" />
-                      ) : (
-                        <FaMoneyBillWave className="text-xl text-green-600" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-800 dark:text-slate-100">
-                        {isCompra ? "🛒 Compra a Crédito" : "💰 Pago Recibido"}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-slate-400">
-                        {new Date(payment.created_at).toLocaleString("es-AR", {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        })}
-                      </p>
-                      {payment.comment && (
-                        <p className="text-xs text-gray-400 italic mt-1">
-                          "{payment.comment}"
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p
-                      className={`font-bold text-xl ${
-                        isCompra ? "text-red-600" : "text-green-600"
-                      }`}
-                    >
-                      {isCompra ? "+" : "-"}$
-                      {Math.abs(payment.amount).toFixed(2)}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                      {isCompra ? "Suma a la deuda" : "Resta a la deuda"}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <PaymentHistoryList initialPayments={payments || []} />
       </div>
     </div>
   );

@@ -1,15 +1,26 @@
 // src/components/RegisterPayment.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import { FaCalendarAlt, FaReceipt, FaShoppingBag } from "react-icons/fa";
 
 interface RegisterPaymentProps {
   customerId: string;
   currentDebt: number;
   onSuccess?: () => void;
 }
+
+type PendingItem = {
+  id: string;
+  type: 'order' | 'sale';
+  created_at: string;
+  total_amount: number;
+  amount_pending: number;
+  description?: string; // For sales
+  payment_method?: string; // For sales
+};
 
 export default function RegisterPayment({
   customerId,
@@ -21,8 +32,48 @@ export default function RegisterPayment({
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // New Modes
+  const [paymentMode, setPaymentMode] = useState<"automatic" | "specific">("automatic");
+  const [pendingItems, setPendingItems] = useState<PendingItem[]>([]);
+  const [selectedItems, setSelectedItems] = useState<{ [key: string]: number }>({}); // ID -> Amount to pay
+  const [expandedItems, setExpandedItems] = useState<boolean>(false);
+
   const [paymentMethod, setPaymentMethod] = useState("efectivo");
   const [mixedPayments, setMixedPayments] = useState([{ method: "efectivo", amount: "" }]);
+
+  useEffect(() => {
+    if (customerId) {
+      fetchPendingItems();
+    }
+  }, [customerId]);
+
+  const fetchPendingItems = async () => {
+    // 1. Fetch pending orders
+    const { data: orders } = await supabase
+      .from("orders")
+      .select("id, amount_pending, total_amount, created_at")
+      .eq("customer_id", customerId)
+      .gt("amount_pending", 0)
+      .neq("status", "cancelado")
+      .order("created_at", { ascending: true });
+
+    // 2. Fetch pending sales (current account)
+    const { data: sales } = await supabase
+      .from("sales")
+      .select("id, amount_pending, total_amount, created_at, description, payment_method")
+      .eq("customer_id", customerId)
+      .eq("payment_method", "cuenta_corriente")
+      .eq("is_cancelled", false)
+      .gt("amount_pending", 0)
+      .order("created_at", { ascending: true });
+
+    const unitedItems: PendingItem[] = [
+      ...(orders?.map(o => ({ ...o, type: 'order' as const })) || []),
+      ...(sales?.map(s => ({ ...s, type: 'sale' as const })) || [])
+    ].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+    setPendingItems(unitedItems);
+  };
 
   const handleAddMixedPayment = () => {
     setMixedPayments([...mixedPayments, { method: "efectivo", amount: "" }]);
@@ -42,6 +93,36 @@ export default function RegisterPayment({
     return mixedPayments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
   };
 
+  const handleToggleItem = (item: PendingItem) => {
+    const newSelected = { ...selectedItems };
+    if (newSelected[item.id]) {
+      delete newSelected[item.id];
+    } else {
+      newSelected[item.id] = item.amount_pending; // Default to full pending amount
+    }
+    setSelectedItems(newSelected);
+  };
+
+  const handleItemAmountChange = (id: string, value: string) => {
+    const val = parseFloat(value);
+    if (isNaN(val)) return;
+
+    const newSelected = { ...selectedItems, [id]: val };
+    setSelectedItems(newSelected);
+  };
+
+  const getSpecificTotal = () => {
+    return Object.values(selectedItems).reduce((sum, val) => sum + val, 0);
+  };
+
+  // Sync main amount with specific total if in specific mode
+  useEffect(() => {
+    if (paymentMode === 'specific') {
+      setAmount(getSpecificTotal().toString());
+    }
+  }, [selectedItems, paymentMode]);
+
+
   const handleRegisterPayment = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -52,35 +133,42 @@ export default function RegisterPayment({
     if (paymentMethod === "mixto") {
       finalAmount = getTotalMixedAmount();
 
-      // Validation for mixed payments
       if (finalAmount <= 0) {
         alert("El monto total debe ser mayor a 0.");
         return;
       }
-
-      // Optional: Check if matches typed amount if we kept the main input, 
-      // but usually the main input becomes read-only or validated against this sum.
-      // For this implementation, let's use the sum as the source of truth.
 
       methodsToProcess = mixedPayments.map(p => ({
         method: p.method,
         amount: parseFloat(p.amount) || 0
       })).filter(p => p.amount > 0);
 
+      const specificSum = paymentMode === 'specific' ? getSpecificTotal() : 0;
+      if (paymentMode === 'specific' && Math.abs(finalAmount - specificSum) > 0.1) {
+        alert(`El total de los métodos de pago ($${finalAmount}) no coincide con el total de los items seleccionados ($${specificSum}).`);
+        return;
+      }
+
     } else {
-      finalAmount = parseFloat(amount);
+      // In specific mode, finalAmount is derived from selected items input
+      if (paymentMode === 'specific') {
+        finalAmount = getSpecificTotal();
+      } else {
+        finalAmount = parseFloat(amount);
+      }
+
       if (!finalAmount || finalAmount <= 0) {
-        alert("Por favor, ingresa un monto válido.");
+        alert("Por favor, ingresa un monto válido a pagar.");
         return;
       }
       methodsToProcess = [{ method: paymentMethod, amount: finalAmount }];
     }
 
-    if (finalAmount > currentDebt + 0.01) { // Small tolerance for float math
-      alert(
-        `El monto ($${finalAmount.toFixed(2)}) no puede ser mayor a la deuda actual ($${currentDebt.toFixed(2)})`
-      );
-      return;
+    if (finalAmount > currentDebt + 0.1) {
+      // Allow slight overpayment tolerance, but generally warn
+      if (!confirm(`El monto ($${finalAmount.toFixed(2)}) es mayor a la deuda registrada ($${currentDebt.toFixed(2)}). ¿Desea continuar de todas formas (esto generará saldo a favor)?`)) {
+        return;
+      }
     }
 
     setLoading(true);
@@ -93,65 +181,85 @@ export default function RegisterPayment({
         })
       );
 
-      // 1. Fetch pending orders
-      const { data: orders } = await supabase
-        .from("orders")
-        .select("id, amount_pending")
-        .eq("customer_id", customerId)
-        .gt("amount_pending", 0)
-        .neq("status", "cancelado")
-        .order("created_at", { ascending: true });
+      // --- PAYMENT DISTRIBUTION LOGIC ---
 
-      // 2. Fetch pending sales (current account)
-      const { data: sales } = await supabase
-        .from("sales")
-        .select("id, amount_pending")
-        .eq("customer_id", customerId)
-        .eq("payment_method", "cuenta_corriente")
-        .eq("is_cancelled", false)
-        .gt("amount_pending", 0)
-        .order("created_at", { ascending: true });
+      if (paymentMode === 'specific') {
+        // Specific distribution
+        for (const [itemId, payAmount] of Object.entries(selectedItems)) {
+          const item = pendingItems.find(i => i.id === itemId);
+          if (!item) continue;
 
-      // 3. Distribute payment
-      let remainingGlobalAmount = finalAmount;
+          if (payAmount > item.amount_pending + 0.01) {
+            console.warn(`Paying more than pending for item ${itemId}`);
+            // We allow it? Technically yes, but better to cap? let's stick to user input
+          }
 
-      // We process the debt reduction globally first (order agnostic of payment method essentially, 
-      // but strictly we should attribute. However, standard logic often just reduces debt.
-      // To keep it simple and consistent with previous logic: reduce debt by total amount.)
+          const newPending = Math.max(0, item.amount_pending - payAmount);
 
-      // Pay Orders
-      if (orders && orders.length > 0) {
-        for (const order of orders) {
-          if (remainingGlobalAmount <= 0.01) break;
-
-          const orderPending = order.amount_pending || 0;
-          const paymentForOrder = Math.min(remainingGlobalAmount, orderPending);
-          const newPending = orderPending - paymentForOrder;
-
-          await supabase
-            .from("orders")
-            .update({ amount_pending: newPending })
-            .eq("id", order.id);
-
-          remainingGlobalAmount -= paymentForOrder;
+          if (item.type === 'order') {
+            await supabase.from("orders").update({ amount_pending: newPending }).eq("id", itemId);
+          } else {
+            await supabase.from("sales").update({ amount_pending: newPending }).eq("id", itemId);
+          }
         }
-      }
 
-      // Pay Sales
-      if (sales && sales.length > 0 && remainingGlobalAmount > 0.01) {
-        for (const sale of sales) {
-          if (remainingGlobalAmount <= 0.01) break;
+      } else {
+        // Automatic distribution (Legacy logic)
+        // 1. Fetch pending orders (Fresh)
+        const { data: orders } = await supabase
+          .from("orders")
+          .select("id, amount_pending")
+          .eq("customer_id", customerId)
+          .gt("amount_pending", 0)
+          .neq("status", "cancelado")
+          .order("created_at", { ascending: true });
 
-          const salePending = sale.amount_pending || 0;
-          const paymentForSale = Math.min(remainingGlobalAmount, salePending);
-          const newPending = salePending - paymentForSale;
+        // 2. Fetch pending sales (Fresh)
+        const { data: sales } = await supabase
+          .from("sales")
+          .select("id, amount_pending")
+          .eq("customer_id", customerId)
+          .eq("payment_method", "cuenta_corriente")
+          .eq("is_cancelled", false)
+          .gt("amount_pending", 0)
+          .order("created_at", { ascending: true });
 
-          await supabase
-            .from("sales")
-            .update({ amount_pending: newPending })
-            .eq("id", sale.id);
+        let remainingGlobalAmount = finalAmount;
 
-          remainingGlobalAmount -= paymentForSale;
+        // Pay Orders
+        if (orders && orders.length > 0) {
+          for (const order of orders) {
+            if (remainingGlobalAmount <= 0.01) break;
+
+            const orderPending = order.amount_pending || 0;
+            const paymentForOrder = Math.min(remainingGlobalAmount, orderPending);
+            const newPending = orderPending - paymentForOrder;
+
+            await supabase
+              .from("orders")
+              .update({ amount_pending: newPending })
+              .eq("id", order.id);
+
+            remainingGlobalAmount -= paymentForOrder;
+          }
+        }
+
+        // Pay Sales
+        if (sales && sales.length > 0 && remainingGlobalAmount > 0.01) {
+          for (const sale of sales) {
+            if (remainingGlobalAmount <= 0.01) break;
+
+            const salePending = sale.amount_pending || 0;
+            const paymentForSale = Math.min(remainingGlobalAmount, salePending);
+            const newPending = salePending - paymentForSale;
+
+            await supabase
+              .from("sales")
+              .update({ amount_pending: newPending })
+              .eq("id", sale.id);
+
+            remainingGlobalAmount -= paymentForSale;
+          }
         }
       }
 
@@ -163,7 +271,7 @@ export default function RegisterPayment({
           type: "pago",
           amount: p.amount,
           payment_method: p.method,
-          comment: comment || (paymentMethod === "mixto" ? "Pago Mixto" : "Pago a cuenta"),
+          comment: comment || (paymentMethod === "mixto" ? "Pago Mixto" : (paymentMode === 'specific' ? "Pago Específico" : "Pago a cuenta")),
           created_at: argentinaTime.toISOString(),
         });
         if (paymentError) throw paymentError;
@@ -174,7 +282,10 @@ export default function RegisterPayment({
       setComment("");
       setPaymentMethod("efectivo");
       setMixedPayments([{ method: "efectivo", amount: "" }]);
+      setSelectedItems({});
 
+      // Refresh
+      fetchPendingItems(); // Refresh local list
       if (onSuccess) {
         onSuccess();
       } else {
@@ -190,31 +301,160 @@ export default function RegisterPayment({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-lg">
-      <form onSubmit={handleRegisterPayment} className="space-y-4">
-        {paymentMethod !== "mixto" && (
-          <div>
+      {/* Toggle Mode */}
+      <div className="grid grid-cols-2 gap-2 mb-6 p-1 bg-gray-100 dark:bg-slate-800 rounded-lg">
+        <button
+          type="button"
+          onClick={() => setPaymentMode("automatic")}
+          className={`
+            flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-md transition-all
+            ${paymentMode === "automatic"
+              ? "bg-white dark:bg-slate-700 text-green-600 shadow-sm"
+              : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+            }
+          `}
+        >
+          <span>⚡ Pago Automático</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setPaymentMode("specific")}
+          className={`
+            flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-md transition-all
+            ${paymentMode === "specific"
+              ? "bg-white dark:bg-slate-700 text-blue-600 shadow-sm"
+              : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+            }
+          `}
+        >
+          <span>📝 Seleccionar Pedidos</span>
+        </button>
+      </div >
+
+      <form onSubmit={handleRegisterPayment} className="space-y-6">
+
+        {/* SPECIFIC MODE Item List */}
+        {paymentMode === "specific" && (
+          <div className="border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+            <div
+              className="bg-gray-50 dark:bg-slate-800 px-4 py-3 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-750 transition"
+              onClick={() => setExpandedItems(!expandedItems)}
+            >
+              <span className="font-bold text-gray-700 dark:text-slate-200 flex items-center gap-2">
+                <FaReceipt className="text-gray-400" />
+                Deudas Pendientes ({pendingItems.length})
+              </span>
+              <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                {expandedItems ? "Ocultar lista" : "Mostrar lista"}
+              </span>
+            </div>
+
+            <div className={`overflow-y-auto transition-all duration-300 ${!expandedItems && pendingItems.length > 3 ? 'max-h-[200px]' : 'max-h-[400px]'}`}>
+              {pendingItems.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 dark:text-slate-400 text-sm">
+                  No hay pedidos pendientes.
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100 dark:divide-slate-800">
+                  {pendingItems.map((item) => {
+                    const isSelected = !!selectedItems[item.id];
+                    return (
+                      <div
+                        key={item.id}
+                        className={`
+                                p-4 flex items-center gap-4 transition-colors cursor-pointer
+                                ${isSelected ? 'bg-blue-50/50 dark:bg-slate-800/80' : 'hover:bg-gray-50 dark:hover:bg-slate-800/30'}
+                            `}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleToggleItem(item)}
+                          className="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                        />
+
+                        <div className="flex-1" onClick={() => !isSelected && handleToggleItem(item)}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border ${item.type === 'order'
+                              ? 'bg-orange-50 border-orange-100 text-orange-700 dark:bg-orange-900/20 dark:border-orange-900/50 dark:text-orange-400'
+                              : 'bg-indigo-50 border-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:border-indigo-900/50 dark:text-indigo-400'
+                              }`}>
+                              {item.type === 'order' ? 'PEDIDO' : 'VENTA'}
+                            </span>
+                            <span className="text-sm font-medium text-gray-900 dark:text-slate-100">
+                              {new Date(item.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-slate-400 flex justify-between w-full pr-2">
+                            <span>Total: ${item.total_amount.toFixed(2)}</span>
+                            <span className="font-semibold text-gray-700 dark:text-slate-300">
+                              Pendiente: <span className="text-red-600">${item.amount_pending.toFixed(2)}</span>
+                            </span>
+                          </div>
+                        </div>
+
+                        {isSelected && (
+                          <div className="w-28 animate-in fade-in slide-in-from-right-4 duration-200">
+                            <label className="text-[10px] text-gray-500 mb-1 block">A pagar:</label>
+                            <div className="relative">
+                              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                              <input
+                                type="number"
+                                value={selectedItems[item.id]}
+                                onChange={(e) => handleItemAmountChange(item.id, e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-full pl-5 pr-2 py-1.5 text-right text-sm font-semibold border border-blue-200 dark:border-blue-800 rounded-md focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900"
+                                step="0.01"
+                                max={item.amount_pending}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {paymentMode === "specific" && (
+              <div className="bg-blue-50 dark:bg-slate-900 border-t border-blue-100 dark:border-slate-800 p-4 flex justify-between items-center">
+                <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Total Seleccionado:</span>
+                <span className="text-2xl font-bold text-blue-700 dark:text-blue-400">${getSpecificTotal().toFixed(2)}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Automatic Mode Amount Input */}
+        {paymentMethod !== "mixto" && paymentMode === 'automatic' && (
+          <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
             <label
               htmlFor="amount"
-              className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2"
+              className="block text-sm font-bold text-gray-700 dark:text-slate-200 mb-2"
             >
               Monto a Pagar
             </label>
-            <input
-              type="number"
-              step="0.01"
-              id="amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="block w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-base"
-              placeholder="0.00"
-              required={paymentMethod !== "mixto"}
-            />
-            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-              Deuda actual: ${currentDebt.toFixed(2)}
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-lg">$</span>
+              <input
+                type="number"
+                step="0.01"
+                id="amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="block w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-lg font-bold"
+                placeholder="0.00"
+                required={paymentMethod !== "mixto"}
+              />
+            </div>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-2 text-right">
+              Deuda Total: <span className="font-semibold text-red-600">${currentDebt.toFixed(2)}</span>
             </p>
           </div>
         )}
 
+        {/* Payment Method Selector */}
         <div>
           <label
             htmlFor="paymentMethod"
@@ -294,9 +534,11 @@ export default function RegisterPayment({
                 ${getTotalMixedAmount().toFixed(2)}
               </span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-slate-400 text-right">
-              Deuda actual: ${currentDebt.toFixed(2)}
-            </p>
+            {paymentMode === "specific" && (
+              <p className="text-xs text-blue-600 text-right mt-1">
+                Objetivo: ${getSpecificTotal().toFixed(2)}
+              </p>
+            )}
           </div>
         )}
 
@@ -316,14 +558,15 @@ export default function RegisterPayment({
             placeholder="Ej: Entrega semanal"
           />
         </div>
+
         <button
           type="submit"
-          disabled={loading}
-          className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-lg hover:from-green-700 hover:to-green-800 disabled:from-gray-400 disabled:to-gray-400 shadow-lg transition-all text-base"
+          disabled={loading || (paymentMode === 'specific' && getSpecificTotal() === 0)}
+          className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-lg hover:from-green-700 hover:to-green-800 disabled:from-gray-400 disabled:to-gray-400 shadow-lg transition-all text-base disabled:cursor-not-allowed"
         >
-          {loading ? "Registrando..." : "Registrar Pago"}
+          {loading ? "Registrando..." : `Registrar Pago ${paymentMode === 'specific' ? `($${getSpecificTotal().toFixed(2)})` : ''}`}
         </button>
       </form>
-    </div>
+    </div >
   );
 }
