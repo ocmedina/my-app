@@ -62,9 +62,9 @@ export default function EditOrderPage({
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState("");
   const [items, setItems] = useState<OrderItem[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<"efectivo" | "fiado">(
-    "efectivo"
-  );
+  const [paymentMethod, setPaymentMethod] = useState<
+    "efectivo" | "fiado" | "transferencia" | "mixto"
+  >("efectivo");
   const [amountReceived, setAmountReceived] = useState<number>(0);
 
   // Búsqueda de productos
@@ -78,7 +78,9 @@ export default function EditOrderPage({
   }, [id]);
 
   useEffect(() => {
-    if (searchQuery.length < 2) {
+    const cleanQuery = searchQuery.replace(/[(),]/g, "").trim();
+
+    if (cleanQuery.length < 2) {
       setSearchResults([]);
       return;
     }
@@ -88,7 +90,7 @@ export default function EditOrderPage({
       const { data, error } = await supabase
         .from("products")
         .select("*")
-        .or(`name.ilike.%${searchQuery}%,sku.ilike.%${searchQuery}%`)
+        .or(`name.ilike.%${cleanQuery}%,sku.ilike.%${cleanQuery}%`)
         .eq("is_active", true)
         .limit(10);
 
@@ -336,11 +338,10 @@ export default function EditOrderPage({
                 setPaymentMethod("efectivo");
                 setAmountReceived(calculateTotal());
               }}
-              className={`px-4 py-3 rounded-lg border-2 transition-all ${
-                paymentMethod === "efectivo"
-                  ? "border-green-500 bg-green-50 text-green-700 font-semibold"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-              }`}
+              className={`px-4 py-3 rounded-lg border-2 transition-all ${paymentMethod === "efectivo"
+                ? "border-green-500 bg-green-50 text-green-700 font-semibold"
+                : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                }`}
             >
               💵 Efectivo
             </button>
@@ -350,11 +351,10 @@ export default function EditOrderPage({
                 setPaymentMethod("transferencia");
                 setAmountReceived(calculateTotal());
               }}
-              className={`px-4 py-3 rounded-lg border-2 transition-all ${
-                paymentMethod === "transferencia"
-                  ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-              }`}
+              className={`px-4 py-3 rounded-lg border-2 transition-all ${paymentMethod === "transferencia"
+                ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold"
+                : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                }`}
             >
               🏦 Transferencia
             </button>
@@ -364,11 +364,10 @@ export default function EditOrderPage({
                 setPaymentMethod("fiado");
                 setAmountReceived(0);
               }}
-              className={`px-4 py-3 rounded-lg border-2 transition-all ${
-                paymentMethod === "fiado"
-                  ? "border-orange-500 bg-orange-50 text-orange-700 font-semibold"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-              }`}
+              className={`px-4 py-3 rounded-lg border-2 transition-all ${paymentMethod === "fiado"
+                ? "border-orange-500 bg-orange-50 text-orange-700 font-semibold"
+                : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                }`}
             >
               📋 Fiado
             </button>
@@ -378,11 +377,10 @@ export default function EditOrderPage({
                 setPaymentMethod("mixto");
                 setAmountReceived(0);
               }}
-              className={`px-4 py-3 rounded-lg border-2 transition-all ${
-                paymentMethod === "mixto"
-                  ? "border-purple-500 bg-purple-50 text-purple-700 font-semibold"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-              }`}
+              className={`px-4 py-3 rounded-lg border-2 transition-all ${paymentMethod === "mixto"
+                ? "border-purple-500 bg-purple-50 text-purple-700 font-semibold"
+                : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                }`}
             >
               💳 Mixto
             </button>
@@ -455,49 +453,48 @@ export default function EditOrderPage({
                 <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
               </div>
             )}
-          </div>
 
-          {searchResults.length > 0 && (
-            <ul className="absolute z-10 w-full mt-2 bg-white dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 rounded-lg shadow-xl max-h-80 overflow-y-auto">
-              {searchResults.map((product) => (
-                <li
-                  key={product.id}
-                  onClick={() => addProduct(product)}
-                  className="px-3 sm:px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 transition-colors"
-                >
-                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                    <div className="flex-1">
-                      <span className="font-semibold text-gray-900 dark:text-slate-50 text-sm sm:text-base">
-                        {product.name}
-                      </span>
-                      {product.sku && (
-                        <span className="ml-2 text-xs text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded">
-                          {product.sku}
+            {searchResults.length > 0 && (
+              <ul className="absolute z-50 top-full left-0 w-full mt-2 bg-white dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 rounded-lg shadow-xl max-h-80 overflow-y-auto">
+                {searchResults.map((product) => (
+                  <li
+                    key={product.id}
+                    onClick={() => addProduct(product)}
+                    className="px-3 sm:px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                  >
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                      <div className="flex-1">
+                        <span className="font-semibold text-gray-900 dark:text-slate-50 text-sm sm:text-base">
+                          {product.name}
                         </span>
-                      )}
-                    </div>
-                    <div className="flex justify-between sm:text-right">
-                      <div className="text-sm font-medium text-blue-600">
-                        $
-                        {selectedCustomer?.customer_type === "mayorista"
-                          ? product.price_mayorista?.toFixed(2)
-                          : product.price_minorista?.toFixed(2)}
+                        {product.sku && (
+                          <span className="ml-2 text-xs text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                            {product.sku}
+                          </span>
+                        )}
                       </div>
-                      <div
-                        className={`text-xs ml-3 ${
-                          (product.stock || 0) > 0
+                      <div className="flex justify-between sm:text-right">
+                        <div className="text-sm font-medium text-blue-600">
+                          $
+                          {selectedCustomer?.customer_type === "mayorista"
+                            ? product.price_mayorista?.toFixed(2)
+                            : product.price_minorista?.toFixed(2)}
+                        </div>
+                        <div
+                          className={`text-xs ml-3 ${(product.stock || 0) > 0
                             ? "text-green-600"
                             : "text-red-600"
-                        }`}
-                      >
-                        Stock: {product.stock || 0}
+                            }`}
+                        >
+                          Stock: {product.stock || 0}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
 
         {/* Lista de Productos */}
