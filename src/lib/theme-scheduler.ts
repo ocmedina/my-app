@@ -1,23 +1,39 @@
 // src/lib/theme-scheduler.ts
-// Sistema de activación automática del tema navideño
+/**
+ * Theme Scheduler Module
+ * 
+ * Provides automated theme activation based on date ranges.
+ * Currently supports Christmas theme with configurable date boundaries.
+ * 
+ * @module theme-scheduler
+ */
 
 export interface ThemeSchedule {
-  startDate: Date;
-  endDate: Date;
-  themeName: string;
+  readonly startDate: Date;
+  readonly endDate: Date;
+  readonly themeName: string;
 }
 
-// Configuración de fechas para el tema navideño
-export const christmasSchedule: ThemeSchedule = {
-  // Inicia el 20 de diciembre de 2025
+interface TimeRemaining {
+  readonly days: number;
+  readonly hours: number;
+  readonly minutes: number;
+  readonly seconds: number;
+  readonly isActive: boolean;
+}
+
+// Christmas theme configuration
+export const christmasSchedule: Readonly<ThemeSchedule> = {
   startDate: new Date('2025-12-20T00:00:00-03:00'),
-  // Termina el 6 de enero de 2026 (Día de Reyes)
   endDate: new Date('2026-01-06T23:59:59-03:00'),
   themeName: 'christmas'
-};
+} as const;
 
 /**
- * Verifica si el tema navideño debe estar activo
+ * Checks if the Christmas theme should be currently active
+ * based on the configured date range.
+ * 
+ * @returns {boolean} True if current date is within theme period
  */
 export function isChristmasThemeActive(): boolean {
   const now = new Date();
@@ -25,15 +41,12 @@ export function isChristmasThemeActive(): boolean {
 }
 
 /**
- * Obtiene el tiempo restante hasta que se active el tema navideño
+ * Calculates time remaining until Christmas theme activation.
+ * Returns zero values if theme is already active.
+ * 
+ * @returns {TimeRemaining} Object containing remaining time breakdown
  */
-export function getTimeUntilChristmas(): {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-  isActive: boolean;
-} {
+export function getTimeUntilChristmas(): TimeRemaining {
   const now = new Date();
   const start = christmasSchedule.startDate;
   
@@ -59,14 +72,12 @@ export function getTimeUntilChristmas(): {
 }
 
 /**
- * Obtiene el tiempo restante hasta que termine el tema navideño
+ * Calculates time remaining until Christmas theme deactivation.
+ * Returns zero values if theme period has ended.
+ * 
+ * @returns {Omit<TimeRemaining, 'isActive'>} Object containing remaining time breakdown
  */
-export function getTimeUntilChristmasEnds(): {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-} {
+export function getTimeUntilChristmasEnds(): Omit<TimeRemaining, 'isActive'> {
   const now = new Date();
   const end = christmasSchedule.endDate;
   const diff = end.getTime() - now.getTime();

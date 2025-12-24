@@ -100,7 +100,12 @@ interface SidebarProps {
   toggleCollapse: () => void;
 }
 
-export default function Sidebar({ isOpen, onClose, isCollapsed, toggleCollapse }: SidebarProps) {
+export default function Sidebar({
+  isOpen,
+  onClose,
+  isCollapsed,
+  toggleCollapse,
+}: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [userProfile, setUserProfile] = useState<{
@@ -220,7 +225,6 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, toggleCollapse }
 
         {/* Scrollable Navigation */}
         <div className="flex-1 overflow-y-auto py-6 px-3 space-y-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-slate-700 overflow-x-hidden">
-
           {/* Dashboard Link */}
           <div>
             <Link
@@ -228,20 +232,33 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, toggleCollapse }
               onClick={onClose}
               title={isCollapsed ? "Dashboard" : ""}
               className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group
-                ${pathname === "/dashboard"
-                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold shadow-sm ring-1 ring-blue-100 dark:ring-blue-800"
-                  : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-200"
+                ${
+                  pathname === "/dashboard"
+                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold shadow-sm ring-1 ring-blue-100 dark:ring-blue-800"
+                    : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-200"
                 } ${isCollapsed ? "justify-center" : ""}`}
             >
-              <HiOutlineChartPie className={`w-6 h-6 flex-shrink-0 ${pathname === "/dashboard" ? "text-blue-600 dark:text-blue-400" : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-slate-300"}`} />
+              <HiOutlineChartPie
+                className={`w-6 h-6 flex-shrink-0 ${
+                  pathname === "/dashboard"
+                    ? "text-blue-600 dark:text-blue-400"
+                    : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-slate-300"
+                }`}
+              />
               {!isCollapsed && <span>Dashboard</span>}
             </Link>
           </div>
 
           {/* Comercial */}
           <div className="space-y-1">
-            {!isCollapsed && <h3 className="px-3 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2 transition-opacity duration-200">Comercial</h3>}
-            {isCollapsed && <div className="h-px bg-gray-100 dark:bg-slate-800 my-2 mx-2"></div>}
+            {!isCollapsed && (
+              <h3 className="px-3 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2 transition-opacity duration-200">
+                Comercial
+              </h3>
+            )}
+            {isCollapsed && (
+              <div className="h-px bg-gray-100 dark:bg-slate-800 my-2 mx-2"></div>
+            )}
             <div className="space-y-1">
               {getVisibleLinks(navSections.comercial).map((link) => {
                 const Icon = link.icon;
@@ -253,13 +270,22 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, toggleCollapse }
                     onClick={onClose}
                     title={isCollapsed ? link.label : ""}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 group
-                    ${isActive
+                    ${
+                      isActive
                         ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold"
                         : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-200"
-                      } ${isCollapsed ? "justify-center" : ""}`}
+                    } ${isCollapsed ? "justify-center" : ""}`}
                   >
-                    <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-slate-300"}`} />
-                    {!isCollapsed && <span className="whitespace-nowrap">{link.label}</span>}
+                    <Icon
+                      className={`w-5 h-5 flex-shrink-0 ${
+                        isActive
+                          ? "text-blue-600 dark:text-blue-400"
+                          : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-slate-300"
+                      }`}
+                    />
+                    {!isCollapsed && (
+                      <span className="whitespace-nowrap">{link.label}</span>
+                    )}
                   </Link>
                 );
               })}
@@ -268,8 +294,14 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, toggleCollapse }
 
           {/* Logistica */}
           <div className="space-y-1">
-            {!isCollapsed && <h3 className="px-3 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2 transition-opacity duration-200">Logística</h3>}
-            {isCollapsed && <div className="h-px bg-gray-100 dark:bg-slate-800 my-2 mx-2"></div>}
+            {!isCollapsed && (
+              <h3 className="px-3 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2 transition-opacity duration-200">
+                Logística
+              </h3>
+            )}
+            {isCollapsed && (
+              <div className="h-px bg-gray-100 dark:bg-slate-800 my-2 mx-2"></div>
+            )}
             <div className="space-y-1">
               {getVisibleLinks(navSections.logistica).map((link) => {
                 const Icon = link.icon;
@@ -281,13 +313,22 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, toggleCollapse }
                     onClick={onClose}
                     title={isCollapsed ? link.label : ""}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 group
-                    ${isActive
+                    ${
+                      isActive
                         ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 font-semibold"
                         : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-200"
-                      } ${isCollapsed ? "justify-center" : ""}`}
+                    } ${isCollapsed ? "justify-center" : ""}`}
                   >
-                    <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-green-600 dark:text-green-400" : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-slate-300"}`} />
-                    {!isCollapsed && <span className="whitespace-nowrap">{link.label}</span>}
+                    <Icon
+                      className={`w-5 h-5 flex-shrink-0 ${
+                        isActive
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-slate-300"
+                      }`}
+                    />
+                    {!isCollapsed && (
+                      <span className="whitespace-nowrap">{link.label}</span>
+                    )}
                   </Link>
                 );
               })}
@@ -297,8 +338,14 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, toggleCollapse }
           {/* Administracion */}
           {getVisibleLinks(navSections.administracion).length > 0 && (
             <div className="space-y-1">
-              {!isCollapsed && <h3 className="px-3 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2 transition-opacity duration-200">Administración</h3>}
-              {isCollapsed && <div className="h-px bg-gray-100 dark:bg-slate-800 my-2 mx-2"></div>}
+              {!isCollapsed && (
+                <h3 className="px-3 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2 transition-opacity duration-200">
+                  Administración
+                </h3>
+              )}
+              {isCollapsed && (
+                <div className="h-px bg-gray-100 dark:bg-slate-800 my-2 mx-2"></div>
+              )}
               <div className="space-y-1">
                 {getVisibleLinks(navSections.administracion).map((link) => {
                   const Icon = link.icon;
@@ -310,13 +357,22 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, toggleCollapse }
                       onClick={onClose}
                       title={isCollapsed ? link.label : ""}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 group
-                      ${isActive
+                      ${
+                        isActive
                           ? "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 font-semibold"
                           : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-200"
-                        } ${isCollapsed ? "justify-center" : ""}`}
+                      } ${isCollapsed ? "justify-center" : ""}`}
                     >
-                      <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-orange-600 dark:text-orange-400" : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-slate-300"}`} />
-                      {!isCollapsed && <span className="whitespace-nowrap">{link.label}</span>}
+                      <Icon
+                        className={`w-5 h-5 flex-shrink-0 ${
+                          isActive
+                            ? "text-orange-600 dark:text-orange-400"
+                            : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-slate-300"
+                        }`}
+                      />
+                      {!isCollapsed && (
+                        <span className="whitespace-nowrap">{link.label}</span>
+                      )}
                     </Link>
                   );
                 })}
@@ -328,9 +384,12 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, toggleCollapse }
         {/* User Footer */}
         <div className="p-4 border-t border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50">
           <div className="flex flex-col gap-4">
-
             {/* User Info */}
-            <div className={`flex items-center gap-3 px-2 ${isCollapsed ? "justify-center" : ""}`}>
+            <div
+              className={`flex items-center gap-3 px-2 ${
+                isCollapsed ? "justify-center" : ""
+              }`}
+            >
               <div className="w-10 h-10 flex-shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
                 {userProfile?.full_name?.charAt(0).toUpperCase() || "U"}
               </div>
@@ -394,11 +453,9 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, toggleCollapse }
                 <HiOutlineChevronLeft className="w-5 h-5" />
               )}
             </button>
-
           </div>
         </div>
       </aside>
     </>
   );
 }
-

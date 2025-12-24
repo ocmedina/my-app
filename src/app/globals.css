@@ -306,4 +306,109 @@
       margin-bottom: 1rem !important;
     }
   }
+
+  /* --- Estilos para decoraciones navideñas --- */
+  
+  /* Base container for Christmas decorations */
+  .christmas-decorations {
+    pointer-events: none;
+    z-index: 9999;
+    will-change: transform;
+  }
+
+  /* Snowfall animation - More natural fall */
+  @keyframes fall {
+    0% {
+      transform: translateY(-10vh);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(110vh);
+      opacity: 0;
+    }
+  }
+
+  @keyframes sway {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(25px);
+    }
+  }
+
+  .snowflake-wrapper {
+    position: fixed;
+    top: -20px;
+    animation: fall linear infinite;
+    z-index: 9999;
+    will-change: transform;
+  }
+
+  .snowflake {
+    /* Snowflake character styling */
+    color: white;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+    animation: sway ease-in-out infinite alternate;
+    will-change: transform;
+    line-height: 1;
+  }
+
+  /* Christmas lights animation - Gentle pulse */
+  @keyframes twinkle {
+    0%, 100% {
+      opacity: 0.5;
+      transform: scale(0.9) translateY(0);
+      filter: brightness(0.9);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1) translateY(1px);
+      filter: brightness(1.3);
+    }
+  }
+
+  .christmas-light {
+    width: 8px;
+    height: 12px; /* Slightly elongated bulb shape */
+    border-radius: 50% 50% 40% 40%;
+    animation: twinkle 3s ease-in-out infinite; /* Slower, more relaxing */
+    will-change: transform, opacity, filter;
+  }
+  
+  /* Socket for the light bulb */
+  .christmas-light::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 4px;
+    background-color: #374151; /* Dark gray socket */
+    border-radius: 2px;
+  }
+
+  /* Performance optimizations */
+  @media (prefers-reduced-motion: reduce) {
+    .snowflake,
+    .christmas-light {
+      animation: none;
+      opacity: 0.5;
+    }
+  }
+
+  /* Hide decorations on print */
+  @media print {
+    .christmas-decorations,
+    .christmas-lights-container {
+      display: none !important;
+    }
+  }
 }
