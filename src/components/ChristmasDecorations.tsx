@@ -42,7 +42,8 @@ export default function ChristmasDecorations({
   showLights = true,
   showFloating = false,
 }: ChristmasDecorationsProps) {
-  const snowflakeCount = density === "light" ? 20 : density === "medium" ? 40 : 60;
+  const snowflakeCount =
+    density === "light" ? 20 : density === "medium" ? 40 : 60;
   const lightCount = 30;
 
   // Generate snowflakes with depth (blur) and sway
@@ -83,7 +84,7 @@ export default function ChristmasDecorations({
   );
 
   return (
-    <div 
+    <div
       className="christmas-decorations pointer-events-none fixed inset-0 z-[9999] overflow-hidden"
       role="presentation"
       aria-hidden="true"
@@ -101,12 +102,12 @@ export default function ChristmasDecorations({
                 animationDelay: `${flake.delay}s`,
               }}
             >
-              <div 
+              <div
                 className="snowflake text-white select-none"
                 style={{
                   fontSize: `${flake.size * 2}px`, // Scale up for text
                   opacity: flake.opacity,
-                  filter: flake.blur ? `blur(${flake.blur}px)` : 'none',
+                  filter: flake.blur ? `blur(${flake.blur}px)` : "none",
                   animationDuration: `${flake.swayDuration}s`,
                 }}
               >
@@ -121,16 +122,16 @@ export default function ChristmasDecorations({
       {showLights && (
         <div className="christmas-lights-container fixed top-0 left-0 right-0 h-16 z-[9999]">
           {/* The Wire (SVG) */}
-          <svg 
-            className="absolute top-0 left-0 w-full h-full pointer-events-none" 
+          <svg
+            className="absolute top-0 left-0 w-full h-full pointer-events-none"
             preserveAspectRatio="none"
             viewBox="0 0 100 20"
           >
-            <path 
-              d="M0,0 Q50,20 100,0" 
-              fill="none" 
-              stroke="#374151" 
-              strokeWidth="0.5" 
+            <path
+              d="M0,0 Q50,20 100,0"
+              fill="none"
+              stroke="#374151"
+              strokeWidth="0.5"
               className="opacity-60 dark:opacity-40"
             />
           </svg>
@@ -153,7 +154,7 @@ export default function ChristmasDecorations({
           </div>
         </div>
       )}
-      
+
       {/* Subtle Vignette/Frost Effect */}
       <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-white/5 to-transparent h-32 opacity-30" />
     </div>
