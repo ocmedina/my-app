@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# temporary files
+bash.exe.stackdump
+*.stackdump
+
+# supabase cli temporary files
+supabase-cli-temp/
