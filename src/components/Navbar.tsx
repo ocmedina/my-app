@@ -33,6 +33,11 @@ const navSections = {
       icon: HiOutlineTicket,
     },
     {
+      href: "/dashboard/presupuestos",
+      label: "Presupuestos",
+      icon: HiOutlineDocumentText,
+    },
+    {
       href: "/dashboard/pedidos",
       label: "Pedidos",
       icon: HiOutlineShoppingCart,

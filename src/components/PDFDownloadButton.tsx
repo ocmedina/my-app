@@ -6,11 +6,13 @@ import { FaPrint, FaSpinner } from "react-icons/fa";
 interface PDFDownloadButtonProps {
   orderData: any;
   printFormat: "A4" | "thermal";
+  fileNamePrefix?: string;
 }
 
 export default function PDFDownloadButton({
   orderData,
   printFormat,
+  fileNamePrefix = "remito",
 }: PDFDownloadButtonProps) {
   const [isClient, setIsClient] = useState(false);
   const [PDFLink, setPDFLink] = useState<any>(null);
@@ -39,7 +41,7 @@ export default function PDFDownloadButton({
         const LinkComponent = () => (
           <PDFDownloadLink
             document={<DocumentComponent order={orderData} />}
-            fileName={`remito_${printFormat}_${orderData.id.substring(
+            fileName={`${fileNamePrefix}_${printFormat}_${orderData.id.substring(
               0,
               8
             )}.pdf`}
@@ -64,7 +66,7 @@ export default function PDFDownloadButton({
       .catch((err) => {
         console.error("Error cargando componentes PDF:", err);
       });
-  }, [orderData, printFormat]);
+  }, [orderData, printFormat, fileNamePrefix]);
 
   if (!isClient || !PDFLink) {
     return (
