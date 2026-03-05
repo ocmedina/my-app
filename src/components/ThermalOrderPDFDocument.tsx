@@ -174,6 +174,10 @@ const styles = StyleSheet.create({
 
 export default function ThermalOrderPDFDocument({ order }: { order: any }) {
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const documentTitle = order?.document_title || "REMITO DE PEDIDO";
+  const documentNumberLabel = order?.document_number_label || "Pedido #";
+  const documentFooterNote =
+    order?.document_footer_note || "Conserve este comprobante";
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -208,12 +212,12 @@ export default function ThermalOrderPDFDocument({ order }: { order: any }) {
           <Text style={styles.companyInfo}>{telefono}</Text>
         </View>
 
-        <Text style={styles.title}>REMITO DE PEDIDO</Text>
+        <Text style={styles.title}>{documentTitle.toUpperCase()}</Text>
 
         {/* Info del pedido */}
         <View style={styles.orderInfo}>
           <View>
-            <Text style={styles.orderInfoLabel}>Pedido #</Text>
+            <Text style={styles.orderInfoLabel}>{documentNumberLabel}</Text>
             <Text style={styles.orderInfoItem}>
               {order.id?.substring(0, 8).toUpperCase()}
             </Text>
@@ -296,7 +300,7 @@ export default function ThermalOrderPDFDocument({ order }: { order: any }) {
 
         {/* Pie */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Conserve este comprobante</Text>
+          <Text style={styles.footerText}>{documentFooterNote}</Text>
           <Text style={styles.thankYou}>¡Gracias por su compra!</Text>
         </View>
       </Page>

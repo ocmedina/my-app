@@ -76,6 +76,10 @@ function BudgetPrintModal({
           total_amount: detail.total_amount,
           customers: detail.customers,
           order_items: detail.budget_items || [],
+          document_title: "Presupuesto",
+          document_number_label: "Número de Presupuesto",
+          document_footer_note:
+            "Este presupuesto fue generado por Frontio Web Solutions",
         });
       } else {
         setBudgetData(null);
