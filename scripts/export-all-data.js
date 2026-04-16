@@ -44,31 +44,43 @@ const TABLES = [
   'cash_movements',
   'daily_reports',
   'invoices',
+  'budgets',
+  'budget_items',
 ];
 
 const IMPORT_ORDER = [
+  // 1. Sin dependencias
   'settings',
-  'profiles',
   'brands',
   'categories',
-  'suppliers',
+  // 2. Entidades principales
   'customers',
+  'suppliers',
+  // 3. Depende de brands/categories
   'products',
-  'purchase_orders',
-  'purchase_order_items',
-  'purchases',
-  'purchase_items',
-  'supplier_payments',
-  'orders',
-  'order_items',
+  // 4. Profiles (depende de auth.users - deben existir primero)
+  'profiles',
+  // 5. Transacciones principales
   'sales',
+  'orders',
+  'purchases',
+  'purchase_orders',
+  'budgets',
+  // 6. Items de transacciones
   'sale_items',
+  'order_items',
+  'purchase_items',
+  'purchase_order_items',
+  'budget_items',
+  // 7. Pagos y referencias
   'payments',
+  'supplier_payments',
+  'invoices',
+  // 8. Registros independientes
   'stock_movements',
   'expenses',
   'cash_movements',
   'daily_reports',
-  'invoices',
 ];
 
 function toTimestamp(date = new Date()) {
@@ -304,6 +316,30 @@ async function main() {
     ...IMPORT_ORDER.map((table, index) => `${index + 1}. ${table}`),
   ]);
 
+  // ── Migration Bundle (archivo consolidado para importación directa) ──
+  const migrationBundle = {
+    version: '1.0.0',
+    format: 'frontstock-migration-bundle',
+    exported_at: new Date().toISOString(),
+    source_url: SUPABASE_URL,
+    table_order: IMPORT_ORDER,
+    tables: {},
+    integrity: integritySummary,
+    record_counts: {},
+  };
+
+  for (const table of IMPORT_ORDER) {
+    migrationBundle.tables[table] = exportedData[table] || [];
+    migrationBundle.record_counts[table] = (exportedData[table] || []).length;
+  }
+
+  fs.writeFileSync(
+    path.join(rootExportDir, 'migration_bundle.json'),
+    JSON.stringify(migrationBundle, null, 2),
+    'utf8'
+  );
+  console.log(`\n📦 migration_bundle.json generado (${IMPORT_ORDER.length} tablas)`);
+
   const exportReport = {
     generated_at: new Date().toISOString(),
     output_directory: rootExportDir,
@@ -326,7 +362,8 @@ async function main() {
     console.log('\n🎉 Exportación completada correctamente.');
   }
 
-  console.log('Archivos clave generados:');
+  console.log('\nArchivos clave generados:');
+  console.log('- migration_bundle.json  ← USAR PARA IMPORTAR');
   console.log('- all_tables.xlsx');
   console.log('- csv/*.csv');
   console.log('- json/*.json');

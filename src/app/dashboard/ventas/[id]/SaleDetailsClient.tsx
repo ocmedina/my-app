@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import InvoicePDFDocument from "@/components/InvoicePDFDocument";
+import InvoiceDownloadButton from "@/components/pdf/InvoiceDownloadButton";
 import {
-  FaPrint,
   FaFileInvoiceDollar,
   FaSpinner,
   FaArrowLeft,
@@ -48,7 +46,7 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
       // 2. Traer configuración
       const { data: settingsData } = await supabase
         .from("settings")
-        .select("*");
+        .select("key, value");
       if (isMounted && settingsData) {
         const settingsMap = settingsData.reduce(
           (acc, s) => ({ ...acc, [s.key]: s.value }),
@@ -60,7 +58,7 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
       // 3. Verificar si ya existe factura
       const { data: existingInvoice } = await supabase
         .from("invoices")
-        .select("*")
+        .select("id, invoice_number, created_at, customer_data, items_data, total_amount")
         .eq("sale_id", sale.id)
         .maybeSingle();
 
@@ -133,26 +131,13 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
                   <FaSpinner className="animate-spin" /> Cargando...
                 </span>
               ) : invoiceData ? (
-                <PDFDownloadLink
-                  document={
-                    <InvoicePDFDocument
-                      invoiceData={invoiceData}
-                      settings={settings}
-                    />
-                  }
+                <InvoiceDownloadButton
+                  invoiceData={invoiceData}
+                  settings={settings}
                   fileName={`factura_${invoiceData.invoice_number}.pdf`}
                   className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-lg hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl transition-all"
-                >
-                  {({ loading: pdfLoading }) =>
-                    pdfLoading ? (
-                      <FaSpinner className="animate-spin" />
-                    ) : (
-                      <>
-                        <FaPrint /> Descargar Factura
-                      </>
-                    )
-                  }
-                </PDFDownloadLink>
+                  readyLabel="Descargar Factura"
+                />
               ) : (
                 <button
                   onClick={handleGenerateInvoice}
@@ -273,10 +258,10 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-300 font-medium">
-                      ${item.price?.toFixed(2)}
+                      ${item.price?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-slate-50">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ${(item.price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                   </tr>
                 ))}
@@ -293,7 +278,7 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg shadow-lg">
                       <FaDollarSign className="text-xl" />
                       <span className="text-2xl font-bold">
-                        {sale.total_amount?.toFixed(2)}
+                        {sale.total_amount?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </div>
                   </td>

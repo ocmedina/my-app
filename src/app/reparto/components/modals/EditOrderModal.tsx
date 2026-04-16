@@ -260,7 +260,7 @@ export default function EditOrderModal({
                           {item.product_name}
                         </p>
                         <p className="text-sm text-green-600 font-medium mt-1">
-                          ${item.price.toFixed(2)} c/u
+                          ${item.price.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} c/u
                         </p>
                         <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                           Stock disponible:{" "}
@@ -311,7 +311,7 @@ export default function EditOrderModal({
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-gray-600 dark:text-slate-300">Total Original:</span>
                   <span className="font-medium line-through text-gray-400">
-                    ${orderData.total_amount.toFixed(2)}
+                    ${orderData.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -319,7 +319,7 @@ export default function EditOrderModal({
                     Nuevo Total:
                   </span>
                   <span className="text-2xl font-bold text-green-600">
-                    ${calculateNewTotal().toFixed(2)}
+                    ${calculateNewTotal().toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>

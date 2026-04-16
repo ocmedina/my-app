@@ -97,41 +97,116 @@ export default function GraficosPage() {
     try {
       const { start, end } = getDateRange();
 
+      const { start: prevStart, end: prevEnd } = (() => {
+        const currentStart = new Date(start);
+        const currentEnd = new Date(end);
+        const diff = currentEnd.getTime() - currentStart.getTime();
+
+        const prevEndDate = new Date(currentStart);
+        prevEndDate.setMilliseconds(prevEndDate.getMilliseconds() - 1);
+
+        const prevStartDate = new Date(prevEndDate);
+        prevStartDate.setMilliseconds(prevStartDate.getMilliseconds() - diff);
+
+        return {
+          start: prevStartDate.toISOString(),
+          end: prevEndDate.toISOString(),
+        };
+      })();
+
       // Queries en paralelo
-      const [salesRes, ordersRes, saleItemsRes, orderItemsRes, productsRes] =
-        await Promise.all([
-          supabase
-            .from("sales")
-            .select("id, created_at, total_amount, payment_method")
-            .gte("created_at", start)
-            .lte("created_at", end)
-            .order("created_at", { ascending: true }),
-          (supabase as any)
-            .from("orders")
-            .select("id, created_at, total_amount, status")
-            .gte("created_at", start)
-            .lte("created_at", end),
-          supabase.from("sale_items").select("quantity, product_id, sale_id"),
-          (supabase as any)
-            .from("order_items")
-            .select("quantity, product_id, order_id"),
-          supabase.from("products").select("id, name"),
-        ]);
+      const [salesRes, ordersRes, prevSalesRes, prevOrdersRes] = await Promise.all([
+        supabase
+          .from("sales")
+          .select("id, created_at, total_amount, payment_method")
+          .gte("created_at", start)
+          .lte("created_at", end)
+          .order("created_at", { ascending: true }),
+        (supabase as any)
+          .from("orders")
+          .select("id, created_at, total_amount, status")
+          .gte("created_at", start)
+          .lte("created_at", end),
+        supabase
+          .from("sales")
+          .select("total_amount")
+          .gte("created_at", prevStart)
+          .lte("created_at", prevEnd),
+        (supabase as any)
+          .from("orders")
+          .select("total_amount")
+          .eq("status", "entregado")
+          .gte("created_at", prevStart)
+          .lte("created_at", prevEnd),
+      ]);
 
       if (salesRes.error) throw salesRes.error;
       if (ordersRes.error) throw ordersRes.error;
+      if (prevSalesRes.error) throw prevSalesRes.error;
+      if (prevOrdersRes.error) throw prevOrdersRes.error;
+
+      const sales = salesRes.data || [];
+      const orders = ordersRes.data || [];
+      const deliveredOrders = orders.filter((o: any) => o.status === "entregado");
+
+      const saleIds = sales.map((s) => s.id);
+      const orderIds = deliveredOrders.map((o: any) => o.id);
+      const emptyResult = { data: [] as any[], error: null as any };
+
+      const [saleItemsRes, orderItemsRes] = await Promise.all([
+        saleIds.length > 0
+          ? supabase
+              .from("sale_items")
+              .select("quantity, product_id, sale_id")
+              .in("sale_id", saleIds)
+          : Promise.resolve(emptyResult),
+        orderIds.length > 0
+          ? (supabase as any)
+              .from("order_items")
+              .select("quantity, product_id, order_id")
+              .in("order_id", orderIds)
+          : Promise.resolve(emptyResult),
+      ]);
+
       if (saleItemsRes.error) throw saleItemsRes.error;
       if (orderItemsRes.error) throw orderItemsRes.error;
-      if (productsRes.error) throw productsRes.error;
+
+      const productIds = Array.from(
+        new Set(
+          [...(saleItemsRes.data || []), ...(orderItemsRes.data || [])]
+            .map((item: any) => item.product_id)
+            .filter(Boolean)
+        )
+      );
+
+      let products: any[] = [];
+      if (productIds.length > 0) {
+        const { data: productsData, error: productsError } = await supabase
+          .from("products")
+          .select("id, name")
+          .in("id", productIds);
+
+        if (productsError) throw productsError;
+        products = productsData || [];
+      }
+
+      const previousPeriodTotal =
+        (prevSalesRes.data || []).reduce(
+          (sum, s) => sum + Number(s.total_amount),
+          0
+        ) +
+        (prevOrdersRes.data || []).reduce(
+          (sum: number, o: any) => sum + Number(o.total_amount),
+          0
+        );
 
       processData(
-        salesRes.data || [],
-        ordersRes.data || [],
+        sales,
+        orders,
         saleItemsRes.data || [],
         orderItemsRes.data || [],
-        productsRes.data || [],
-        start,
-        end
+        products,
+        previousPeriodTotal
       );
 
       toast.success("Datos cargados correctamente", { id: loadingToast });
@@ -151,8 +226,7 @@ export default function GraficosPage() {
     saleItems: any[],
     orderItems: any[],
     products: any[],
-    start: string,
-    end: string
+    previousPeriodTotal: number
   ) => {
     const productMap = new Map(products.map((p) => [p.id, p.name]));
 
@@ -223,11 +297,6 @@ export default function GraficosPage() {
       .sort((a, b) => b.quantity - a.quantity)
       .slice(0, 10);
 
-    console.log('📊 Top Products Data:', topProductsData);
-    console.log('📦 Product Totals:', productTotals);
-    console.log('🛒 Sale Items Count:', saleItems.length);
-    console.log('📋 Order Items Count:', orderItems.length);
-
     // 4. Métodos de pago
     const paymentTotals: Record<string, number> = {};
 
@@ -274,31 +343,6 @@ export default function GraficosPage() {
     const monthlyTrendData = Object.values(monthlyMap);
 
     // 6. Calcular estadísticas y tendencia
-    // Calcular el total del período anterior para comparar
-    const { start: prevStart, end: prevEnd } = (() => {
-      const currentStart = new Date(start);
-      const currentEnd = new Date(end);
-      const diff = currentEnd.getTime() - currentStart.getTime();
-
-      const prevEndDate = new Date(currentStart);
-      prevEndDate.setMilliseconds(prevEndDate.getMilliseconds() - 1);
-
-      const prevStartDate = new Date(prevEndDate);
-      prevStartDate.setMilliseconds(prevStartDate.getMilliseconds() - diff);
-
-      return {
-        start: prevStartDate.toISOString(),
-        end: prevEndDate.toISOString()
-      };
-    })();
-
-    // Obtener ventas del período anterior
-    const previousSales = sales.filter(s => s.created_at >= prevStart && s.created_at <= prevEnd);
-    const previousOrders = orders.filter((o: any) => o.created_at >= prevStart && o.created_at <= prevEnd && o.status === 'entregado');
-
-    const previousPeriodTotal =
-      previousSales.reduce((sum, s) => sum + Number(s.total_amount), 0) +
-      previousOrders.reduce((sum: number, o: any) => sum + Number(o.total_amount), 0);
 
     const growth =
       previousPeriodTotal > 0

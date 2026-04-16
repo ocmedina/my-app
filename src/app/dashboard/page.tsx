@@ -91,37 +91,79 @@ async function getDashboardData() {
   const startOfNextMonth = `${firstDayOfNextMonth.toISOString().split("T")[0]
     }T00:00:00-03:00`;
 
-  const { count: productCount } = await supabase
-    .from("products")
-    .select("*", { count: "exact", head: true })
-    .eq("is_active", true);
+  const [
+    productCountRes,
+    clientCountRes,
+    totalOrdersRes,
+    salesThisMonthRes,
+    ordersThisMonthRes,
+    pendingOrdersRes,
+    criticalStockProductsRes,
+    recentSalesRes,
+    ordersWithDebtRes,
+    salesWithDebtRes,
+  ] = await Promise.all([
+    supabase
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true),
+    supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true),
+    supabase
+      .from("orders" as any)
+      .select("id", { count: "exact", head: true }),
+    supabase
+      .from("sales")
+      .select("total_amount")
+      .gte("created_at", startOfMonth)
+      .lt("created_at", startOfNextMonth),
+    supabase
+      .from("orders" as any)
+      .select("total_amount")
+      .eq("status", "entregado")
+      .gte("created_at", startOfMonth)
+      .lt("created_at", startOfNextMonth),
+    supabase
+      .from("orders" as any)
+      .select("id, customers ( id, full_name ), created_at")
+      .eq("status", "pendiente")
+      .order("created_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("products")
+      .select("name, stock, id")
+      .eq("is_active", true)
+      .lte("stock", 5)
+      .order("stock", { ascending: true })
+      .limit(5),
+    supabase
+      .from("sales")
+      .select("id, total_amount, created_at, customers ( full_name )")
+      .order("created_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("orders" as any)
+      .select("amount_pending, customer_id")
+      .gt("amount_pending", 0)
+      .neq("status", "cancelado"),
+    supabase
+      .from("sales")
+      .select("amount_pending, customer_id")
+      .eq("payment_method", "cuenta_corriente")
+      .gt("amount_pending", 0)
+      .eq("is_cancelled", false),
+  ]);
 
-  const { count: clientCount } = await supabase
-    .from("customers")
-    .select("*", { count: "exact", head: true })
-    .eq("is_active", true);
-
-  const { count: totalOrders } = await supabase
-    .from("orders" as any)
-    .select("*", { count: "exact", head: true });
-
-  const { data: salesThisMonth } = await supabase
-    .from("sales")
-    .select("total_amount")
-    .gte("created_at", startOfMonth)
-    .lt("created_at", startOfNextMonth);
+  const salesThisMonth = salesThisMonthRes.data;
 
   const totalSales =
     salesThisMonth?.reduce((sum, sale) => sum + (sale.total_amount || 0), 0) ??
     0;
 
   // Obtener pedidos entregados del mes (ventas de reparto)
-  const { data: ordersThisMonth } = await supabase
-    .from("orders" as any)
-    .select("total_amount")
-    .eq("status", "entregado")
-    .gte("created_at", startOfMonth)
-    .lt("created_at", startOfNextMonth);
+  const ordersThisMonth = ordersThisMonthRes.data;
 
   const totalOrderSales =
     ordersThisMonth?.reduce(
@@ -129,42 +171,12 @@ async function getDashboardData() {
       0
     ) ?? 0;
 
-  const { data: pendingOrders } = await supabase
-    .from("orders" as any)
-    .select("id, customers ( id, full_name ), created_at")
-    .eq("status", "pendiente")
-    .order("created_at", { ascending: false })
-    .limit(5);
-
-  const { data: criticalStockProducts } = await supabase
-    .from("products")
-    .select("name, stock, id")
-    .eq("is_active", true)
-    .lte("stock", 5)
-    .order("stock", { ascending: true })
-    .limit(5);
-
-  const { data: recentSales } = await supabase
-    .from("sales")
-    .select("id, total_amount, created_at, customers ( full_name )")
-    .order("created_at", { ascending: false })
-    .limit(5);
-
   // Total de deuda pendiente (pedidos con cualquier método de pago + ventas cuenta corriente)
   // Obtener TODOS los pedidos con deuda pendiente (sin filtrar por cliente activo ni método de pago)
-  const { data: ordersWithDebt } = await supabase
-    .from("orders" as any)
-    .select("amount_pending, customer_id")
-    .gt("amount_pending", 0)
-    .neq("status", "cancelado");
+  const ordersWithDebt = ordersWithDebtRes.data;
 
   // Obtener TODAS las ventas en cuenta corriente con deuda pendiente (sin filtrar por cliente activo)
-  const { data: salesWithDebt } = await supabase
-    .from("sales")
-    .select("amount_pending, customer_id")
-    .eq("payment_method", "cuenta_corriente")
-    .gt("amount_pending", 0)
-    .eq("is_cancelled", false);
+  const salesWithDebt = salesWithDebtRes.data;
 
   // Sumar deuda total
   const totalOrdersDebt =
@@ -192,16 +204,16 @@ async function getDashboardData() {
   const customersWithDebtCount = customersWithDebtSet.size;
 
   return {
-    productCount: productCount ?? 0,
-    clientCount: clientCount ?? 0,
-    totalOrders: totalOrders ?? 0,
+    productCount: productCountRes.count ?? 0,
+    clientCount: clientCountRes.count ?? 0,
+    totalOrders: totalOrdersRes.count ?? 0,
     totalSales,
     totalOrderSales,
     totalDebt,
     customersWithDebtCount,
-    pendingOrders: pendingOrders ?? [],
-    criticalStockProducts: criticalStockProducts ?? [],
-    recentSales: recentSales ?? [],
+    pendingOrders: pendingOrdersRes.data ?? [],
+    criticalStockProducts: criticalStockProductsRes.data ?? [],
+    recentSales: recentSalesRes.data ?? [],
   };
 }
 

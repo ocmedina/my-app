@@ -477,8 +477,8 @@ export default function EditOrderPage({
                         <div className="text-sm font-medium text-blue-600">
                           $
                           {selectedCustomer?.customer_type === "mayorista"
-                            ? product.price_mayorista?.toFixed(2)
-                            : product.price_minorista?.toFixed(2)}
+                            ? product.price_mayorista?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                            : product.price_minorista?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                         <div
                           className={`text-xs ml-3 ${(product.stock || 0) > 0
@@ -522,7 +522,7 @@ export default function EditOrderPage({
                       {item.products?.name}
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-400">
-                      ${item.price.toFixed(2)} c/u
+                      ${item.price.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} c/u
                       {item.products?.sku && ` • SKU: ${item.products.sku}`}
                     </p>
                   </div>
@@ -552,7 +552,7 @@ export default function EditOrderPage({
 
                     <div className="text-right min-w-[5rem] sm:min-w-[6rem]">
                       <p className="font-bold text-gray-900 dark:text-slate-50 text-sm sm:text-base">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ${(item.price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                     </div>
 
@@ -578,7 +578,7 @@ export default function EditOrderPage({
               Total:
             </span>
             <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              ${calculateTotal().toFixed(2)}
+              ${calculateTotal().toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
 
@@ -587,7 +587,7 @@ export default function EditOrderPage({
               Entrega Recibida:
             </span>
             <span className="text-lg sm:text-xl font-bold">
-              ${amountReceived.toFixed(2)}
+              ${amountReceived.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
 
@@ -597,7 +597,7 @@ export default function EditOrderPage({
                 Saldo Pendiente:
               </span>
               <span className="text-xl sm:text-2xl font-bold">
-                ${(calculateTotal() - amountReceived).toFixed(2)}
+                ${(calculateTotal() - amountReceived).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
           ) : (

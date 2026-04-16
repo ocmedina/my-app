@@ -113,7 +113,7 @@ export default function CartList({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <span className="font-bold text-gray-900 dark:text-slate-50">
-                      ${(price * item.quantity).toFixed(2)}
+                      ${(price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">

@@ -13,7 +13,6 @@ import {
   FaPlus,
   FaFileExcel,
 } from "react-icons/fa";
-import * as XLSX from "xlsx";
 import toast from "react-hot-toast";
 import AdjustmentModal from "./components/AdjustmentModal";
 
@@ -164,11 +163,13 @@ export default function InventoryKardexPage() {
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     if (movements.length === 0) {
       toast.error("No hay datos para exportar");
       return;
     }
+
+    const XLSX = await import("xlsx");
 
     const dataToExport = movements.map((m) => ({
       Fecha: new Date(m.created_at).toLocaleString("es-AR"),

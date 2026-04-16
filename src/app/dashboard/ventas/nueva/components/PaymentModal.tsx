@@ -1,6 +1,7 @@
 "use client";
 
 import { FaTimes } from "react-icons/fa";
+import { formatCurrency } from "@/lib/numberFormat";
 import { Supplier } from "../types";
 
 interface PaymentModalProps {
@@ -105,7 +106,7 @@ export default function PaymentModal({
               Total a Pagar
             </p>
             <p className="text-5xl font-bold text-white tracking-tight">
-              ${total.toFixed(2)}
+              {formatCurrency(total)}
             </p>
           </div>
         </div>
@@ -266,7 +267,7 @@ export default function PaymentModal({
                     Total Acumulado:
                   </span>
                   <span className="text-xl font-bold text-blue-900">
-                    ${getTotalPaidFromMixed().toFixed(2)}
+                    {formatCurrency(getTotalPaidFromMixed())}
                   </span>
                 </div>
               </div>
@@ -324,7 +325,7 @@ export default function PaymentModal({
                         .map((supplier) => (
                           <option key={supplier.id} value={supplier.id}>
                             {supplier.name} - Deuda: $
-                            {(supplier.debt || 0).toFixed(2)}
+                            {formatCurrency(supplier.debt || 0).replace("$", "")}
                           </option>
                         ))}
                     </select>
@@ -341,7 +342,7 @@ export default function PaymentModal({
                 ⚠️ Saldo Pendiente
               </span>
               <span className="text-3xl font-bold text-red-600">
-                ${debtDifference.toFixed(2)}
+                {formatCurrency(debtDifference)}
               </span>
             </div>
           )}
@@ -352,7 +353,7 @@ export default function PaymentModal({
                 💰 Cambio a Devolver
               </span>
               <span className="text-3xl font-bold text-green-600">
-                ${Math.abs(debtDifference).toFixed(2)}
+                {formatCurrency(Math.abs(debtDifference))}
               </span>
             </div>
           )}

@@ -1,18 +1,32 @@
 'use server'
 
-import { createAdminClient } from '@/lib/admin';
+import { createLooseAdminClient } from '@/lib/admin';
 import { Database } from '@/lib/database.types';
 import { revalidatePath } from 'next/cache';
 
 type CustomerData = Database['public']['Tables']['customers']['Row'];
-type SaleItemData = Database['public']['Tables']['sale_items']['Row'] & {
-    products: Database['public']['Tables']['products']['Row'] | null;
+
+type SaleWithRelationsRaw = {
+  id: string;
+  total_amount: number;
+  customers: CustomerData | CustomerData[] | null;
+  sale_items: Array<{
+    quantity: number;
+    price: number;
+    products: {
+      name: string | null;
+      sku: string | null;
+    } | Array<{
+      name: string | null;
+      sku: string | null;
+    }> | null;
+  }>;
 };
 
 export async function createInvoiceFromSale(saleId: string) {
   try {
     // Usamos solo Admin client
-    const supabaseAdmin = createAdminClient();
+    const supabaseAdmin = createLooseAdminClient();
 
     // 1. Verificar si ya existe factura
     const { data: existingInvoice, error: checkError } = await supabaseAdmin
@@ -25,7 +39,7 @@ export async function createInvoiceFromSale(saleId: string) {
     if (existingInvoice) return { success: false, message: "Ya existe una factura para esta venta." };
 
     // 2. Obtener datos de la venta
-    const { data: saleData, error: saleError } = await supabaseAdmin
+    const { data: rawSaleData, error: saleError } = await supabaseAdmin
       .from('sales')
       .select(`
         id,
@@ -36,7 +50,17 @@ export async function createInvoiceFromSale(saleId: string) {
       .eq('id', saleId)
       .single();
 
-    if (saleError || !saleData) return { success: false, message: "No se encontraron los datos completos de la venta." };
+    if (saleError || !rawSaleData) return { success: false, message: "No se encontraron los datos completos de la venta." };
+
+    const saleData = rawSaleData as unknown as SaleWithRelationsRaw;
+
+    const customerSnapshot = Array.isArray(saleData.customers)
+      ? saleData.customers[0] ?? null
+      : saleData.customers;
+
+    if (!customerSnapshot || !Array.isArray(saleData.sale_items)) {
+      return { success: false, message: "La venta no tiene datos suficientes para generar factura." };
+    }
 
     // 3. Generar número de factura
     const { data: invoiceNumData, error: numError } = await supabaseAdmin.rpc('generate_invoice_number');
@@ -44,13 +68,18 @@ export async function createInvoiceFromSale(saleId: string) {
     const invoiceNumber = invoiceNumData as string;
 
     // 4. Preparar datos
-    const customerSnapshot: CustomerData = saleData.customers;
-    const itemsSnapshot = saleData.sale_items.map((item: SaleItemData) => ({
-      name: item.products?.name ?? 'N/A',
-      sku: item.products?.sku ?? 'N/A',
-      quantity: item.quantity,
-      price: item.price
-    }));
+    const itemsSnapshot = saleData.sale_items.map((item) => {
+      const product = Array.isArray(item.products)
+        ? item.products[0] ?? null
+        : item.products;
+
+      return {
+        name: product?.name ?? 'N/A',
+        sku: product?.sku ?? 'N/A',
+        quantity: item.quantity,
+        price: item.price,
+      };
+    });
 
     // 5. Insertar factura
     const { data: newInvoice, error: insertError } = await supabaseAdmin

@@ -30,7 +30,7 @@ import {
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 import OrderStatusChanger from "@/components/OrderStatusChanger";
-import PDFDownloadButton from "@/components/PDFDownloadButton";
+import PDFDownloadButton from "@/components/pdf/PDFDownloadButton";
 
 const ITEMS_PER_PAGE = 15;
 
@@ -95,6 +95,16 @@ const STATUS_CONFIG = {
     label: "Pendiente",
     color: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300",
     activeColor: "bg-yellow-600 text-white",
+  },
+  confirmado: {
+    label: "Confirmado",
+    color: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300",
+    activeColor: "bg-blue-600 text-white",
+  },
+  enviado: {
+    label: "Enviado",
+    color: "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300",
+    activeColor: "bg-purple-600 text-white",
   },
   entregado: {
     label: "Entregado",
@@ -356,10 +366,10 @@ function OrderDetailsModal({
                       <div className="text-right">
                         <p className="text-sm text-gray-600 dark:text-slate-300">Precio Unit.</p>
                         <p className="font-bold text-gray-800 dark:text-slate-100">
-                          ${item.price.toFixed(2)}
+                          ${item.price.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                         <p className="text-xs text-green-600 font-semibold mt-1">
-                          Subtotal: ${(item.price * item.quantity).toFixed(2)}
+                          Subtotal: ${(item.price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </div>
                     </div>
@@ -372,7 +382,7 @@ function OrderDetailsModal({
                 <div className="flex items-center justify-between">
                   <span className="text-xl font-bold">Total del Pedido:</span>
                   <span className="text-3xl font-bold">
-                    ${orderData.total_amount.toFixed(2)}
+                    ${orderData.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
@@ -387,7 +397,7 @@ function OrderDetailsModal({
                           Entrega Recibida:
                         </span>
                         <span className="text-xl font-bold text-green-700">
-                          ${((orderData as any).amount_paid || 0).toFixed(2)}
+                          ${((orderData as any).amount_paid || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
                     </div>
@@ -955,7 +965,7 @@ export default function OrdersPage() {
                         <div className="text-xs text-orange-600 font-semibold mt-1 flex items-center gap-1">
                           <FaInfoCircle className="text-xs" />
                           Pendiente: $
-                          {((order as any).amount_pending || 0).toFixed(2)}
+                          {((order as any).amount_pending || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                       )}
                     </td>
@@ -1124,7 +1134,7 @@ export default function OrdersPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-orange-600">Pendiente:</span>
                     <span className="text-sm font-semibold text-orange-600">
-                      ${((order as any).amount_pending || 0).toFixed(2)}
+                      ${((order as any).amount_pending || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </div>
                 )}

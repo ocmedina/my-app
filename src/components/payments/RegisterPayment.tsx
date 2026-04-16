@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { formatCurrency } from "@/lib/numberFormat";
 import { useRouter } from "next/navigation";
 import { FaCalendarAlt, FaReceipt, FaShoppingBag } from "react-icons/fa";
 
@@ -145,7 +146,7 @@ export default function RegisterPayment({
 
       const specificSum = paymentMode === 'specific' ? getSpecificTotal() : 0;
       if (paymentMode === 'specific' && Math.abs(finalAmount - specificSum) > 0.1) {
-        alert(`El total de los métodos de pago ($${finalAmount}) no coincide con el total de los items seleccionados ($${specificSum}).`);
+        alert(`El total de los métodos de pago (${formatCurrency(finalAmount)}) no coincide con el total de los items seleccionados (${formatCurrency(specificSum)}).`);
         return;
       }
 
@@ -166,7 +167,7 @@ export default function RegisterPayment({
 
     if (finalAmount > currentDebt + 0.1) {
       // Allow slight overpayment tolerance, but generally warn
-      if (!confirm(`El monto ($${finalAmount.toFixed(2)}) es mayor a la deuda registrada ($${currentDebt.toFixed(2)}). ¿Desea continuar de todas formas (esto generará saldo a favor)?`)) {
+      if (!confirm(`El monto (${formatCurrency(finalAmount)}) es mayor a la deuda registrada (${formatCurrency(currentDebt)}). ¿Desea continuar de todas formas (esto generará saldo a favor)?`)) {
         return;
       }
     }
@@ -181,103 +182,58 @@ export default function RegisterPayment({
         })
       );
 
-      // --- PAYMENT DISTRIBUTION LOGIC ---
+      const paymentComment =
+        comment ||
+        (paymentMethod === "mixto"
+          ? "Pago Mixto"
+          : paymentMode === "specific"
+          ? "Pago Específico"
+          : "Pago a cuenta");
 
-      if (paymentMode === 'specific') {
-        // Specific distribution
-        for (const [itemId, payAmount] of Object.entries(selectedItems)) {
-          const item = pendingItems.find(i => i.id === itemId);
-          if (!item) continue;
+      const allocationsPayload =
+        paymentMode === "specific"
+          ? Object.entries(selectedItems)
+              .map(([itemId, payAmount]) => {
+                const item = pendingItems.find((pending) => pending.id === itemId);
+                if (!item || payAmount <= 0) return null;
 
-          if (payAmount > item.amount_pending + 0.01) {
-            console.warn(`Paying more than pending for item ${itemId}`);
-            // We allow it? Technically yes, but better to cap? let's stick to user input
-          }
+                return {
+                  item_id: item.id,
+                  item_type: item.type,
+                  amount: payAmount,
+                };
+              })
+              .filter(Boolean)
+          : [];
 
-          const newPending = Math.max(0, item.amount_pending - payAmount);
-
-          if (item.type === 'order') {
-            await supabase.from("orders").update({ amount_pending: newPending }).eq("id", itemId);
-          } else {
-            await supabase.from("sales").update({ amount_pending: newPending }).eq("id", itemId);
-          }
+      const { data: txData, error: txError } = await supabase.rpc(
+        "register_customer_payment_transaction",
+        {
+          p_customer_id: customerId,
+          p_total_amount: finalAmount,
+          p_created_at: argentinaTime.toISOString(),
+          p_comment: paymentComment,
+          p_methods: methodsToProcess,
+          p_mode: paymentMode,
+          p_allocations: allocationsPayload,
         }
+      );
 
+      if (txError) throw txError;
+
+      const result = (txData || {}) as { unapplied_amount?: number | null };
+      const unappliedAmount = Number(result.unapplied_amount || 0);
+
+      if (unappliedAmount > 0.01) {
+        alert(
+          `¡Pago registrado exitosamente!\nMonto sin aplicar: ${formatCurrency(
+            unappliedAmount
+          )}`
+        );
       } else {
-        // Automatic distribution (Legacy logic)
-        // 1. Fetch pending orders (Fresh)
-        const { data: orders } = await supabase
-          .from("orders")
-          .select("id, amount_pending")
-          .eq("customer_id", customerId)
-          .gt("amount_pending", 0)
-          .neq("status", "cancelado")
-          .order("created_at", { ascending: true });
-
-        // 2. Fetch pending sales (Fresh)
-        const { data: sales } = await supabase
-          .from("sales")
-          .select("id, amount_pending")
-          .eq("customer_id", customerId)
-          .eq("payment_method", "cuenta_corriente")
-          .eq("is_cancelled", false)
-          .gt("amount_pending", 0)
-          .order("created_at", { ascending: true });
-
-        let remainingGlobalAmount = finalAmount;
-
-        // Pay Orders
-        if (orders && orders.length > 0) {
-          for (const order of orders) {
-            if (remainingGlobalAmount <= 0.01) break;
-
-            const orderPending = order.amount_pending || 0;
-            const paymentForOrder = Math.min(remainingGlobalAmount, orderPending);
-            const newPending = orderPending - paymentForOrder;
-
-            await supabase
-              .from("orders")
-              .update({ amount_pending: newPending })
-              .eq("id", order.id);
-
-            remainingGlobalAmount -= paymentForOrder;
-          }
-        }
-
-        // Pay Sales
-        if (sales && sales.length > 0 && remainingGlobalAmount > 0.01) {
-          for (const sale of sales) {
-            if (remainingGlobalAmount <= 0.01) break;
-
-            const salePending = sale.amount_pending || 0;
-            const paymentForSale = Math.min(remainingGlobalAmount, salePending);
-            const newPending = salePending - paymentForSale;
-
-            await supabase
-              .from("sales")
-              .update({ amount_pending: newPending })
-              .eq("id", sale.id);
-
-            remainingGlobalAmount -= paymentForSale;
-          }
-        }
+        alert("¡Pago registrado exitosamente!");
       }
 
-      // 4. Register payments in 'payments' table
-      // We insert one record per method used
-      for (const p of methodsToProcess) {
-        const { error: paymentError } = await supabase.from("payments").insert({
-          customer_id: customerId,
-          type: "pago",
-          amount: p.amount,
-          payment_method: p.method,
-          comment: comment || (paymentMethod === "mixto" ? "Pago Mixto" : (paymentMode === 'specific' ? "Pago Específico" : "Pago a cuenta")),
-          created_at: argentinaTime.toISOString(),
-        });
-        if (paymentError) throw paymentError;
-      }
-
-      alert("¡Pago registrado exitosamente!");
       setAmount("");
       setComment("");
       setPaymentMethod("efectivo");
@@ -386,9 +342,9 @@ export default function RegisterPayment({
                             </span>
                           </div>
                           <div className="text-xs text-gray-500 dark:text-slate-400 flex justify-between w-full pr-2">
-                            <span>Total: ${item.total_amount.toFixed(2)}</span>
+                            <span>Total: {formatCurrency(item.total_amount)}</span>
                             <span className="font-semibold text-gray-700 dark:text-slate-300">
-                              Pendiente: <span className="text-red-600">${item.amount_pending.toFixed(2)}</span>
+                              Pendiente: <span className="text-red-600">{formatCurrency(item.amount_pending)}</span>
                             </span>
                           </div>
                         </div>
@@ -420,7 +376,7 @@ export default function RegisterPayment({
             {paymentMode === "specific" && (
               <div className="bg-blue-50 dark:bg-slate-900 border-t border-blue-100 dark:border-slate-800 p-4 flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Total Seleccionado:</span>
-                <span className="text-2xl font-bold text-blue-700 dark:text-blue-400">${getSpecificTotal().toFixed(2)}</span>
+                <span className="text-2xl font-bold text-blue-700 dark:text-blue-400">{formatCurrency(getSpecificTotal())}</span>
               </div>
             )}
           </div>
@@ -449,7 +405,7 @@ export default function RegisterPayment({
               />
             </div>
             <p className="text-xs text-gray-500 dark:text-slate-400 mt-2 text-right">
-              Deuda Total: <span className="font-semibold text-red-600">${currentDebt.toFixed(2)}</span>
+              Deuda Total: <span className="font-semibold text-red-600">{formatCurrency(currentDebt)}</span>
             </p>
           </div>
         )}
@@ -531,12 +487,12 @@ export default function RegisterPayment({
             <div className="pt-2 border-t border-gray-200 dark:border-slate-700 flex justify-between items-center text-sm font-bold">
               <span className="text-gray-700 dark:text-slate-300">Total:</span>
               <span className={getTotalMixedAmount() > currentDebt ? "text-red-500" : "text-green-600"}>
-                ${getTotalMixedAmount().toFixed(2)}
+                {formatCurrency(getTotalMixedAmount())}
               </span>
             </div>
             {paymentMode === "specific" && (
               <p className="text-xs text-blue-600 text-right mt-1">
-                Objetivo: ${getSpecificTotal().toFixed(2)}
+                Objetivo: {formatCurrency(getSpecificTotal())}
               </p>
             )}
           </div>
@@ -564,7 +520,7 @@ export default function RegisterPayment({
           disabled={loading || (paymentMode === 'specific' && getSpecificTotal() === 0)}
           className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-lg hover:from-green-700 hover:to-green-800 disabled:from-gray-400 disabled:to-gray-400 shadow-lg transition-all text-base disabled:cursor-not-allowed"
         >
-          {loading ? "Registrando..." : `Registrar Pago ${paymentMode === 'specific' ? `($${getSpecificTotal().toFixed(2)})` : ''}`}
+          {loading ? "Registrando..." : `Registrar Pago ${paymentMode === 'specific' ? `(${formatCurrency(getSpecificTotal())})` : ''}`}
         </button>
       </form>
     </div >

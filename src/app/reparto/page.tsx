@@ -129,6 +129,7 @@ export default function RepartoPage() {
           .select(
             "id, total_amount, status, created_at, customer_id, profile_id, customers(full_name, address, reference)"
           )
+          .eq("profile_id", userId)
           .gte("created_at", startDate)
           .lt("created_at", endDate)
           .order("created_at", { ascending: false });
@@ -150,6 +151,7 @@ export default function RepartoPage() {
         .select(
           "id, total_amount, status, created_at, customer_id, profile_id, customers(full_name, address, reference)"
         )
+        .eq("profile_id", userId)
         .order("created_at", { ascending: false })
         .limit(100);
 
@@ -168,7 +170,6 @@ export default function RepartoPage() {
       } = await supabase.auth.getSession();
       if (session?.user) {
         setCurrentUser(session.user);
-        fetchDailyHistory(session.user.id, selectedDate);
         fetchAllOrdersHistory(session.user.id);
       } else {
         router.push("/login");
@@ -177,12 +178,15 @@ export default function RepartoPage() {
     }
     loadInitialData();
   }, [
-    fetchDailyHistory,
     fetchAllOrdersHistory,
     fetchCustomers,
     router,
-    selectedDate,
   ]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    fetchDailyHistory(currentUser.id, selectedDate);
+  }, [currentUser, selectedDate, fetchDailyHistory]);
 
   // Real-time subscription for orders
   useEffect(() => {

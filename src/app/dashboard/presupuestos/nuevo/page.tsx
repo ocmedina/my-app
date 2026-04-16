@@ -294,7 +294,7 @@ export default function NewBudgetPage() {
                         <div>
                           <p className="font-medium text-gray-900 dark:text-slate-50">{product.name}</p>
                           <p className="text-xs text-gray-500 dark:text-slate-400">
-                            ${getPrice(product).toFixed(2)} | Stock: {product.stock || 0}
+                            ${getPrice(product).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} | Stock: {product.stock || 0}
                           </p>
                         </div>
 
@@ -329,7 +329,7 @@ export default function NewBudgetPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <p className="text-sm font-medium text-gray-900 dark:text-slate-50">{item.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-slate-400">${price.toFixed(2)} c/u</p>
+                          <p className="text-xs text-gray-500 dark:text-slate-400">${price.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} c/u</p>
                         </div>
                         <button
                           type="button"
@@ -360,7 +360,7 @@ export default function NewBudgetPage() {
                         </div>
 
                         <p className="font-semibold text-gray-900 dark:text-slate-50">
-                          ${(price * item.quantity).toFixed(2)}
+                          ${(price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </div>
                     </div>
@@ -372,7 +372,7 @@ export default function NewBudgetPage() {
             <div className="border-t border-gray-200 dark:border-slate-700 pt-4 space-y-4">
               <div className="flex items-center justify-between font-bold text-lg">
                 <span className="text-gray-900 dark:text-slate-50">Total</span>
-                <span className="text-green-600">${total.toFixed(2)}</span>
+                <span className="text-green-600">${total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
 
               <button

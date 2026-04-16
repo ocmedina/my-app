@@ -1,5 +1,4 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/server";
 import SaleDetailsClient from "./SaleDetailsClient";
 import { Database } from "@/lib/database.types";
 import Link from "next/link";
@@ -13,13 +12,8 @@ export default async function SaleDetailPage({
   // Await params antes de usarlo
   const { id } = await params;
 
-  // Await cookies antes de usarlo
-  const cookieStore = await cookies();
-
   // --- LÓGICA DE CARGA DIRECTAMENTE AQUÍ ---
-  const supabase = createServerComponentClient<Database>({
-    cookies: () => cookieStore,
-  });
+  const supabase = await createClient();
 
   const { data: sale, error } = await supabase
     .from("sales")

@@ -80,8 +80,8 @@ export default function InvoicePDFDocument({ invoiceData, settings }: { invoiceD
             <View key={index} style={styles.tableRow}>
               <Text style={styles.colProduct}>{item.name ?? 'N/A'}</Text>
               <Text style={styles.colQty}>{item.quantity}</Text>
-              <Text style={styles.colPrice}>${item.price?.toFixed(2)}</Text>
-              <Text style={styles.colTotal}>${(item.price * item.quantity).toFixed(2)}</Text>
+              <Text style={styles.colPrice}>${item.price?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+              <Text style={styles.colTotal}>${(item.price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
             </View>
           ))}
         </View>
@@ -91,7 +91,7 @@ export default function InvoicePDFDocument({ invoiceData, settings }: { invoiceD
              {/* Aquí irían Subtotal, IVA, etc. si aplica */}
              <View style={[styles.summaryRow, styles.summaryTotal]}>
               <Text>TOTAL</Text>
-              <Text>${invoiceData.total_amount?.toFixed(2)}</Text>
+              <Text>${invoiceData.total_amount?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
             </View>
           </View>
         </View>

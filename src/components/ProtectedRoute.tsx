@@ -3,10 +3,11 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { type Role, PERMISSIONS } from '@/lib/permissions';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  permission?: keyof typeof import('@/lib/permissions').PERMISSIONS;
+  permission?: keyof typeof PERMISSIONS;
   requiredRole?: Role;
   fallback?: React.ReactNode;
 }

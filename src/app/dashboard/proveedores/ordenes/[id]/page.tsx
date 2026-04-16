@@ -226,16 +226,16 @@ export default function OrderDetailPage({
       const tableData = order.purchase_order_items.map((item) => [
         item.products.sku,
         item.products.name,
-        `$${item.unit_price.toFixed(2)}`,
+        `$${item.unit_price.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         item.quantity.toString(),
-        `$${item.subtotal.toFixed(2)}`,
+        `$${item.subtotal.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       ]);
 
       autoTable(doc, {
         startY: yPosition,
         head: [["SKU", "Producto", "Precio Unit.", "Cantidad", "Subtotal"]],
         body: tableData,
-        foot: [["", "", "", "Total:", `$${order.total_amount.toFixed(2)}`]],
+        foot: [["", "", "", "Total:", `$${order.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`]],
         theme: "grid",
         headStyles: {
           fillColor: [229, 231, 235],
@@ -436,10 +436,10 @@ export default function OrderDetailPage({
                       {item.quantity}
                     </td>
                     <td className="px-4 py-4 text-right text-sm text-gray-600 dark:text-slate-300">
-                      ${item.unit_price.toFixed(2)}
+                      ${item.unit_price.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="px-4 py-4 text-right font-bold text-gray-900 dark:text-slate-50">
-                      ${item.subtotal.toFixed(2)}
+                      ${item.subtotal.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                   </tr>
                 ))}
@@ -453,7 +453,7 @@ export default function OrderDetailPage({
                     Total:
                   </td>
                   <td className="px-4 py-4 text-right text-xl font-bold text-blue-600">
-                    ${order.total_amount.toFixed(2)}
+                    ${order.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>
               </tfoot>

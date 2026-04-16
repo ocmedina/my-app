@@ -231,7 +231,7 @@ export default function ProductSearchModal({
                         Precio
                       </div>
                       <div className="text-xl font-bold text-green-600">
-                        ${(product.price_minorista || 0).toFixed(2)}
+                        ${(product.price_minorista || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                       <div
                         className={`text-xs font-medium mt-1 ${

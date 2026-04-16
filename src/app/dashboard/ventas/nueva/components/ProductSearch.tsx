@@ -218,7 +218,7 @@ export default function ProductSearch({
                     Stock: {product.stock || 0}
                   </div>
                   <div className="text-xs text-gray-400">
-                    ${(product.price_minorista || 0).toFixed(2)}
+                    ${(product.price_minorista || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                 </div>
               </div>

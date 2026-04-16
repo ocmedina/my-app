@@ -223,7 +223,7 @@ export default function VentasPendientesPage() {
             Total Pendiente
           </p>
           <p className="text-2xl sm:text-3xl font-bold text-purple-600">
-            ${totalPendiente.toFixed(2)}
+            ${totalPendiente.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
       </div>
@@ -278,13 +278,13 @@ export default function VentasPendientesPage() {
                     <div>
                       <p className="text-xs text-gray-500 dark:text-slate-400 mb-1">Total Venta</p>
                       <p className="text-lg font-bold text-gray-900 dark:text-slate-50">
-                        ${venta.total_amount.toFixed(2)}
+                        ${venta.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 dark:text-slate-400 mb-1">Pagado</p>
                       <p className="text-lg font-bold text-green-600">
-                        ${venta.amount_paid.toFixed(2)}
+                        ${venta.amount_paid.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                     </div>
                   </div>
@@ -293,7 +293,7 @@ export default function VentasPendientesPage() {
                       SALDO PENDIENTE
                     </p>
                     <p className="text-2xl font-bold text-red-600">
-                      ${venta.amount_pending.toFixed(2)}
+                      ${venta.amount_pending.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                     <p className="text-xs text-red-600 mt-1">
                       {(
@@ -398,17 +398,17 @@ export default function VentasPendientesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="text-sm font-semibold text-gray-900 dark:text-slate-50">
-                          ${venta.total_amount.toFixed(2)}
+                          ${venta.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="text-sm text-green-600 font-medium">
-                          ${venta.amount_paid.toFixed(2)}
+                          ${venta.amount_paid.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="text-sm font-bold text-red-600">
-                          ${venta.amount_pending.toFixed(2)}
+                          ${venta.amount_pending.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-slate-400">
                           {(
@@ -447,7 +447,7 @@ export default function VentasPendientesPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="text-lg font-bold text-red-600">
-                        ${totalPendiente.toFixed(2)}
+                        ${totalPendiente.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                     </td>
                     <td></td>
@@ -478,7 +478,7 @@ export default function VentasPendientesPage() {
             <div>
               <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">Total Vendido</p>
               <p className="text-2xl font-bold text-gray-800 dark:text-slate-100">
-                ${ventas.reduce((sum, v) => sum + v.total_amount, 0).toFixed(2)}
+                ${ventas.reduce((sum, v) => sum + v.total_amount, 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
             <FaMoneyBillWave className="text-4xl text-green-400" />
@@ -490,7 +490,7 @@ export default function VentasPendientesPage() {
             <div>
               <p className="text-sm text-gray-600 dark:text-slate-300 mb-1">Total Cobrado</p>
               <p className="text-2xl font-bold text-gray-800 dark:text-slate-100">
-                ${ventas.reduce((sum, v) => sum + v.amount_paid, 0).toFixed(2)}
+                ${ventas.reduce((sum, v) => sum + v.amount_paid, 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
             <FaDollarSign className="text-4xl text-blue-400" />
@@ -517,11 +517,11 @@ export default function VentasPendientesPage() {
                   SALDO PENDIENTE
                 </p>
                 <p className="text-2xl font-bold text-purple-600">
-                  ${selectedVenta.amount_pending.toFixed(2)}
+                  ${selectedVenta.amount_pending.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-slate-300 mt-1">
-                  Total: ${selectedVenta.total_amount.toFixed(2)} | Pagado: $
-                  {selectedVenta.amount_paid.toFixed(2)}
+                  Total: ${selectedVenta.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} | Pagado: $
+                  {selectedVenta.amount_paid.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
             </div>

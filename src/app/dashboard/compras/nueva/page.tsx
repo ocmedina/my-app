@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { User } from "@supabase/supabase-js";
 import { Database } from "@/lib/database.types";
+import { formatCurrency } from "@/lib/numberFormat";
 import {
   FaTimes,
   FaShoppingCart,
@@ -637,7 +638,7 @@ export default function NewPurchasePage() {
                     {suppliers.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.name}{" "}
-                        {s.debt > 0 && `(Deuda: $${s.debt.toFixed(2)})`}
+                        {s.debt > 0 && `(Deuda: ${formatCurrency(s.debt)})`}
                       </option>
                     ))}
                   </select>
@@ -793,14 +794,14 @@ export default function NewPurchasePage() {
                                     {diff > 0 ? "▲" : "▼"}
                                     {Math.abs(percent).toFixed(1)}%
                                     <span className="text-gray-400 font-normal">
-                                      (${currentCost.toFixed(2)})
+                                      ({formatCurrency(currentCost)})
                                     </span>
                                   </div>
                                 );
                               })()}
                             </td>
                             <td className="p-3 font-bold text-green-600 text-lg">
-                              ${subtotal.toFixed(2)}
+                              {formatCurrency(subtotal)}
                             </td>
                             <td className="p-3">
                               <button
@@ -850,7 +851,7 @@ export default function NewPurchasePage() {
               <div className="flex justify-between items-center">
                 <span className="font-bold text-gray-700 dark:text-slate-200">Total Factura:</span>
                 <span className="font-bold text-3xl text-green-600">
-                  ${totalAmount.toFixed(2)}
+                  {formatCurrency(totalAmount)}
                 </span>
               </div>
             </div>
@@ -902,7 +903,7 @@ export default function NewPurchasePage() {
                     : "text-green-600"
                     }`}
                 >
-                  ${(totalAmount - (parseFloat(amountPaid) || 0)).toFixed(2)}
+                  {formatCurrency(totalAmount - (parseFloat(amountPaid) || 0))}
                 </span>
               </div>
             </div>

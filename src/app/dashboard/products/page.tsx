@@ -5,6 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import ProductActions from "@/components/ProductActions";
 import { Database } from "@/lib/database.types";
+import toast from "react-hot-toast";
 import {
   FaUpload,
   FaSearch,
@@ -24,6 +25,7 @@ import {
   FaCheckCircle,
   FaBan,
   FaPercentage,
+  FaFileExcel,
 } from "react-icons/fa";
 import MassUpdateModal from "./components/MassUpdateModal";
 import BarcodeModal from "./components/BarcodeModal";
@@ -56,12 +58,21 @@ export default function ProductsPage() {
         data: { session },
       } = await supabase.auth.getSession();
       if (session) {
+        const roleFromMetadata = session.user.user_metadata?.role as
+          | string
+          | undefined;
+
+        if (roleFromMetadata) {
+          setUserRole(roleFromMetadata);
+          return;
+        }
+
         const { data: profile } = await supabase
           .from("profiles")
           .select("role")
           .eq("id", session.user.id)
           .single();
-        if (profile) {
+        if (profile?.role) {
           setUserRole(profile.role);
         }
       }
@@ -72,28 +83,39 @@ export default function ProductsPage() {
   // Obtener estadísticas de stock
   useEffect(() => {
     const fetchStats = async () => {
-      const { data: allProducts } = await supabase
-        .from("products")
-        .select("stock")
-        .eq("is_active", true);
+      const [totalRes, sinStockRes, stockBajoRes, conStockRes] =
+        await Promise.all([
+          supabase
+            .from("products")
+            .select("id", { count: "exact", head: true })
+            .eq("is_active", true),
+          supabase
+            .from("products")
+            .select("id", { count: "exact", head: true })
+            .eq("is_active", true)
+            .eq("stock", 0),
+          supabase
+            .from("products")
+            .select("id", { count: "exact", head: true })
+            .eq("is_active", true)
+            .gt("stock", 0)
+            .lte("stock", 10),
+          supabase
+            .from("products")
+            .select("id", { count: "exact", head: true })
+            .eq("is_active", true)
+            .gt("stock", 10),
+        ]);
 
-      if (allProducts) {
-        const sinStock = allProducts.filter((p) => p.stock === 0).length;
-        const stockBajo = allProducts.filter(
-          (p) => p.stock > 0 && p.stock <= 10
-        ).length;
-        const conStock = allProducts.filter((p) => p.stock > 10).length;
-
-        setStats({
-          sinStock,
-          stockBajo,
-          conStock,
-          total: allProducts.length,
-        });
-      }
+      setStats({
+        total: totalRes.count || 0,
+        sinStock: sinStockRes.count || 0,
+        stockBajo: stockBajoRes.count || 0,
+        conStock: conStockRes.count || 0,
+      });
     };
     fetchStats();
-  }, []);
+  }, [refreshKey]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -148,6 +170,68 @@ export default function ProductsPage() {
     setCurrentPage(1);
   }, [searchTerm, stockFilter]);
 
+  const handleExportCurrentStock = async () => {
+    try {
+      const XLSX = await import("xlsx");
+
+      let query = supabase
+        .from("products")
+        .select("sku, name, price_minorista, price_mayorista, stock")
+        .eq("is_active", true)
+        .order("name", { ascending: true });
+
+      if (searchTerm.trim()) {
+        query = query.or(`name.ilike.%${searchTerm}%,sku.ilike.%${searchTerm}%`);
+      }
+
+      if (stockFilter === "sin_stock") {
+        query = query.eq("stock", 0);
+      } else if (stockFilter === "stock_bajo") {
+        query = query.gt("stock", 0).lte("stock", 10);
+      } else if (stockFilter === "con_stock") {
+        query = query.gt("stock", 10);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast.error("No hay productos para exportar con los filtros actuales");
+        return;
+      }
+
+      const rows = data.map((product) => ({
+        SKU: product.sku || "",
+        Nombre: product.name || "",
+        PrecioMinorista: Number(product.price_minorista ?? 0),
+        PrecioMayorista: Number(product.price_mayorista ?? 0),
+        Stock: Number(product.stock ?? 0),
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(rows, {
+        header: ["SKU", "Nombre", "PrecioMinorista", "PrecioMayorista", "Stock"],
+      });
+      worksheet["!cols"] = [
+        { wch: 20 },
+        { wch: 40 },
+        { wch: 16 },
+        { wch: 16 },
+        { wch: 10 },
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "StockActual");
+
+      const exportDate = new Date().toISOString().split("T")[0];
+      XLSX.writeFile(workbook, `stock_actual_${exportDate}.xlsx`);
+      toast.success("Stock actual exportado correctamente");
+    } catch (error: any) {
+      console.error("Error exporting stock:", error);
+      toast.error("No se pudo exportar el stock actual");
+    }
+  };
+
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
@@ -163,6 +247,12 @@ export default function ProductsPage() {
           </p>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2 w-full lg:w-auto no-scrollbar">
+          <button
+            onClick={handleExportCurrentStock}
+            className="px-5 py-3 bg-gradient-to-r from-emerald-600 to-green-700 text-white rounded-lg hover:from-emerald-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0"
+          >
+            <FaFileExcel /> Exportar Stock Excel
+          </button>
           <button
             onClick={() => setIsMassUpdateModalOpen(true)}
             className="px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2 whitespace-nowrap flex-shrink-0"
@@ -447,13 +537,13 @@ export default function ProductsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1 text-sm font-bold text-green-600">
                         <FaDollarSign />
-                        {product.price_minorista?.toFixed(2)}
+                        {product.price_minorista?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1 text-sm font-bold text-blue-600">
                         <FaDollarSign />
-                        {product.price_mayorista?.toFixed(2)}
+                        {product.price_mayorista?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -552,14 +642,14 @@ export default function ProductsPage() {
                   <p className="text-xs text-gray-500 dark:text-slate-400 mb-1">Minorista</p>
                   <p className="font-bold text-green-600 flex items-center gap-1">
                     <FaDollarSign className="text-xs" />
-                    {product.price_minorista?.toFixed(2)}
+                    {product.price_minorista?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-slate-950 p-2 rounded-lg">
                   <p className="text-xs text-gray-500 dark:text-slate-400 mb-1">Mayorista</p>
                   <p className="font-bold text-blue-600 flex items-center gap-1">
                     <FaDollarSign className="text-xs" />
-                    {product.price_mayorista?.toFixed(2)}
+                    {product.price_mayorista?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
               </div>

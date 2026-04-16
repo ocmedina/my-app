@@ -17,7 +17,9 @@ import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import { Database } from "@/lib/database.types";
 
-type Customer = Database["public"]["Tables"]["customers"]["Row"];
+type Customer = Database["public"]["Tables"]["customers"]["Row"] & {
+  reference?: string | null;
+};
 type FullOrder = {
   id: string;
   customer_id: string;
@@ -242,10 +244,10 @@ export default function OrderDetailsModal({
                       <div className="text-right">
                         <p className="text-sm text-gray-600 dark:text-slate-300">Precio Unit.</p>
                         <p className="font-bold text-gray-800 dark:text-slate-100">
-                          ${item.price.toFixed(2)}
+                          ${item.price.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                         <p className="text-xs text-green-600 font-semibold mt-1">
-                          Subtotal: ${(item.price * item.quantity).toFixed(2)}
+                          Subtotal: ${(item.price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </div>
                     </div>
@@ -258,7 +260,7 @@ export default function OrderDetailsModal({
                 <div className="flex items-center justify-between">
                   <span className="text-xl font-bold">Total del Pedido:</span>
                   <span className="text-3xl font-bold">
-                    ${orderData.total_amount.toFixed(2)}
+                    ${orderData.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>

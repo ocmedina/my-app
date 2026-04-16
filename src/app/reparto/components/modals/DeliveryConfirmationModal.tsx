@@ -114,7 +114,7 @@ export default function DeliveryConfirmationModal({
               </div>
             )}
             <p className="text-3xl font-bold text-green-600 mt-2">
-              ${order.total_amount.toFixed(2)}
+              ${order.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
           <div>
@@ -198,7 +198,7 @@ export default function DeliveryConfirmationModal({
           {pending > 0 && (
             <div className="flex justify-between font-bold text-red-600 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
               <span>Saldo Pendiente (Deuda):</span>
-              <span>${pending.toFixed(2)}</span>
+              <span>${pending.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           )}
           <button

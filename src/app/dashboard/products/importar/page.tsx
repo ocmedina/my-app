@@ -5,7 +5,6 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import * as XLSX from 'xlsx'; // Importamos la librería
 import { FaUpload, FaSpinner, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import Link from 'next/link';
 
@@ -45,12 +44,15 @@ export default function ImportProductsPage() {
 
     const reader = new FileReader();
     reader.onload = async (e) => {
+      let parsedRows = 0;
       try {
+        const XLSX = await import('xlsx');
         const data = e.target?.result;
         const workbook = XLSX.read(data, { type: 'array' });
         const sheetName = workbook.SheetNames[0]; // Tomamos la primera hoja
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json<ProductExcelRow>(worksheet);
+        parsedRows = jsonData.length;
 
         if (jsonData.length === 0) {
           toast.error('El archivo Excel está vacío o no tiene el formato correcto.');
@@ -112,7 +114,7 @@ export default function ImportProductsPage() {
       } catch (err: any) {
         console.error("Error al procesar el archivo:", err);
         toast.error(`Error al procesar el archivo: ${err.message}`);
-        setResults({ success: 0, errors: jsonData.length, duplicates: 0 });
+        setResults({ success: 0, errors: parsedRows, duplicates: 0 });
       } finally {
         setLoading(false);
         setFile(null); // Limpiar el input de archivo

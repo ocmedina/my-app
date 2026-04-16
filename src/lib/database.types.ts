@@ -507,7 +507,45 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cancel_customer_payment_transaction: {
+        Args: {
+          p_payment_id: number
+        }
+        Returns: Json
+      }
+      finalize_sale_transaction: {
+        Args: {
+          p_customer_id: string
+          p_profile_id: string
+          p_total_amount: number
+          p_payment_method: string
+          p_amount_paid: number
+          p_created_at: string
+          p_items: Json
+          p_use_mixed_payment?: boolean
+          p_payment_methods?: Json
+          p_pay_to_supplier?: boolean
+          p_selected_supplier_id?: string | null
+          p_customer_full_name?: string | null
+        }
+        Returns: Json
+      }
+      generate_invoice_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      register_customer_payment_transaction: {
+        Args: {
+          p_customer_id: string
+          p_total_amount: number
+          p_created_at: string
+          p_comment?: string | null
+          p_methods?: Json
+          p_mode?: string
+          p_allocations?: Json
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

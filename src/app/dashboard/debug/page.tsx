@@ -238,7 +238,7 @@ export default function DebugPage() {
                 <div className="bg-white dark:bg-slate-900 p-3 rounded">
                   <p className="text-gray-600 dark:text-slate-300 font-medium">Total:</p>
                   <p className="text-gray-900 dark:text-slate-50 font-bold mt-1">
-                    ${results.recentSale.total.toFixed(2)}
+                    ${results.recentSale.total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-slate-900 p-3 rounded">

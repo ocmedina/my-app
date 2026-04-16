@@ -5,10 +5,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import OrderPDFDocument from "@/components/OrderPDFDocument";
+import PDFDownloadButton from "@/components/pdf/PDFDownloadButton";
 import {
-  FaPrint,
   FaEdit,
   FaArrowLeft,
   FaBox,
@@ -252,10 +250,10 @@ export default function OrderDetailsClient({
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-700 dark:text-slate-200">
-                      ${item.price?.toFixed(2)}
+                      ${item.price?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-4 text-sm font-bold text-green-600">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ${(item.price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                   </tr>
                 ))}
@@ -272,7 +270,7 @@ export default function OrderDetailsClient({
                     </div>
                   </td>
                   <td className="px-6 py-4 text-left text-2xl font-bold text-green-600">
-                    ${order.total_amount?.toFixed(2)}
+                    ${order.total_amount?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>
                 {(order as any).amount_paid !== undefined &&
@@ -289,7 +287,7 @@ export default function OrderDetailsClient({
                           </div>
                         </td>
                         <td className="px-6 py-3 text-left text-lg font-bold text-green-800 dark:text-green-300">
-                          ${((order as any).amount_paid || 0).toFixed(2)}
+                          ${((order as any).amount_paid || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
                       </tr>
                       {((order as any).amount_pending || 0) > 0 && (
@@ -304,7 +302,7 @@ export default function OrderDetailsClient({
                             </div>
                           </td>
                           <td className="px-6 py-3 text-left text-lg font-bold text-orange-800 dark:text-orange-300">
-                            ${((order as any).amount_pending || 0).toFixed(2)}
+                            ${((order as any).amount_pending || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
                         </tr>
                       )}
@@ -354,7 +352,7 @@ export default function OrderDetailsClient({
                         Precio Unit.
                       </div>
                       <div className="font-bold text-gray-800 dark:text-slate-100">
-                        ${item.price?.toFixed(2)}
+                        ${item.price?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                     </div>
                   </div>
@@ -365,7 +363,7 @@ export default function OrderDetailsClient({
                     Subtotal:
                   </span>
                   <span className="text-base font-bold text-green-600">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ${(item.price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
@@ -379,7 +377,7 @@ export default function OrderDetailsClient({
                   TOTAL
                 </span>
                 <span className="font-bold text-2xl text-green-600">
-                  ${order.total_amount?.toFixed(2)}
+                  ${order.total_amount?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
               {(order as any).amount_paid !== undefined &&
@@ -391,7 +389,7 @@ export default function OrderDetailsClient({
                         Entrega Recibida
                       </span>
                       <span className="text-base font-bold text-green-800">
-                        ${((order as any).amount_paid || 0).toFixed(2)}
+                        ${((order as any).amount_paid || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </div>
                     {((order as any).amount_pending || 0) > 0 && (
@@ -401,7 +399,7 @@ export default function OrderDetailsClient({
                           Saldo Pendiente
                         </span>
                         <span className="text-base font-bold text-orange-800">
-                          ${((order as any).amount_pending || 0).toFixed(2)}
+                          ${((order as any).amount_pending || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
                     )}
@@ -444,25 +442,11 @@ export default function OrderDetailsClient({
             )}
           </div>
 
-          <PDFDownloadLink
-            document={<OrderPDFDocument order={order} />}
-            fileName={`pedido_${order.id.substring(0, 8)}.pdf`}
-            className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white text-sm font-semibold rounded-lg hover:from-gray-800 hover:to-gray-900 shadow-md hover:shadow-lg transition-all"
-          >
-            {({ loading }) =>
-              loading ? (
-                <span className="flex items-center gap-2">
-                  <FaClock className="animate-spin" />
-                  Generando Remito...
-                </span>
-              ) : (
-                <>
-                  <FaPrint />{" "}
-                  <span className="hidden sm:inline">Descargar</span> Remito
-                </>
-              )
-            }
-          </PDFDownloadLink>
+          <PDFDownloadButton
+            orderData={order}
+            printFormat="A4"
+            fileNamePrefix="pedido"
+          />
         </div>
       </div>
     </div>

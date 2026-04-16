@@ -281,9 +281,9 @@ export default function ThermalSalePDFDocument({ sale }: { sale: any }) {
                             {item.products?.name ?? "N/A"}
                         </Text>
                         <Text style={styles.colQty}>{item.quantity}</Text>
-                        <Text style={styles.colPrice}>${item.price?.toFixed(2)}</Text>
+                        <Text style={styles.colPrice}>${item.price?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
                         <Text style={styles.colTotal}>
-                            ${(item.price * item.quantity).toFixed(2)}
+                            ${(item.price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </Text>
                     </View>
                 ))}
@@ -293,7 +293,7 @@ export default function ThermalSalePDFDocument({ sale }: { sale: any }) {
                     <View style={styles.totalRow}>
                         <Text style={styles.totalLabel}>TOTAL:</Text>
                         <Text style={styles.totalAmount}>
-                            ${sale.total_amount?.toFixed(2)}
+                            ${sale.total_amount?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </Text>
                     </View>
                 </View>

@@ -1,6 +1,6 @@
 'use server';
 
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { createLooseAdminClient } from '@/lib/admin';
 import { revalidatePath } from 'next/cache';
 
 type OrderItemInput = {
@@ -20,17 +20,23 @@ export async function updateOrder(
 ) {
   try {
     // Usar el cliente Admin para tener permisos completos
-    const supabase = supabaseAdmin;
+    const supabase = createLooseAdminClient();
 
     // Verificar que el pedido existe y está en estado pendiente
-    const { data: existingOrder, error: checkError } = await supabase
+    const { data: existingOrderData, error: checkError } = await supabase
       .from('orders')
       .select('status')
       .eq('id', orderId)
       .single();
 
+    const existingOrder = existingOrderData as { status?: string } | null;
+
     if (checkError) {
       throw new Error(`Error verificando pedido: ${checkError.message}`);
+    }
+
+    if (!existingOrder) {
+      throw new Error('Pedido no encontrado');
     }
 
     if (existingOrder.status !== 'pendiente') {
@@ -74,7 +80,7 @@ export async function updateOrder(
     console.log(`[Server Action] Items insertados: ${insertedItems?.length || 0}`, insertedItems);
 
     // Actualizar el pedido
-    const updateData: any = {
+    const updateData: Record<string, string | number> = {
       customer_id: customerId,
       total_amount: totalAmount,
     };
@@ -105,8 +111,9 @@ export async function updateOrder(
     revalidatePath('/dashboard/pedidos');
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
     console.error('Error en updateOrder:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: message };
   }
 }

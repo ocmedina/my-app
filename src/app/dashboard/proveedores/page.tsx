@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { formatCurrency } from "@/lib/numberFormat";
 import toast from "react-hot-toast";
 import SupplierActions from "@/components/SupplierActions";
 import {
@@ -305,20 +306,19 @@ export default function SuppliersPage() {
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-2 border-red-400">
                               <FaExclamationTriangle />
-                              Deuda: ${debt.toFixed(2)}
+                              Deuda: {formatCurrency(debt)}
                             </span>
                           </div>
                         ) : debt < 0 ? (
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-2 border-green-400">
-                              <FaDollarSign />A favor: $
-                              {Math.abs(debt).toFixed(2)}
+                              <FaDollarSign />A favor: {formatCurrency(Math.abs(debt))}
                             </span>
                           </div>
                         ) : (
                           <span className="inline-flex items-center gap-1 text-sm font-bold text-gray-600 dark:text-slate-300">
                             <FaDollarSign />
-                            0.00
+                            {formatCurrency(0)}
                           </span>
                         )}
                       </td>

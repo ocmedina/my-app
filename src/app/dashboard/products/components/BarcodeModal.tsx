@@ -236,7 +236,7 @@ export default function BarcodeModal({ isOpen, onClose }: BarcodeModalProps) {
                                                 />
                                             </div>
                                             <span className="text-lg font-black mt-1 text-black">
-                                                ${item.product.price_minorista?.toFixed(2)}
+                                                ${item.product.price_minorista?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </span>
                                         </div>
                                     ))

@@ -343,7 +343,7 @@ export default function ReportsPage() {
                 Total Ventas
               </p>
               <p className="text-xl sm:text-2xl font-bold text-blue-700">
-                ${closingData.totalSales.toFixed(2)}
+                ${closingData.totalSales.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               <p className="text-xs text-blue-500">
                 {closingData.transactionCount} transacciones
@@ -354,7 +354,7 @@ export default function ReportsPage() {
                 Efectivo Recibido
               </p>
               <p className="text-xl sm:text-2xl font-bold text-green-700">
-                ${closingData.cashSales.toFixed(2)}
+                ${closingData.cashSales.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               <p className="text-xs text-green-600 mt-1">Total en efectivo</p>
             </div>
@@ -363,7 +363,7 @@ export default function ReportsPage() {
                 Fondo Inicial
               </p>
               <p className="text-xl sm:text-2xl font-bold text-purple-700">
-                ${closingData.startingFloat.toFixed(2)}
+                ${closingData.startingFloat.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
             <div className="bg-orange-50 dark:bg-orange-900/20 p-3 sm:p-4 rounded-lg border border-orange-200 dark:border-orange-800">
@@ -371,7 +371,7 @@ export default function ReportsPage() {
                 Cuenta Corriente
               </p>
               <p className="text-xl sm:text-2xl font-bold text-orange-700">
-                ${closingData.deliverySales.pending.toFixed(2)}
+                ${closingData.deliverySales.pending.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               <p className="text-xs text-orange-500">Pendiente de cobro</p>
             </div>
@@ -386,13 +386,13 @@ export default function ReportsPage() {
               <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
                 <p className="text-xs text-gray-600 dark:text-slate-300">Total Ventas</p>
                 <p className="text-lg font-bold text-blue-700">
-                  ${closingData.counterSales.total.toFixed(2)}
+                  ${closingData.counterSales.total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
               <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
                 <p className="text-xs text-gray-600 dark:text-slate-300">Efectivo</p>
                 <p className="text-lg font-bold text-green-700">
-                  ${closingData.counterSales.cash.toFixed(2)}
+                  ${closingData.counterSales.cash.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
               <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
@@ -412,7 +412,7 @@ export default function ReportsPage() {
                     <div key={method} className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-slate-300">{method}:</span>
                       <span className="font-semibold dark:text-slate-200">
-                        ${amount.toFixed(2)}
+                        ${amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </div>
                   )
@@ -430,19 +430,19 @@ export default function ReportsPage() {
               <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
                 <p className="text-xs text-gray-600 dark:text-slate-300">Total Entregado</p>
                 <p className="text-lg font-bold text-green-700">
-                  ${closingData.deliverySales.total.toFixed(2)}
+                  ${closingData.deliverySales.total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
               <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
                 <p className="text-xs text-gray-600 dark:text-slate-300">Efectivo Recibido</p>
                 <p className="text-lg font-bold text-green-700">
-                  ${closingData.deliverySales.cashReceived.toFixed(2)}
+                  ${closingData.deliverySales.cashReceived.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
               <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
                 <p className="text-xs text-gray-600 dark:text-slate-300">En Cuenta Corriente</p>
                 <p className="text-lg font-bold text-orange-600">
-                  ${closingData.deliverySales.pending.toFixed(2)}
+                  ${closingData.deliverySales.pending.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
               <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
@@ -465,7 +465,7 @@ export default function ReportsPage() {
                 Fondo de Caja Inicial
               </span>
               <span className="font-medium text-green-600 text-base sm:text-lg">
-                + ${closingData.startingFloat.toFixed(2)}
+                + ${closingData.startingFloat.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
 
@@ -474,7 +474,7 @@ export default function ReportsPage() {
                 Efectivo Mostrador
               </span>
               <span className="font-medium text-green-600 text-base sm:text-lg">
-                + ${closingData.counterSales.cash.toFixed(2)}
+                + ${closingData.counterSales.cash.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
 
@@ -483,7 +483,7 @@ export default function ReportsPage() {
                 Efectivo Entregas
               </span>
               <span className="font-medium text-green-600 text-base sm:text-lg">
-                + ${closingData.deliverySales.cashReceived.toFixed(2)}
+                + ${closingData.deliverySales.cashReceived.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
 
@@ -492,7 +492,7 @@ export default function ReportsPage() {
                 Gastos y Retiros
               </span>
               <span className="font-medium text-red-600 text-base sm:text-lg">
-                - ${closingData.totalExpenses.toFixed(2)}
+                - ${closingData.totalExpenses.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
 
@@ -501,7 +501,7 @@ export default function ReportsPage() {
             <div className="flex justify-between items-center text-base sm:text-xl font-bold bg-blue-100 dark:bg-blue-900/40 p-2 sm:p-3 rounded-lg">
               <span className="text-gray-800 dark:text-slate-100">Efectivo Esperado en Caja</span>
               <span className="text-blue-700 dark:text-blue-300">
-                ${closingData.expectedCash.toFixed(2)}
+                ${closingData.expectedCash.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -537,7 +537,7 @@ export default function ReportsPage() {
                     }`}
                 >
                   ${realTimeDifference >= 0 ? "+" : ""}
-                  {Math.abs(realTimeDifference).toFixed(2)}
+                  {Math.abs(realTimeDifference).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   {realTimeDifference > 0
@@ -598,7 +598,7 @@ export default function ReportsPage() {
                   Total Ventas
                 </p>
                 <p className="text-xl font-bold text-blue-700">
-                  ${savedReport.totalSales.toFixed(2)}
+                  ${savedReport.totalSales.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-blue-500">
                   {savedReport.transactionCount} transacciones
@@ -609,7 +609,7 @@ export default function ReportsPage() {
                   Efectivo Total
                 </p>
                 <p className="text-xl font-bold text-green-700">
-                  ${savedReport.cashSales.toFixed(2)}
+                  ${savedReport.cashSales.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
               <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
@@ -617,7 +617,7 @@ export default function ReportsPage() {
                   Fondo Inicial
                 </p>
                 <p className="text-xl font-bold text-purple-700">
-                  ${savedReport.startingFloat.toFixed(2)}
+                  ${savedReport.startingFloat.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
               <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
@@ -625,7 +625,7 @@ export default function ReportsPage() {
                   Cuenta Corriente
                 </p>
                 <p className="text-xl font-bold text-orange-700">
-                  ${savedReport.deliverySales.pending.toFixed(2)}
+                  ${savedReport.deliverySales.pending.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
             </div>
@@ -639,13 +639,13 @@ export default function ReportsPage() {
                 <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
                   <span className="text-xs text-gray-600 dark:text-slate-300">Total:</span>
                   <p className="text-lg font-bold text-blue-700">
-                    ${savedReport.counterSales.total.toFixed(2)}
+                    ${savedReport.counterSales.total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
                   <span className="text-xs text-gray-600 dark:text-slate-300">Efectivo:</span>
                   <p className="text-lg font-bold text-green-700">
-                    ${savedReport.counterSales.cash.toFixed(2)}
+                    ${savedReport.counterSales.cash.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
@@ -668,7 +668,7 @@ export default function ReportsPage() {
                       >
                         <span className="text-gray-600 dark:text-slate-300">{method}:</span>
                         <span className="font-medium">
-                          ${amount.toFixed(2)}
+                          ${amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
                     )
@@ -688,13 +688,13 @@ export default function ReportsPage() {
                     Total Entregado:
                   </span>
                   <p className="text-lg font-bold text-green-700">
-                    ${savedReport.deliverySales.total.toFixed(2)}
+                    ${savedReport.deliverySales.total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
                   <span className="text-xs text-gray-600 dark:text-slate-300">Efectivo:</span>
                   <p className="text-lg font-bold text-green-700">
-                    ${savedReport.deliverySales.cashReceived.toFixed(2)}
+                    ${savedReport.deliverySales.cashReceived.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
@@ -702,7 +702,7 @@ export default function ReportsPage() {
                     Cuenta Corriente:
                   </span>
                   <p className="text-lg font-bold text-orange-600">
-                    ${savedReport.deliverySales.pending.toFixed(2)}
+                    ${savedReport.deliverySales.pending.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-slate-900 p-3 rounded shadow-sm">
@@ -723,35 +723,35 @@ export default function ReportsPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-slate-300">Fondo Inicial:</span>
                   <span className="font-medium text-green-600">
-                    + ${savedReport.startingFloat.toFixed(2)}
+                    + ${savedReport.startingFloat.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-slate-300">Efectivo Mostrador:</span>
                   <span className="font-medium text-green-600">
-                    + ${savedReport.counterSales.cash.toFixed(2)}
+                    + ${savedReport.counterSales.cash.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-slate-300">Efectivo Entregas:</span>
                   <span className="font-medium text-green-600">
-                    + ${savedReport.deliverySales.cashReceived.toFixed(2)}
+                    + ${savedReport.deliverySales.cashReceived.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-slate-300">Gastos y Retiros:</span>
                   <span className="font-medium text-red-600">
-                    - ${savedReport.totalExpenses.toFixed(2)}
+                    - ${savedReport.totalExpenses.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <hr className="my-2" />
                 <div className="flex justify-between text-lg font-bold">
                   <span>Efectivo Esperado:</span>
-                  <span>${savedReport.expectedCash.toFixed(2)}</span>
+                  <span>${savedReport.expectedCash.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold">
                   <span>Efectivo Contado:</span>
-                  <span>${savedReport.countedCash.toFixed(2)}</span>
+                  <span>${savedReport.countedCash.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
                 <hr className="my-2 border-t-2" />
                 <div className="flex justify-between text-xl font-bold">
@@ -764,7 +764,7 @@ export default function ReportsPage() {
                     }
                   >
                     {savedReport.difference >= 0 ? "+" : ""}
-                    {savedReport.difference.toFixed(2)}
+                    {savedReport.difference.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>

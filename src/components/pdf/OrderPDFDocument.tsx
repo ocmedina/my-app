@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -38,124 +37,153 @@ const styles = StyleSheet.create({
     padding: 40,
     backgroundColor: "#fff",
   },
+  topAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 8,
+    backgroundColor: "#1d4ed8",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 25,
-    paddingBottom: 15,
-    borderBottomWidth: 2,
-    borderBottomColor: "#333",
+    marginTop: 10,
+    marginBottom: 18,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#d1d5db",
   },
-  logo: { width: 70, height: 70, objectFit: "contain" },
+  logo: { width: 62, height: 62, objectFit: "contain" },
   companyInfo: { textAlign: "right" },
   companyName: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "bold",
-    color: "#111",
-    marginBottom: 4,
+    color: "#0f172a",
+    marginBottom: 3,
   },
-  companyAddress: { fontSize: 9, color: "#555", lineHeight: 1.4 },
+  companyAddress: { fontSize: 9, color: "#475569", lineHeight: 1.35 },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
-    color: "#111",
-    marginBottom: 25,
+    color: "#0f172a",
+    marginBottom: 8,
     textTransform: "uppercase",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
+  },
+  subtitle: {
+    textAlign: "center",
+    fontSize: 9,
+    color: "#64748b",
+    marginBottom: 16,
   },
   metaInfo: {
     flexDirection: "row",
     justifyContent: "space-between",
-    backgroundColor: "#f8f8f8",
-    padding: 14,
-    borderRadius: 4,
-    marginBottom: 20,
+    backgroundColor: "#f8fafc",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    padding: 12,
+    borderRadius: 6,
+    marginBottom: 16,
     fontSize: 9,
   },
-  metaInfoItem: { flexDirection: "column" },
+  metaInfoItem: { flexDirection: "column", flex: 1 },
+  metaInfoDivider: {
+    width: 1,
+    marginHorizontal: 10,
+    backgroundColor: "#e2e8f0",
+  },
   metaLabel: {
     fontWeight: "bold",
     fontSize: 8,
-    color: "#666",
-    marginBottom: 3,
+    color: "#64748b",
+    marginBottom: 2,
     textTransform: "uppercase",
   },
-  metaValue: { fontSize: 10, color: "#111" },
-  customerSection: { marginBottom: 20 },
+  metaValue: { fontSize: 10, color: "#0f172a" },
+  customerSection: { marginBottom: 16 },
   customerTitle: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "bold",
-    color: "#111",
-    marginBottom: 10,
+    color: "#334155",
+    marginBottom: 8,
     textTransform: "uppercase",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    paddingBottom: 4,
+    letterSpacing: 0.3,
   },
   customerInfoBox: {
-    backgroundColor: "#fafafa",
-    padding: 14,
-    borderRadius: 4,
+    backgroundColor: "#ffffff",
+    padding: 12,
+    borderRadius: 6,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: "#e2e8f0",
   },
-  customerRow: { flexDirection: "row", marginBottom: 6 },
-  customerLabel: { fontSize: 9, fontWeight: "bold", color: "#555", width: 80 },
-  customerValue: { fontSize: 9, color: "#111", flex: 1 },
-  table: { width: "100%", marginTop: 10 },
+  customerRow: { flexDirection: "row", marginBottom: 5 },
+  customerLabel: { fontSize: 9, fontWeight: "bold", color: "#64748b", width: 82 },
+  customerValue: { fontSize: 9, color: "#0f172a", flex: 1 },
+  table: { width: "100%", marginTop: 6 },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#333",
-    padding: 10,
-    borderRadius: 2,
+    backgroundColor: "#0f172a",
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
   },
   tableHeaderText: {
     fontWeight: "bold",
     color: "#fff",
-    fontSize: 9,
+    fontSize: 8,
     textTransform: "uppercase",
   },
   tableRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#e2e8f0",
     alignItems: "center",
-    minHeight: 28,
+    minHeight: 30,
+    paddingHorizontal: 10,
+  },
+  tableRowAlt: {
+    backgroundColor: "#f8fafc",
   },
   thProduct: { width: "50%" },
   thQty: { width: "15%", textAlign: "center" },
   thPrice: { width: "17.5%", textAlign: "right" },
   thTotal: { width: "17.5%", textAlign: "right" },
-  tdProduct: { width: "50%", padding: 8, fontSize: 9 },
-  tdQty: { width: "15%", padding: 8, textAlign: "center", fontSize: 9 },
-  tdPrice: { width: "17.5%", padding: 8, textAlign: "right", fontSize: 9 },
+  tdProduct: { width: "50%", paddingVertical: 8, fontSize: 9, color: "#0f172a" },
+  tdQty: { width: "15%", paddingVertical: 8, textAlign: "center", fontSize: 9, color: "#334155" },
+  tdPrice: { width: "17.5%", paddingVertical: 8, textAlign: "right", fontSize: 9, color: "#334155" },
   tdTotal: {
     width: "17.5%",
-    padding: 8,
+    paddingVertical: 8,
     textAlign: "right",
     fontSize: 9,
     fontWeight: "bold",
+    color: "#0f172a",
   },
   summaryContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    marginTop: 25,
+    marginTop: 18,
   },
   summaryBox: {
-    width: 200,
-    backgroundColor: "#f8f8f8",
+    width: 220,
+    backgroundColor: "#eff6ff",
+    borderWidth: 1,
+    borderColor: "#bfdbfe",
     padding: 12,
-    borderRadius: 4,
+    borderRadius: 6,
   },
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 5,
   },
-  summaryLabel: { color: "#555", fontSize: 10 },
-  summaryTotal: { fontWeight: "bold", fontSize: 16, color: "#111" },
+  summaryLabel: { color: "#1e40af", fontSize: 10, fontWeight: "bold" },
+  summaryTotal: { fontWeight: "bold", fontSize: 17, color: "#1e3a8a" },
   footer: {
     position: "absolute",
     bottom: 30,
@@ -163,16 +191,26 @@ const styles = StyleSheet.create({
     right: 40,
     textAlign: "center",
     fontSize: 9,
-    color: "#999",
+    color: "#64748b",
     borderTopWidth: 1,
-    borderTopColor: "#eee",
+    borderTopColor: "#e2e8f0",
     paddingTop: 12,
   },
-  thankYou: { fontWeight: "bold", fontSize: 10, color: "#555" },
+  thankYou: { fontWeight: "bold", fontSize: 10, color: "#334155" },
 });
 
-export default function SalePDFDocument({ sale }: { sale: any }) {
+export default function OrderPDFDocument({ order }: { order: any }) {
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const documentTitle = order?.document_title || "Remito de Pedido";
+  const documentNumberLabel =
+    order?.document_number_label || "Número de Pedido";
+  const documentFooterNote =
+    order?.document_footer_note || "Este documento es un comprobante de pedido";
+  const isBudgetDocument =
+    String(documentTitle).toLowerCase().includes("presupuesto");
+  const thankYouText = isBudgetDocument
+    ? "Gracias por su consulta"
+    : "¡Gracias por su compra!";
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -199,6 +237,7 @@ export default function SalePDFDocument({ sale }: { sale: any }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        <View style={styles.topAccent} />
         {/* 🔹 Encabezado */}
         <View style={styles.header}>
           <Image style={styles.logo} src={logoUrl} />
@@ -209,26 +248,29 @@ export default function SalePDFDocument({ sale }: { sale: any }) {
           </View>
         </View>
 
-        <Text style={styles.title}>Ticket de Venta</Text>
+        <Text style={styles.title}>{documentTitle}</Text>
+        <Text style={styles.subtitle}>Documento comercial generado por sistema</Text>
 
-        {/* Datos de la venta */}
+        {/* Datos del pedido */}
         <View style={styles.metaInfo}>
           <View style={styles.metaInfoItem}>
-            <Text style={styles.metaLabel}>Número de Venta</Text>
+            <Text style={styles.metaLabel}>{documentNumberLabel}</Text>
             <Text style={styles.metaValue}>
-              {sale.id?.substring(0, 8).toUpperCase()}
+              {order.id?.substring(0, 8).toUpperCase()}
             </Text>
           </View>
+          <View style={styles.metaInfoDivider} />
           <View style={styles.metaInfoItem}>
             <Text style={styles.metaLabel}>Fecha de Emisión</Text>
             <Text style={styles.metaValue}>
-              {new Date(sale.created_at).toLocaleDateString()}
+              {new Date(order.created_at).toLocaleDateString()}
             </Text>
           </View>
+          <View style={styles.metaInfoDivider} />
           <View style={styles.metaInfoItem}>
             <Text style={styles.metaLabel}>Hora</Text>
             <Text style={styles.metaValue}>
-              {new Date(sale.created_at).toLocaleTimeString()}
+              {new Date(order.created_at).toLocaleTimeString()}
             </Text>
           </View>
         </View>
@@ -240,42 +282,42 @@ export default function SalePDFDocument({ sale }: { sale: any }) {
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Nombre:</Text>
               <Text style={styles.customerValue}>
-                {sale.customers?.full_name ?? "Consumidor Final"}
+                {order.customers?.full_name ?? "N/A"}
               </Text>
             </View>
-            {sale.customers?.customer_type && (
+            {order.customers?.customer_type && (
               <View style={styles.customerRow}>
                 <Text style={styles.customerLabel}>Tipo Cliente:</Text>
                 <Text style={styles.customerValue}>
-                  {sale.customers.customer_type === "minorista"
+                  {order.customers.customer_type === "minorista"
                     ? "Consumidor Final"
-                    : sale.customers.customer_type === "mayorista"
-                      ? "Mayorista"
-                      : sale.customers.customer_type}
+                    : order.customers.customer_type === "mayorista"
+                    ? "Mayorista"
+                    : order.customers.customer_type}
                 </Text>
               </View>
             )}
-            {sale.customers?.phone && (
+            {order.customers?.phone && (
               <View style={styles.customerRow}>
                 <Text style={styles.customerLabel}>Teléfono:</Text>
                 <Text style={styles.customerValue}>
-                  {sale.customers.phone}
+                  {order.customers.phone}
                 </Text>
               </View>
             )}
-            {sale.customers?.address && (
+            {order.customers?.address && (
               <View style={styles.customerRow}>
                 <Text style={styles.customerLabel}>Dirección:</Text>
                 <Text style={styles.customerValue}>
-                  {sale.customers.address}
+                  {order.customers.address}
                 </Text>
               </View>
             )}
-            {sale.customers?.reference && (
+            {order.customers?.reference && (
               <View style={styles.customerRow}>
                 <Text style={styles.customerLabel}>Referencia:</Text>
                 <Text style={styles.customerValue}>
-                  {sale.customers.reference}
+                  {order.customers.reference}
                 </Text>
               </View>
             )}
@@ -296,15 +338,18 @@ export default function SalePDFDocument({ sale }: { sale: any }) {
               Subtotal
             </Text>
           </View>
-          {(sale.sale_items || []).map((item: any, index: number) => (
-            <View key={index} style={styles.tableRow}>
+          {(order.order_items || []).map((item: any, index: number) => (
+            <View
+              key={index}
+              style={[styles.tableRow, index % 2 !== 0 ? styles.tableRowAlt : {}]}
+            >
               <Text style={styles.tdProduct}>
                 {item.products?.name ?? "N/A"}
               </Text>
               <Text style={styles.tdQty}>{item.quantity}</Text>
-              <Text style={styles.tdPrice}>${item.price?.toFixed(2)}</Text>
+              <Text style={styles.tdPrice}>${item.price?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
               <Text style={styles.tdTotal}>
-                ${(item.price * item.quantity).toFixed(2)}
+                ${(item.price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
             </View>
           ))}
@@ -314,9 +359,9 @@ export default function SalePDFDocument({ sale }: { sale: any }) {
         <View style={styles.summaryContainer}>
           <View style={styles.summaryBox}>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>TOTAL A PAGAR</Text>
+              <Text style={styles.summaryLabel}>TOTAL</Text>
               <Text style={styles.summaryTotal}>
-                ${sale.total_amount?.toFixed(2)}
+                ${order.total_amount?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
             </View>
           </View>
@@ -324,9 +369,9 @@ export default function SalePDFDocument({ sale }: { sale: any }) {
 
         {/* Pie */}
         <View style={styles.footer}>
-          <Text style={styles.thankYou}>¡Gracias por su compra!</Text>
+          <Text style={styles.thankYou}>{thankYouText}</Text>
           <Text style={{ fontSize: 8, marginTop: 4 }}>
-            Este documento es un comprobante de venta
+            {documentFooterNote}
           </Text>
         </View>
       </Page>

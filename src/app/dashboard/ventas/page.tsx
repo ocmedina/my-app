@@ -494,7 +494,7 @@ export default function SalesHistoryPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-lg font-bold text-gray-900 dark:text-slate-100">
-                        ${sale.total_amount?.toFixed(2)}
+                        ${sale.total_amount?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">

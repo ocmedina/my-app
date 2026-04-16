@@ -266,6 +266,22 @@ export default function NewOrderPage() {
         throw new Error(itemsError.message);
       }
 
+      const pendingAmount = total - amountReceived;
+      if (pendingAmount > 0) {
+        const { error: movementError } = await supabase.from("payments").insert({
+          customer_id: selectedCustomer.id,
+          type: "compra",
+          amount: pendingAmount,
+          payment_method: paymentMethod,
+          comment: `Pedido #${orderData.id.slice(0, 8)} - saldo pendiente`,
+          created_at: argentinaTime.toISOString(),
+        });
+
+        if (movementError) {
+          throw new Error(movementError.message);
+        }
+      }
+
       toast.success("¡Pedido registrado exitosamente!", { id: loadingToast });
 
       setTimeout(() => {
@@ -459,7 +475,7 @@ export default function NewOrderPage() {
                               </div>
                               <div className="flex items-center gap-3 mt-1">
                                 <span className="text-sm font-semibold text-gray-900 dark:text-slate-50">
-                                  ${price?.toFixed(2)}
+                                  ${price?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
                                 <span
                                   className={`text-xs px-2 py-0.5 rounded-full font-medium ${getStockColor(
@@ -523,7 +539,7 @@ export default function NewOrderPage() {
                               {item.name}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-slate-400">
-                              ${price.toFixed(2)} c/u
+                              ${price.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} c/u
                             </p>
                           </div>
                           <button
@@ -557,7 +573,7 @@ export default function NewOrderPage() {
                             </button>
                           </div>
                           <span className="font-semibold text-gray-900 dark:text-slate-50">
-                            ${subtotal.toFixed(2)}
+                            ${subtotal.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
                       </div>
@@ -595,7 +611,7 @@ export default function NewOrderPage() {
                           acc + getProductPrice(item) * item.quantity,
                         0
                       )
-                      .toFixed(2)}
+                      .toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
 
@@ -657,7 +673,7 @@ export default function NewOrderPage() {
                   <span className="flex items-center gap-2">
                     <FaDollarSign className="text-green-600" /> TOTAL
                   </span>
-                  <span className="text-green-600">${total.toFixed(2)}</span>
+                  <span className="text-green-600">${total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
 
                 {/* Método de Pago */}
@@ -805,7 +821,7 @@ export default function NewOrderPage() {
                           💳 Total Recibido:
                         </span>
                         <span className="text-lg font-bold text-purple-700">
-                          ${(amountCash + amountTransfer).toFixed(2)}
+                          ${(amountCash + amountTransfer).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
                     </div>
@@ -865,7 +881,7 @@ export default function NewOrderPage() {
                         Saldo Pendiente:
                       </span>
                       <span className="text-lg font-bold text-orange-700">
-                        ${(total - amountReceived).toFixed(2)}
+                        ${(total - amountReceived).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </div>
                   </div>

@@ -3,7 +3,7 @@ import CustomLoader from "@/components/CustomLoader";
 import { FaPrint, FaTimes } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
-import PDFDownloadButton from "@/components/PDFDownloadButton";
+import PDFDownloadButton from "@/components/pdf/PDFDownloadButton";
 import { Database } from "@/lib/database.types";
 
 type Customer = Database["public"]["Tables"]["customers"]["Row"];

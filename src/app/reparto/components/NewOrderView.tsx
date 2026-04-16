@@ -240,7 +240,7 @@ export default function NewOrderView({
       <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 space-y-4">
         <div className="flex justify-between items-center text-gray-600 dark:text-slate-300">
           <span className="font-medium">Subtotal:</span>
-          <span className="font-bold text-lg">${subTotal.toFixed(2)}</span>
+          <span className="font-bold text-lg">${subTotal.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
 
         <div className="flex justify-between items-center gap-4">
@@ -273,7 +273,7 @@ export default function NewOrderView({
         <div className="pt-4 border-t border-gray-200 dark:border-slate-700 flex justify-between items-center">
           <span className="font-bold text-xl text-gray-800 dark:text-slate-100">Total:</span>
           <span className="font-bold text-3xl text-green-600">
-            ${total.toFixed(2)}
+            ${total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
       </div>
@@ -292,7 +292,7 @@ export default function NewOrderView({
             {loading ? "Procesando..." : "Confirmar Pedido"}
           </span>
           <span className="text-2xl bg-opacity-20 px-3 py-1 rounded-lg">
-            ${total.toFixed(2)}
+            ${total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </button>
       </div>

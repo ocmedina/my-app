@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
+import { formatCurrency } from "@/lib/numberFormat";
 import toast from "react-hot-toast";
 import { FaUser, FaShoppingCart, FaMoneyBillWave } from "react-icons/fa";
 
@@ -405,9 +406,9 @@ export default function NewSalePage() {
 
     if (paid > total) {
       const confirmOverpay = window.confirm(
-        `El monto pagado ($${paid.toFixed(
-          2
-        )}) es mayor al total ($${total.toFixed(2)}). ¿Deseas continuar?`
+        `El monto pagado (${formatCurrency(
+          paid
+        )}) es mayor al total (${formatCurrency(total)}). ¿Deseas continuar?`
       );
       if (!confirmOverpay) return;
     }
@@ -415,9 +416,7 @@ export default function NewSalePage() {
     setLoading(true);
 
     try {
-      const debtGenerated = total - paid;
-
-      // Obtener timestamp en zona horaria Argentina
+      // Timestamp en zona horaria Argentina para mantener consistencia con reportes
       const now = new Date();
       const argentinaTime = new Date(
         now.toLocaleString("en-US", {
@@ -425,26 +424,7 @@ export default function NewSalePage() {
         })
       );
 
-      // 1. Registrar la venta
-      const { data: saleData, error: saleError } = await supabase
-        .from("sales")
-        .insert({
-          customer_id: selectedCustomer.id,
-          profile_id: currentUser.id,
-          total_amount: total,
-          payment_method: paymentMethod,
-          amount_paid: paid,
-          amount_pending: debtGenerated,
-          created_at: argentinaTime.toISOString(),
-        })
-        .select()
-        .single();
-
-      if (saleError) throw saleError;
-
-      // 2. Registrar los items de la venta
-      const saleItems = cart.map((item) => ({
-        sale_id: saleData.id,
+      const saleItemsPayload = cart.map((item) => ({
         product_id: item.id,
         quantity: item.quantity,
         price:
@@ -455,159 +435,60 @@ export default function NewSalePage() {
             : item.price_minorista,
       }));
 
-      const { error: itemsError } = await supabase
-        .from("sale_items")
-        .insert(saleItems);
-      if (itemsError) throw itemsError;
+      const mixedPaymentPayload = useMixedPayment
+        ? paymentMethods
+            .map((pm) => ({
+              method: pm.method,
+              amount: parseFloat(pm.amount) || 0,
+            }))
+            .filter((pm) => pm.amount > 0)
+        : [];
 
-      // 3. Actualizar stock de productos (excepto alimentos sueltos)
-      const stockUpdates = cart
-        .filter((item) => {
-          // No actualizar stock para alimentos sueltos/granel
-          const isLooseFood =
-            item.name?.toLowerCase().includes("alimento suelto") ||
-            item.name?.toLowerCase().includes("alimento a granel") ||
-            item.sku === "SUELTO" ||
-            item.sku === "GRANEL";
-          return !isLooseFood;
-        })
-        .map((item) => {
-          const newStock = (item.stock || 0) - item.quantity;
-          return supabase
-            .from("products")
-            .update({ stock: newStock })
-            .eq("id", item.id);
-        });
-
-      if (stockUpdates.length > 0) {
-        await Promise.all(stockUpdates);
-      }
-
-      // 4. Actualizar deuda del cliente
-      const { data: customerData, error: customerError } = await supabase
-        .from("customers")
-        .select("debt")
-        .eq("id", selectedCustomer.id)
-        .single();
-
-      if (customerError) throw customerError;
-
-      const currentDebt = (customerData?.debt as number) || 0;
-      const newDebt = currentDebt + debtGenerated;
-
-      const { error: debtUpdateError } = await supabase
-        .from("customers")
-        .update({ debt: newDebt })
-        .eq("id", selectedCustomer.id);
-
-      if (debtUpdateError) throw debtUpdateError;
-
-      // 5. Registrar movimientos en payments
-      const paymentRecords = [];
-
-      if (debtGenerated > 0) {
-        paymentRecords.push({
-          customer_id: selectedCustomer.id,
-          sale_id: saleData.id,
-          type: "compra",
-          amount: debtGenerated,
-          comment: useMixedPayment
-            ? "Venta parcial - pagos mixtos"
-            : `Venta ${
-                paymentMethod === "cuenta_corriente" ? "a crédito" : "parcial"
-              }`,
-        });
-      }
-
-      if (paid > 0) {
-        if (useMixedPayment) {
-          // Registrar cada método de pago por separado
-          paymentMethods.forEach((pm) => {
-            const amount = parseFloat(pm.amount) || 0;
-            if (amount > 0) {
-              paymentRecords.push({
-                customer_id: selectedCustomer.id,
-                sale_id: saleData.id,
-                type: "pago",
-                amount: amount,
-                comment: `Pago con ${pm.method}`,
-              });
-            }
-          });
-        } else {
-          paymentRecords.push({
-            customer_id: selectedCustomer.id,
-            sale_id: saleData.id,
-            type: "pago",
-            amount: paid,
-            comment: `Pago con ${paymentMethod}`,
-          });
+      const { data: txData, error: txError } = await supabase.rpc(
+        "finalize_sale_transaction",
+        {
+          p_customer_id: selectedCustomer.id,
+          p_profile_id: currentUser.id,
+          p_total_amount: total,
+          p_payment_method: paymentMethod,
+          p_amount_paid: paid,
+          p_created_at: argentinaTime.toISOString(),
+          p_items: saleItemsPayload,
+          p_use_mixed_payment: useMixedPayment,
+          p_payment_methods: mixedPaymentPayload,
+          p_pay_to_supplier: payToSupplier,
+          p_selected_supplier_id: selectedSupplierId,
+          p_customer_full_name: selectedCustomer.full_name,
         }
-      }
+      );
 
-      if (paymentRecords.length > 0) {
-        const { error: paymentsError } = await supabase
-          .from("payments")
-          .insert(paymentRecords);
-        if (paymentsError) throw paymentsError;
-      }
+      if (txError) throw txError;
 
-      // 6. Si el pago va directo a proveedor, registrar el pago y reducir su deuda
-      if (payToSupplier && selectedSupplierId && paid > 0) {
-        // Obtener deuda actual del proveedor
-        const { data: supplierData, error: supplierError } = await supabase
-          .from("suppliers")
-          .select("debt")
-          .eq("id", selectedSupplierId)
-          .single();
+      const txResult = (txData || {}) as {
+        sale_id?: string;
+        new_supplier_debt?: number | null;
+      };
 
-        if (supplierError) throw supplierError;
+      const newSupplierDebt = txResult.new_supplier_debt;
 
-        const currentSupplierDebt = (supplierData?.debt as number) || 0;
-        // Permitir valores negativos (crédito a favor)
-        const newSupplierDebt = currentSupplierDebt - paid;
-
-        // Actualizar deuda del proveedor (puede quedar negativa = a favor)
-        const { error: supplierUpdateError } = await supabase
-          .from("suppliers")
-          .update({ debt: newSupplierDebt })
-          .eq("id", selectedSupplierId);
-
-        if (supplierUpdateError) throw supplierUpdateError;
-
-        // Registrar el pago en supplier_payments
-        const { error: supplierPaymentError } = await supabase
-          .from("supplier_payments")
-          .insert({
-            supplier_id: selectedSupplierId,
-            amount: paid,
-            notes: `Pago directo de venta ${saleData.id.substring(
-              0,
-              8
-            )} - Cliente: ${selectedCustomer.full_name}`,
-            created_at: argentinaTime.toISOString(),
-          });
-
-        if (supplierPaymentError) throw supplierPaymentError;
-
-        // Mensaje según el resultado
+      if (payToSupplier && selectedSupplierId && paid > 0 && newSupplierDebt !== undefined && newSupplierDebt !== null) {
         if (newSupplierDebt > 0) {
           toast.success(
-            `¡Venta registrada! Pagado $${paid.toFixed(
-              2
-            )} a proveedor. Deuda restante: $${newSupplierDebt.toFixed(2)}`
+            `¡Venta registrada! Pagado ${formatCurrency(
+              paid
+            )} a proveedor. Deuda restante: ${formatCurrency(newSupplierDebt)}`
           );
         } else if (newSupplierDebt === 0) {
           toast.success(
-            `¡Venta registrada! Deuda con proveedor saldada completamente ($${paid.toFixed(
-              2
+            `¡Venta registrada! Deuda con proveedor saldada completamente (${formatCurrency(
+              paid
             )})`
           );
         } else {
           toast.success(
-            `¡Venta registrada! Deuda saldada. Crédito a favor: $${Math.abs(
-              newSupplierDebt
-            ).toFixed(2)}`
+            `¡Venta registrada! Deuda saldada. Crédito a favor: ${formatCurrency(
+              Math.abs(newSupplierDebt)
+            )}`
           );
         }
       } else {
@@ -652,6 +533,11 @@ export default function NewSalePage() {
     paymentMethod,
     paymentMethods,
     customers,
+    payToSupplier,
+    selectedSupplierId,
+    tabs,
+    activeTabId,
+    closeTab,
   ]);
 
   // Atajos de teclado F10, F12, F2 y Ctrl+T
@@ -813,7 +699,7 @@ export default function NewSalePage() {
                   </p>
                   <p className="text-sm text-blue-800 mt-1">
                     <span className="font-semibold">Deuda Actual:</span> $
-                    {(selectedCustomer.debt || 0).toFixed(2)}
+                    {formatCurrency(selectedCustomer.debt || 0).replace("$", "")}
                   </p>
                 </div>
               )}
@@ -828,16 +714,16 @@ export default function NewSalePage() {
               <div className="space-y-4 mb-8">
                 <div className="flex justify-between items-center text-gray-600 dark:text-slate-300">
                   <span>Subtotal</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>{formatCurrency(total)}</span>
                 </div>
                 <div className="flex justify-between items-center text-gray-600 dark:text-slate-300">
                   <span>Impuestos</span>
-                  <span>$0.00</span>
+                  <span>{formatCurrency(0)}</span>
                 </div>
                 <div className="border-t border-dashed border-gray-200 dark:border-slate-700 pt-4 flex justify-between items-center">
                   <span className="text-xl font-bold text-gray-900 dark:text-slate-50">Total</span>
                   <span className="text-3xl font-bold text-green-600">
-                    ${total.toFixed(2)}
+                    {formatCurrency(total)}
                   </span>
                 </div>
               </div>

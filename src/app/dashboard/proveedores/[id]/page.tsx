@@ -1,7 +1,8 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/server";
+import { createLooseAdminClient } from "@/lib/admin";
 import Link from "next/link";
 import { Database } from "@/lib/database.types";
+import { formatCurrency } from "@/lib/numberFormat";
 import {
   FaMoneyBillWave,
   FaReceipt,
@@ -9,7 +10,7 @@ import {
   FaExclamationTriangle,
   FaCheckCircle,
 } from "react-icons/fa";
-import RegisterSupplierPayment from "@/components/RegisterSupplierPayment";
+import RegisterSupplierPayment from "@/components/payments/RegisterSupplierPayment";
 
 export const dynamic = "force-dynamic";
 
@@ -17,51 +18,64 @@ type Supplier = Database["public"]["Tables"]["suppliers"]["Row"];
 type Payment = Database["public"]["Tables"]["supplier_payments"]["Row"];
 type Purchase = Database["public"]["Tables"]["purchases"]["Row"];
 
-// Union type for history items
 type HistoryItem =
   | (Purchase & { type: "compra"; amount: number })
   | (Payment & { type: "pago" });
 
-async function getSupplierAccount(id: string) {
-  const cookieStore = await cookies();
-  const supabase = createServerComponentClient<Database>({
-    cookies: () => cookieStore,
-  });
+type SupplierAccount = {
+  supplier: Supplier | null;
+  history: HistoryItem[];
+};
 
-  const { data: supplier } = await supabase
-    .from("suppliers")
-    .select("*")
-    .eq("id", id)
-    .single();
+async function fetchSupplierAccountWithClient(
+  client: any,
+  supplierId: string
+): Promise<SupplierAccount> {
+  const [{ data: supplier }, { data: purchases }, { data: payments }] =
+    await Promise.all([
+      client.from("suppliers").select("*").eq("id", supplierId).maybeSingle(),
+      client
+        .from("purchases")
+        .select("*")
+        .eq("supplier_id", supplierId)
+        .order("created_at", { ascending: false }),
+      client
+        .from("supplier_payments")
+        .select("*")
+        .eq("supplier_id", supplierId)
+        .order("created_at", { ascending: false }),
+    ]);
 
-  // Obtenemos tanto las compras (deuda generada) como los pagos (deuda saldada)
-  const { data: purchases } = await supabase
-    .from("purchases")
-    .select("*")
-    .eq("supplier_id", id)
-    .order("created_at", { ascending: false });
-
-  const { data: payments } = await supabase
-    .from("supplier_payments")
-    .select("*")
-    .eq("supplier_id", id)
-    .order("created_at", { ascending: false });
-
-  // Combinamos y ordenamos por fecha para un historial completo
-  // Mapeamos total_amount a amount para purchases
   const history: HistoryItem[] = [
-    ...(purchases || []).map((p) => ({
+    ...((purchases || []).map((p: Purchase) => ({
       ...p,
       type: "compra" as const,
       amount: Number(p.total_amount) || 0,
-    })),
-    ...(payments || []).map((p) => ({ ...p, type: "pago" as const })),
+    })) as Array<Purchase & { type: "compra"; amount: number }>),
+    ...((payments || []).map((p: Payment) => ({
+      ...p,
+      type: "pago" as const,
+    })) as Array<Payment & { type: "pago" }>),
   ].sort(
     (a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
-  return { supplier, history };
+  return { supplier: (supplier as Supplier | null) || null, history };
+}
+
+async function getSupplierAccount(id: string) {
+  const normalizedId = decodeURIComponent(id).trim();
+  const supabase = await createClient();
+  const account = await fetchSupplierAccountWithClient(supabase, normalizedId);
+
+  if (account.supplier) {
+    return account;
+  }
+
+  // Fallback defensivo: evita falsos "no encontrado" si la sesión SSR no está disponible.
+  const adminClient = createLooseAdminClient();
+  return fetchSupplierAccountWithClient(adminClient, normalizedId);
 }
 
 export default async function SupplierDetailPage(props: {
@@ -123,12 +137,11 @@ export default async function SupplierDetailPage(props: {
             <p className="text-sm font-medium uppercase text-gray-700 dark:text-slate-200 flex items-center justify-end gap-2">
               {(supplier.debt || 0) > 0 ? (
                 <>
-                  <FaExclamationTriangle className="text-red-600" /> Deuda
-                  Pendiente
+                  <FaExclamationTriangle className="text-red-600" /> Deuda Pendiente
                 </>
               ) : (supplier.debt || 0) < 0 ? (
                 <>
-                  <FaCheckCircle className="text-green-600" /> Crédito a Favor
+                  <FaCheckCircle className="text-green-600" /> Credito a Favor
                 </>
               ) : (
                 "Saldo"
@@ -143,7 +156,7 @@ export default async function SupplierDetailPage(props: {
                   : "text-gray-600"
               }`}
             >
-              ${Math.abs(supplier.debt || 0).toFixed(2)}
+              {formatCurrency(Math.abs(supplier.debt || 0))}
             </p>
           </div>
         </div>
@@ -169,6 +182,14 @@ export default async function SupplierDetailPage(props: {
                       : item.id.substring(0, 8)
                   }`
                 : "Pago Realizado";
+
+              const noteText = String(
+                "notes" in item
+                  ? item.notes || ""
+                  : "comment" in item
+                  ? item.comment || ""
+                  : ""
+              );
 
               return (
                 <div
@@ -198,15 +219,8 @@ export default async function SupplierDetailPage(props: {
                           minute: "2-digit",
                         })}
                       </p>
-                      {(("comment" in item && item.comment) ||
-                        ("notes" in item && item.notes)) && (
-                        <p className="text-xs text-gray-400 italic mt-1">
-                          {"notes" in item
-                            ? item.notes
-                            : "comment" in item
-                            ? item.comment
-                            : ""}
-                        </p>
+                      {noteText && (
+                        <p className="text-xs text-gray-400 italic mt-1">{noteText}</p>
                       )}
                     </div>
                   </div>
@@ -215,7 +229,7 @@ export default async function SupplierDetailPage(props: {
                       isCompra ? "text-red-600" : "text-green-600"
                     } sm:text-right`}
                   >
-                    {isCompra ? "+" : "-"}${item.amount.toFixed(2)}
+                    {isCompra ? "+" : "-"}{formatCurrency(item.amount)}
                   </p>
                 </div>
               );

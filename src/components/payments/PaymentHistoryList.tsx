@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { formatCurrency } from "@/lib/numberFormat";
 import { FaReceipt, FaMoneyBillWave, FaTrash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
 interface Payment {
-    id: number;
+    id: number | string;
     amount: number;
     created_at: string;
     type: string;
@@ -22,76 +23,40 @@ interface PaymentHistoryListProps {
 export default function PaymentHistoryList({ initialPayments }: PaymentHistoryListProps) {
     const router = useRouter();
     const [payments, setPayments] = useState<Payment[]>(initialPayments);
-    const [cancellingPaymentId, setCancellingPaymentId] = useState<number | null>(null);
+    const [cancellingPaymentId, setCancellingPaymentId] = useState<number | string | null>(null);
+
+    // Keep local state aligned when parent server data refreshes.
+    useEffect(() => {
+        setPayments(initialPayments);
+    }, [initialPayments]);
 
     const handleCancelPayment = async (payment: Payment) => {
         if (payment.payment_method === 'anulado') return;
 
-        if (!window.confirm(`¿Está seguro de anular este pago de $${payment.amount}? Esta acción restaurará la deuda al cliente.`)) {
+        if (!window.confirm(`¿Está seguro de anular este pago de ${formatCurrency(payment.amount)}? Esta acción restaurará la deuda al cliente.`)) {
             return;
         }
 
         setCancellingPaymentId(payment.id);
 
         try {
-            // 1. Mark payment as 'anulado'
-            const { error: updateError } = await supabase
-                .from("payments")
-                .update({ payment_method: 'anulado' })
-                .eq("id", payment.id);
+            const { data: txData, error: txError } = await supabase.rpc(
+                "cancel_customer_payment_transaction",
+                { p_payment_id: payment.id }
+            );
 
-            if (updateError) throw updateError;
+            if (txError) throw txError;
 
-            // 2. Restore Debt Logic (LIFO)
-            let remainingRestoration = payment.amount;
+            const result = (txData || {}) as { remaining_unrestored?: number | null };
+            const remainingUnrestored = Number(result.remaining_unrestored || 0);
 
-            // Get candidate orders
-            const { data: orders } = await supabase
-                .from("orders")
-                .select("id, amount_pending, total_amount, created_at")
-                .eq("customer_id", payment.customer_id)
-                .neq("status", "cancelado")
-                .order("created_at", { ascending: false }); // Newest first
-
-            // Get candidate sales
-            const { data: sales } = await supabase
-                .from("sales")
-                .select("id, amount_pending, total_amount, created_at")
-                .eq("customer_id", payment.customer_id)
-                .eq("payment_method", "cuenta_corriente")
-                .eq("is_cancelled", false)
-                .order("created_at", { ascending: false }); // Newest first
-
-            const allItems = [
-                ...(orders?.map(o => ({ ...o, type: 'order', created_at: o.created_at || '' })) || []),
-                ...(sales?.map(s => ({ ...s, type: 'sale', created_at: s.created_at || '' })) || [])
-            ].sort((a, b) => {
-                return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-            });
-
-            for (const item of allItems) {
-                if (remainingRestoration <= 0.01) break;
-
-                // Force types to number to avoid string concatenation issues if DB returns strings
-                const total = Number(item.total_amount);
-                const pending = Number(item.amount_pending);
-                const paidAmount = total - pending;
-
-                if (paidAmount > 0.01) {
-                    const restoreAmount = Math.min(remainingRestoration, paidAmount);
-                    const newPending = pending + restoreAmount;
-
-                    if (item.type === 'order') {
-                        await supabase.from("orders").update({ amount_pending: newPending }).eq("id", item.id);
-                    } else {
-                        await supabase.from("sales").update({ amount_pending: newPending }).eq("id", item.id);
-                    }
-
-                    remainingRestoration -= restoreAmount;
-                }
+            if (remainingUnrestored > 0.01) {
+                alert(
+                    `Pago anulado exitosamente.\nParte del monto no pudo restaurarse: ${formatCurrency(remainingUnrestored)}`
+                );
+            } else {
+                alert("Pago anulado exitosamente. La deuda ha sido restaurada.");
             }
-
-            alert("Pago anulado exitosamente. La deuda ha sido restaurada.");
 
             // Update local state to reflect change immediately
             setPayments(prev => prev.map(p =>
@@ -100,14 +65,10 @@ export default function PaymentHistoryList({ initialPayments }: PaymentHistoryLi
 
             router.refresh(); // Refresh server components (like the debt totals)
 
-            // Force reload to ensure debt card updates (temporary fix for sync issues)
-            setTimeout(() => {
-                window.location.reload();
-            }, 500);
-
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "Error desconocido";
             console.error("Error cancelling payment:", error);
-            alert("Error al anular el pago: " + error.message);
+            alert("Error al anular el pago: " + errorMessage);
         } finally {
             setCancellingPaymentId(null);
         }
@@ -175,8 +136,8 @@ export default function PaymentHistoryList({ initialPayments }: PaymentHistoryLi
                                         isCompra ? "text-red-600" : "text-green-600"
                                         }`}
                                 >
-                                    {isCompra ? "+" : "-"}$
-                                    {Math.abs(payment.amount).toFixed(2)}
+                                    {isCompra ? "+" : "-"}
+                                    {formatCurrency(Math.abs(payment.amount))}
                                 </p>
                                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                                     {isCancelled ? "Movimiento anulado" : (isCompra ? "Suma a la deuda" : "Resta a la deuda")}

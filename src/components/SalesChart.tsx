@@ -30,7 +30,7 @@ export default function SalesChart({ data }: { data: any[] }) {
           <YAxis tickFormatter={formatYAxis} stroke="#888888" />
           <Tooltip 
             cursor={{ fill: 'rgba(239, 246, 255, 0.5)' }} 
-            formatter={(value: number) => [`$${value.toFixed(2)}`, 'Ventas']}
+            formatter={(value: number) => [`$${value.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Ventas']}
           />
           <Legend wrapperStyle={{ paddingTop: '20px' }} />
           <Bar dataKey="total" fill="#3b82f6" name="Ventas" barSize={30} />

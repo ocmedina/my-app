@@ -1,227 +1,169 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import toast from 'react-hot-toast';
-import { PDFDownloadLink, Page, Text, View, Document, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import LazyInvoiceDownloadButton from '@/components/pdf/InvoiceDownloadButton';
 import { FaPrint, FaSpinner } from 'react-icons/fa';
 
-// ---- Registro de fuente Roboto para PDF ----
-Font.register({
-  family: 'Roboto',
-  fonts: [
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf' },
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf', fontWeight: 'bold' },
-  ]
-});
+type SettingsMap = Record<string, string>;
 
-// ---- Estilos para el PDF ----
-const styles = StyleSheet.create({
-  page: { fontFamily: 'Roboto', fontSize: 10, padding: 40 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30, alignItems: 'flex-start' },
-  logo: { width: 60 },
-  companyInfo: { textAlign: 'right' },
-  companyName: { fontSize: 16, fontWeight: 'bold' },
-  invoiceTitle: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 10 },
-  invoiceSubtitle: { fontSize: 10, textAlign: 'center', marginBottom: 20, color: 'grey' },
-  metaInfo: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20, fontSize: 9, borderBottomWidth: 1, borderBottomColor: '#eee', borderTopWidth: 1, borderTopColor: '#eee', paddingVertical: 8 },
-  metaLabel: { fontWeight: 'bold' },
-  customerInfo: { marginBottom: 20, fontSize: 10 },
-  table: { width: '100%' },
-  tableHeader: { flexDirection: 'row', backgroundColor: '#f3f4f6', borderBottomWidth: 1, borderBottomColor: '#ddd', paddingVertical: 5, paddingHorizontal: 8, fontWeight: 'bold' },
-  tableRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#eee', alignItems: 'center', minHeight: 24 },
-  colProduct: { width: '50%', padding: 8 },
-  colQty: { width: '15%', padding: 8, textAlign: 'center' },
-  colPrice: { width: '15%', padding: 8, textAlign: 'right' },
-  colTotal: { width: '20%', padding: 8, textAlign: 'right' },
-  summaryContainer: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 20 },
-  summaryBox: { width: 200, borderTopWidth: 1, borderTopColor: '#aaa', paddingTop: 10 },
-  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 2 },
-  summaryTotal: { fontWeight: 'bold', fontSize: 14 },
-  footer: { position: 'absolute', bottom: 30, left: 40, right: 40, textAlign: 'center', fontSize: 9, color: '#888' },
-});
+type InvoiceListRow = {
+  id: string;
+  created_at: string;
+  invoice_number: string;
+  customer_data: {
+    full_name?: string;
+  } | null;
+  total_amount: number;
+};
 
-// ---- Componente PDF de Factura ----
-function InvoicePDFDocument({ invoiceData, settings }: { invoiceData: any, settings: any }) {
-  const logoUrl = settings?.logo_url || 'https://via.placeholder.com/150';
-
-  return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <Image style={styles.logo} src={logoUrl} />
-          <View style={styles.companyInfo}>
-            <Text style={styles.companyName}>{settings?.business_name || 'Tu Negocio'}</Text>
-            <Text style={{ fontSize: 9, color: '#666' }}>{settings?.business_address || 'Dirección'}</Text>
-            <Text style={{ fontSize: 9, color: '#666' }}>{settings?.business_phone || 'Teléfono'}</Text>
-          </View>
-        </View>
-
-        <Text style={styles.invoiceTitle}>FACTURA</Text>
-        <Text style={styles.invoiceSubtitle}>Documento no válido como factura fiscal</Text>
-
-        <View style={styles.metaInfo}>
-          <Text><Text style={styles.metaLabel}>Factura Nº:</Text> {invoiceData.invoice_number}</Text>
-          <Text><Text style={styles.metaLabel}>Fecha:</Text> {new Date(invoiceData.created_at).toLocaleDateString()}</Text>
-        </View>
-
-        <View style={styles.customerInfo}>
-          <Text style={styles.metaLabel}>Cliente:</Text>
-          <Text>{invoiceData.customer_data?.full_name ?? 'N/A'}</Text>
-        </View>
-
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={styles.colProduct}>Descripción</Text>
-            <Text style={styles.colQty}>Cant.</Text>
-            <Text style={styles.colPrice}>P. Unit.</Text>
-            <Text style={styles.colTotal}>Subtotal</Text>
-          </View>
-          {invoiceData.items_data?.map((item: any, index: number) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={styles.colProduct}>{item.name ?? 'N/A'}</Text>
-              <Text style={styles.colQty}>{item.quantity}</Text>
-              <Text style={styles.colPrice}>${item.price?.toFixed(2)}</Text>
-              <Text style={styles.colTotal}>${(item.price * item.quantity).toFixed(2)}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.summaryContainer}>
-          <View style={styles.summaryBox}>
-            <View style={[styles.summaryRow, styles.summaryTotal]}>
-              <Text>TOTAL</Text>
-              <Text>${invoiceData.total_amount?.toFixed(2)}</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.footer}>
-          <Text>Gracias por su compra.</Text>
-        </View>
-      </Page>
-    </Document>
-  );
-}
-
-// ---- Botón de descarga PDF ----
-function DownloadInvoiceButton({ invoiceId }: { invoiceId: string }) {
+function InvoiceRowDownloadButton({
+  invoiceId,
+  settings,
+}: {
+  invoiceId: string;
+  settings: SettingsMap;
+}) {
   const [invoiceData, setInvoiceData] = useState<any>(null);
-  const [settings, setSettings] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchInvoiceAndSettings = async () => {
+  const fetchInvoice = async () => {
     setLoading(true);
+
     const { data: invData, error: invError } = await supabase
       .from('invoices')
-      .select('*')
+      .select('id, invoice_number, created_at, customer_data, items_data, total_amount')
       .eq('id', invoiceId)
       .single();
 
-    const { data: settingsData, error: settingsError } = await supabase
-      .from('settings')
-      .select('*');
-
-    if (invError || settingsError) {
-      toast.error("Error al cargar datos para el PDF.");
+    if (invError) {
+      toast.error('Error al cargar la factura para PDF.');
       setLoading(false);
       return;
     }
 
-    if (settingsData) {
-      const settingsMap = settingsData.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {});
-      setSettings(settingsMap);
-    }
     setInvoiceData(invData);
     setLoading(false);
   };
 
+  if (invoiceData) {
+    return (
+      <LazyInvoiceDownloadButton
+        invoiceData={invoiceData}
+        settings={settings}
+        fileName={`factura_${invoiceData.invoice_number}.pdf`}
+        readyLabel='Descargar'
+        loadingLabel='Generando...'
+        className='flex items-center justify-center gap-1 px-3 py-1 text-xs rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors'
+      />
+    );
+  }
+
   return (
     <button
-      onClick={fetchInvoiceAndSettings}
-      disabled={loading || !!invoiceData}
-      className={`flex items-center justify-center gap-1 px-3 py-1 text-xs rounded-md transition-colors ${
-        invoiceData 
-          ? 'bg-gray-200 text-gray-500 cursor-default' 
-          : 'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300'
-      }`}
+      onClick={fetchInvoice}
+      disabled={loading}
+      className='flex items-center justify-center gap-1 px-3 py-1 text-xs rounded-md bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300 transition-colors'
     >
       {loading ? (
-        <FaSpinner className="animate-spin" />
-      ) : invoiceData ? (
-        <PDFDownloadLink
-          document={<InvoicePDFDocument invoiceData={invoiceData} settings={settings} />}
-          fileName={`factura_${invoiceData?.invoice_number}.pdf`}
-        >
-          {({ loading: pdfLoading }) => pdfLoading ? '...' : <><FaPrint /> Descargar</>}
-        </PDFDownloadLink>
+        <FaSpinner className='animate-spin' />
       ) : (
-        <><FaPrint /> Generar PDF</>
+        <>
+          <FaPrint /> Generar PDF
+        </>
       )}
     </button>
   );
 }
 
-// ---- Página principal de facturas ----
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<InvoiceListRow[]>([]);
+  const [settings, setSettings] = useState<SettingsMap>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchInvoices = async () => {
+    const fetchData = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('invoices')
-        .select(`
-          id,
-          created_at,
-          invoice_number,
-          customer_data,
-          total_amount
-        `)
-        .order('created_at', { ascending: false });
 
-      if (error) {
+      const [invoicesRes, settingsRes] = await Promise.all([
+        supabase
+          .from('invoices')
+          .select('id, created_at, invoice_number, customer_data, total_amount')
+          .order('created_at', { ascending: false }),
+        supabase.from('settings').select('key, value'),
+      ]);
+
+      if (invoicesRes.error) {
         toast.error('Error al cargar las facturas.');
       } else {
-        setInvoices(data || []);
+        setInvoices((invoicesRes.data || []) as InvoiceListRow[]);
       }
+
+      if (settingsRes.error) {
+        toast.error('Error al cargar configuracion para PDF.');
+      } else {
+        const map = (settingsRes.data || []).reduce((acc, setting) => {
+          acc[setting.key] = setting.value;
+          return acc;
+        }, {} as SettingsMap);
+
+        setSettings(map);
+      }
+
       setLoading(false);
     };
-    fetchInvoices();
+
+    fetchData();
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Historial de Facturas</h1>
+    <div className='space-y-6'>
+      <div className='flex justify-between items-center'>
+        <h1 className='text-2xl font-bold'>Historial de Facturas</h1>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-          <thead className="bg-gray-50 dark:bg-slate-950">
+      <div className='bg-white dark:bg-slate-900 rounded-lg shadow-md overflow-x-auto'>
+        <table className='min-w-full divide-y divide-gray-200 dark:divide-slate-700'>
+          <thead className='bg-gray-50 dark:bg-slate-950'>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Fecha</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Número</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Cliente</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Total</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Acciones</th>
+              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase'>Fecha</th>
+              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase'>Numero</th>
+              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase'>Cliente</th>
+              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase'>Total</th>
+              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase'>Acciones</th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
+          <tbody className='bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700'>
             {loading ? (
-              <tr><td colSpan={5} className="text-center py-10 text-gray-500 dark:text-slate-400">Cargando facturas...</td></tr>
+              <tr>
+                <td colSpan={5} className='text-center py-10 text-gray-500 dark:text-slate-400'>
+                  Cargando facturas...
+                </td>
+              </tr>
             ) : invoices.length === 0 ? (
-              <tr><td colSpan={5} className="text-center py-10 text-gray-500 dark:text-slate-400">No hay facturas generadas.</td></tr>
+              <tr>
+                <td colSpan={5} className='text-center py-10 text-gray-500 dark:text-slate-400'>
+                  No hay facturas generadas.
+                </td>
+              </tr>
             ) : (
               invoices.map((invoice) => (
                 <tr key={invoice.id}>
-                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">{new Date(invoice.created_at).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-800 dark:text-slate-100">{invoice.invoice_number}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-slate-50">{invoice.customer_data?.full_name ?? 'N/A'}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-gray-800 dark:text-slate-100">${invoice.total_amount?.toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <DownloadInvoiceButton invoiceId={invoice.id} />
+                  <td className='px-6 py-4 text-sm text-gray-500 dark:text-slate-400'>
+                    {new Date(invoice.created_at).toLocaleDateString()}
+                  </td>
+                  <td className='px-6 py-4 text-sm font-semibold text-gray-800 dark:text-slate-100'>
+                    {invoice.invoice_number}
+                  </td>
+                  <td className='px-6 py-4 text-sm text-gray-900 dark:text-slate-50'>
+                    {invoice.customer_data?.full_name ?? 'N/A'}
+                  </td>
+                  <td className='px-6 py-4 text-sm font-bold text-gray-800 dark:text-slate-100'>
+                    ${invoice.total_amount?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </td>
+                  <td className='px-6 py-4 text-sm'>
+                    <InvoiceRowDownloadButton invoiceId={invoice.id} settings={settings} />
                   </td>
                 </tr>
               ))

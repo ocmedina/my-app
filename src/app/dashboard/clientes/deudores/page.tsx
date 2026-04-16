@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { formatCurrency } from "@/lib/numberFormat";
 import {
   FaArrowLeft,
   FaDollarSign,
@@ -12,7 +13,7 @@ import {
   FaShoppingCart,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import RegisterPayment from "@/components/RegisterPayment";
+import RegisterPayment from "@/components/payments/RegisterPayment";
 
 type DebtDetail = {
   id: string;
@@ -25,6 +26,19 @@ type DebtDetail = {
   totalDebt: number;
   ordersCount: number;
   salesCount: number;
+};
+
+type CustomerListRow = {
+  id: string;
+  full_name: string;
+  phone: string | null;
+  email: string | null;
+  customer_type: string;
+};
+
+type PendingDebtRow = {
+  customer_id: string | null;
+  amount_pending: number | null;
 };
 
 export default function DeudoresPage() {
@@ -42,46 +56,91 @@ export default function DeudoresPage() {
   const fetchDeudores = async () => {
     setLoading(true);
 
-    // Obtener TODOS los clientes (activos e inactivos)
-    const { data: customersData, error: customersError } = await supabase
-      .from("customers")
-      .select("*");
+    // Carga global para evitar N+1 queries por cliente.
+    const [customersRes, ordersDebtRes, salesDebtRes] = await Promise.all([
+      supabase
+        .from("customers")
+        .select("id, full_name, phone, email, customer_type"),
+      supabase
+        .from("orders")
+        .select("customer_id, amount_pending")
+        .gt("amount_pending", 0)
+        .neq("status", "cancelado"),
+      supabase
+        .from("sales")
+        .select("customer_id, amount_pending")
+        .eq("payment_method", "cuenta_corriente")
+        .eq("is_cancelled", false)
+        .gt("amount_pending", 0),
+    ]);
 
-    if (customersError) {
-      console.error("Error fetching customers:", customersError);
+    if (customersRes.error) {
+      console.error("Error fetching customers:", customersRes.error);
       setLoading(false);
       return;
     }
 
-    // Calcular deuda detallada de cada cliente
-    const deudoresData = await Promise.all(
-      (customersData || []).map(async (customer) => {
-        // Pedidos con deuda pendiente (cualquier método de pago)
-        const { data: ordersData } = await supabase
-          .from("orders")
-          .select("amount_pending")
-          .eq("customer_id", customer.id)
-          .gt("amount_pending", 0)
-          .neq("status", "cancelado");
+    if (ordersDebtRes.error) {
+      console.error("Error fetching orders debt:", ordersDebtRes.error);
+      setLoading(false);
+      return;
+    }
 
-        const ordersDebt = (ordersData || []).reduce(
-          (sum, order) => sum + (order.amount_pending || 0),
-          0
-        );
+    if (salesDebtRes.error) {
+      console.error("Error fetching sales debt:", salesDebtRes.error);
+      setLoading(false);
+      return;
+    }
 
-        // Ventas en cuenta corriente con deuda pendiente
-        const { data: salesData } = await supabase
-          .from("sales")
-          .select("amount_pending")
-          .eq("customer_id", customer.id)
-          .eq("payment_method", "cuenta_corriente")
-          .gt("amount_pending", 0)
-          .eq("is_cancelled", false);
+    const debtStatsByCustomer = new Map<
+      string,
+      {
+        ordersDebt: number;
+        salesDebt: number;
+        ordersCount: number;
+        salesCount: number;
+      }
+    >();
 
-        const salesDebt = (salesData || []).reduce(
-          (sum, sale) => sum + ((sale as any).amount_pending || 0),
-          0
-        );
+    const ensureStats = (customerId: string) => {
+      const existing = debtStatsByCustomer.get(customerId);
+      if (existing) return existing;
+
+      const created = {
+        ordersDebt: 0,
+        salesDebt: 0,
+        ordersCount: 0,
+        salesCount: 0,
+      };
+
+      debtStatsByCustomer.set(customerId, created);
+      return created;
+    };
+
+    for (const row of (ordersDebtRes.data || []) as PendingDebtRow[]) {
+      if (!row.customer_id) continue;
+
+      const stats = ensureStats(row.customer_id);
+      stats.ordersDebt += Number(row.amount_pending || 0);
+      stats.ordersCount += 1;
+    }
+
+    for (const row of (salesDebtRes.data || []) as PendingDebtRow[]) {
+      if (!row.customer_id) continue;
+
+      const stats = ensureStats(row.customer_id);
+      stats.salesDebt += Number(row.amount_pending || 0);
+      stats.salesCount += 1;
+    }
+
+    const deudoresData = ((customersRes.data || []) as CustomerListRow[]).map(
+      (customer) => {
+        const stats = debtStatsByCustomer.get(customer.id) || {
+          ordersDebt: 0,
+          salesDebt: 0,
+          ordersCount: 0,
+          salesCount: 0,
+        };
 
         return {
           id: customer.id,
@@ -89,13 +148,13 @@ export default function DeudoresPage() {
           phone: customer.phone,
           email: customer.email,
           customer_type: customer.customer_type,
-          ordersDebt,
-          salesDebt,
-          totalDebt: ordersDebt + salesDebt,
-          ordersCount: ordersData?.length || 0,
-          salesCount: salesData?.length || 0,
+          ordersDebt: stats.ordersDebt,
+          salesDebt: stats.salesDebt,
+          totalDebt: stats.ordersDebt + stats.salesDebt,
+          ordersCount: stats.ordersCount,
+          salesCount: stats.salesCount,
         };
-      })
+      }
     );
 
     // Filtrar solo los que tienen deuda y ordenar por mayor deuda
@@ -152,7 +211,7 @@ export default function DeudoresPage() {
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-4 border-2 border-red-200 w-full lg:w-auto">
           <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 mb-1">Deuda Total</p>
           <p className="text-2xl sm:text-3xl font-bold text-red-600">
-            ${deudores.reduce((sum, d) => sum + d.totalDebt, 0).toFixed(2)}
+            {formatCurrency(deudores.reduce((sum, d) => sum + d.totalDebt, 0))}
           </p>
         </div>
       </div>
@@ -218,7 +277,7 @@ export default function DeudoresPage() {
                             </p>
                           </div>
                           <p className="text-lg font-bold text-orange-600">
-                            ${deudor.ordersDebt.toFixed(2)}
+                            {formatCurrency(deudor.ordersDebt)}
                           </p>
                           <p className="text-xs text-orange-600">
                             {deudor.ordersCount} pedido(s)
@@ -236,7 +295,7 @@ export default function DeudoresPage() {
                             </p>
                           </div>
                           <p className="text-lg font-bold text-red-600">
-                            ${deudor.salesDebt.toFixed(2)}
+                            {formatCurrency(deudor.salesDebt)}
                           </p>
                           <p className="text-xs text-red-600">
                             {deudor.salesCount} venta(s)
@@ -253,7 +312,7 @@ export default function DeudoresPage() {
                           </p>
                         </div>
                         <p className="text-2xl font-bold text-red-700">
-                          ${deudor.totalDebt.toFixed(2)}
+                          {formatCurrency(deudor.totalDebt)}
                         </p>
                       </div>
                     </div>
@@ -294,7 +353,7 @@ export default function DeudoresPage() {
                 Cliente: {selectedCustomer.full_name}
               </p>
               <p className="text-xs sm:text-sm text-red-600 font-semibold mt-1">
-                Deuda actual: ${selectedCustomer.totalDebt.toFixed(2)}
+                Deuda actual: {formatCurrency(selectedCustomer.totalDebt)}
               </p>
             </div>
             <div className="p-4 sm:p-6">

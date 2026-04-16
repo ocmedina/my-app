@@ -4,7 +4,7 @@ import CustomLoader from "@/components/CustomLoader";
 import { FaPrint, FaTimes } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
-import SaleTicketDownloadButton from "@/components/SaleTicketDownloadButton";
+import SaleTicketDownloadButton from "@/components/pdf/SaleTicketDownloadButton";
 import { Database } from "@/lib/database.types"; // Assuming this is where types are. If not I'll just use any for now to match other files.
 
 interface SaleTicketModalProps {

@@ -116,7 +116,7 @@ export default function HistoryView({
                     </p>
                   </div>
                   <p className="font-bold text-xl text-green-600">
-                    ${order.total_amount.toFixed(2)}
+                    ${order.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t">

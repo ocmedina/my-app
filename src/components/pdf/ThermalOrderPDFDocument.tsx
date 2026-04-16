@@ -166,6 +166,9 @@ const styles = StyleSheet.create({
     borderTopColor: "#000",
     borderTopStyle: "dashed",
   },
+  footerText: {
+    marginBottom: 2,
+  },
   thankYou: {
     fontWeight: "bold",
     fontSize: 8,
@@ -281,9 +284,9 @@ export default function ThermalOrderPDFDocument({ order }: { order: any }) {
               {item.products?.name ?? "N/A"}
             </Text>
             <Text style={styles.colQty}>{item.quantity}</Text>
-            <Text style={styles.colPrice}>${item.price?.toFixed(2)}</Text>
+            <Text style={styles.colPrice}>${item.price?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
             <Text style={styles.colTotal}>
-              ${(item.price * item.quantity).toFixed(2)}
+              ${(item.price * item.quantity).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </Text>
           </View>
         ))}
@@ -293,7 +296,7 @@ export default function ThermalOrderPDFDocument({ order }: { order: any }) {
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>TOTAL:</Text>
             <Text style={styles.totalAmount}>
-              ${order.total_amount?.toFixed(2)}
+              ${order.total_amount?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </Text>
           </View>
         </View>

@@ -80,7 +80,7 @@ export default function StartingFloatModal({
       if (error) throw error;
 
       toast.success(
-        `✅ Fondo inicial de $${floatAmount.toFixed(2)} registrado`
+        `✅ Fondo inicial de $${floatAmount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} registrado`
       );
       setAmount("");
       onClose();

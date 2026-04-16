@@ -9,7 +9,7 @@ import {
     FaTrash,
     FaHistory,
 } from "react-icons/fa";
-import RegisterPayment from "@/components/RegisterPayment";
+import RegisterPayment from "@/components/payments/RegisterPayment";
 
 type DebtDetail = {
     id: string;
@@ -148,85 +148,24 @@ export default function DebtorsView({ onPrintRemito }: { onPrintRemito: (orderId
         setCancellingPaymentId(payment.id);
 
         try {
-            // 1. Mark payment as 'anulado'
-            const { error: updateError } = await supabase
-                .from("payments")
-                .update({ payment_method: 'anulado' })
-                .eq("id", payment.id);
+            const { data: txData, error: txError } = await supabase.rpc(
+                "cancel_customer_payment_transaction",
+                { p_payment_id: payment.id }
+            );
 
-            if (updateError) throw updateError;
+            if (txError) throw txError;
 
-            // 2. Restore Debt Logic (LIFO)
-            let remainingRestoration = payment.amount;
+            const result = (txData || {}) as { remaining_unrestored?: number | null };
+            const remainingUnrestored = Number(result.remaining_unrestored || 0);
 
-            // Fetch recent orders/sales that are eligible for restoration
-            // We want items where we PAID something, meaning amount_pending < total_amount
-            // We sort by created_at DESC to restore to the most recent items first (LIFO)
-
-            // Get candidate orders
-            const { data: orders } = await supabase
-                .from("orders")
-                .select("id, amount_pending, total_amount, created_at")
-                .eq("customer_id", payment.customer_id)
-                .neq("status", "cancelado")
-                .order("created_at", { ascending: false }); // Newest first
-
-            // Get candidate sales
-            const { data: sales } = await supabase
-                .from("sales")
-                .select("id, amount_pending, total_amount, created_at")
-                .eq("customer_id", payment.customer_id)
-                .eq("payment_method", "cuenta_corriente")
-                .eq("is_cancelled", false)
-                .order("created_at", { ascending: false }); // Newest first
-
-            // Combine and sort all effectively? Or just iterate distinct lists?
-            // Since we don't know exactly which order was paid by THIS payment (payments are pooled),
-            // LIFO strategy on the pool of debts is the standard approach for voiding.
-            // We will try to fill "holes" (paid amounts) starting from newest.
-
-            // Restore to orders first, then sales (arbitrary but consistent with payment logic)
-            // Actually, merging them by date would be more accurate LIFO, 
-            // but separate loops is safer to ensure we find targets.
-            // Let's merge and sort to be "Fair LIFO".
-
-            const allItems = [
-                ...(orders?.map(o => ({ ...o, type: 'order', created_at: o.created_at || '' })) || []),
-                ...(sales?.map(s => ({ ...s, type: 'sale', created_at: s.created_at || '' })) || [])
-            ].sort((a, b) => {
-                // Sort descending by date (assume we want to undo recent payments first)
-                return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-            });
-
-            // HOWEVER, we need to verify we only restore what was PAID.
-            // Paid amount = total_amount - amount_pending
-
-            for (const item of allItems) {
-                if (remainingRestoration <= 0.01) break;
-
-                const paidAmount = item.total_amount - item.amount_pending;
-
-                if (paidAmount > 0.01) {
-                    // We can restore some debt here
-                    const restoreAmount = Math.min(remainingRestoration, paidAmount);
-                    const newPending = item.amount_pending + restoreAmount;
-
-                    if (item.type === 'order') {
-                        await supabase.from("orders").update({ amount_pending: newPending }).eq("id", item.id);
-                    } else {
-                        await supabase.from("sales").update({ amount_pending: newPending }).eq("id", item.id);
-                    }
-
-                    remainingRestoration -= restoreAmount;
-                }
+            if (remainingUnrestored > 0.01) {
+                alert(
+                    `Pago anulado exitosamente.\nParte del monto no pudo restaurarse: $${remainingUnrestored.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                );
+            } else {
+                alert("Pago anulado exitosamente. La deuda ha sido restaurada.");
             }
 
-            // If there is still remainingRestoration, it means we couldn't find where it was applied 
-            // (maybe items were deleted or fully cancelled separately). 
-            // We accept this discrepancy as we can't over-debt items beyond total_amount.
-            // But we should probably warn or log. For now, we proceed.
-
-            alert("Pago anulado exitosamente. La deuda ha sido restaurada.");
             fetchDeudores();
 
         } catch (error: any) {
@@ -272,7 +211,7 @@ export default function DebtorsView({ onPrintRemito }: { onPrintRemito: (orderId
                 <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-100 dark:border-red-900/50">
                     <p className="text-sm text-red-600 dark:text-red-400 mb-1">Total a cobrar</p>
                     <p className="text-2xl font-bold text-red-700 dark:text-red-400">
-                        ${deudores.reduce((sum, d) => sum + d.totalDebt, 0).toFixed(2)}
+                        ${deudores.reduce((sum, d) => sum + d.totalDebt, 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                 </div>
             </div>
@@ -304,7 +243,7 @@ export default function DebtorsView({ onPrintRemito }: { onPrintRemito: (orderId
                                 </div>
                                 <div className="text-right">
                                     <p className="font-bold text-red-600 dark:text-red-400 text-lg">
-                                        ${deudor.totalDebt.toFixed(2)}
+                                        ${deudor.totalDebt.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
                                     <span className="text-xs text-gray-400 dark:text-slate-500">
                                         {expandedCustomerId === deudor.id ? 'Ocultar detalle' : 'Ver detalle'}
@@ -328,7 +267,7 @@ export default function DebtorsView({ onPrintRemito }: { onPrintRemito: (orderId
                                                         <div key={payment.id} className={`flex justify-between items-center bg-white dark:bg-slate-900 p-3 rounded-lg border ${isCancelled ? 'border-red-100 dark:border-red-900/30 opacity-75' : 'border-green-100 dark:border-green-900/30'}`}>
                                                             <div>
                                                                 <p className={`font-bold ${isCancelled ? 'text-gray-400 line-through' : 'text-gray-800 dark:text-slate-200'}`}>
-                                                                    ${payment.amount.toFixed(2)}
+                                                                    ${payment.amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                                 </p>
                                                                 <p className="text-xs text-gray-500">
                                                                     {new Date(payment.created_at).toLocaleDateString()} - {isCancelled ? 'ANULADO' : payment.payment_method}
@@ -376,8 +315,8 @@ export default function DebtorsView({ onPrintRemito }: { onPrintRemito: (orderId
                                                                 >
                                                                     <FaPrint /> Remito
                                                                 </button>
-                                                                <p className="font-bold text-red-500">${order.amount_pending.toFixed(2)}</p>
-                                                                <p className="text-xs text-gray-400">Total: ${order.total_amount.toFixed(2)}</p>
+                                                                <p className="font-bold text-red-500">${order.amount_pending.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                                                <p className="text-xs text-gray-400">Total: ${order.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                                                             </div>
                                                         </div>
 
@@ -386,7 +325,7 @@ export default function DebtorsView({ onPrintRemito }: { onPrintRemito: (orderId
                                                             {order.order_items?.map((item: any) => (
                                                                 <div key={item.id} className="flex justify-between text-xs text-gray-600 dark:text-slate-400">
                                                                     <span>{item.quantity}x {item.products?.name}</span>
-                                                                    <span>${item.price.toFixed(2)}</span>
+                                                                    <span>${item.price.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                                 </div>
                                                             ))}
                                                         </div>
@@ -408,8 +347,8 @@ export default function DebtorsView({ onPrintRemito }: { onPrintRemito: (orderId
                                                             <p className="text-xs text-gray-500">{new Date(sale.created_at).toLocaleDateString()}</p>
                                                         </div>
                                                         <div className="text-right">
-                                                            <p className="font-bold text-red-500">${sale.amount_pending.toFixed(2)}</p>
-                                                            <p className="text-xs text-gray-400">de ${sale.total_amount.toFixed(2)}</p>
+                                                            <p className="font-bold text-red-500">${sale.amount_pending.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                                            <p className="text-xs text-gray-400">de ${sale.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -423,7 +362,7 @@ export default function DebtorsView({ onPrintRemito }: { onPrintRemito: (orderId
                                 <div>
                                     <p className="text-xs text-red-600 dark:text-red-400 font-bold uppercase">Deuda Total</p>
                                     <p className="text-xl font-bold text-red-700 dark:text-red-500">
-                                        ${deudor.totalDebt.toFixed(2)}
+                                        ${deudor.totalDebt.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </p>
                                 </div>
                                 <button

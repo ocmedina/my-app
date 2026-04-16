@@ -70,7 +70,7 @@ export default function CancelOrderModal({
               <span className="font-bold">{order.customers.full_name}</span>
             </p>
             <p className="text-2xl font-bold text-red-600 mb-4">
-              ${order.total_amount.toFixed(2)}
+              ${order.total_amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3 text-sm text-yellow-800">
               <p className="font-semibold mb-1">⚠️ Importante:</p>

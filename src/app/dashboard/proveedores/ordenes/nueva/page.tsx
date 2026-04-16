@@ -291,7 +291,7 @@ export default function NewPurchaseOrderPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-blue-600">
-                          ${product.price_mayorista?.toFixed(2) || "0.00"}
+                          ${product.price_mayorista?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-slate-400">
                           Stock: {product.stock}
@@ -371,7 +371,7 @@ export default function NewPurchaseOrderPage() {
                         />
                       </td>
                       <td className="px-4 py-4 text-right font-bold text-gray-900 dark:text-slate-50">
-                        ${item.subtotal.toFixed(2)}
+                        ${item.subtotal.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td className="px-4 py-4 text-center">
                         <button
@@ -396,7 +396,7 @@ export default function NewPurchaseOrderPage() {
                       colSpan={2}
                       className="px-4 py-4 text-right text-xl font-bold text-blue-600"
                     >
-                      ${calculateTotal().toFixed(2)}
+                      ${calculateTotal().toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                   </tr>
                 </tfoot>

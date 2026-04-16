@@ -5,6 +5,10 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import CustomerActions from "@/components/CustomerActions";
 import { supabase } from "@/lib/supabaseClient";
+import { formatCurrency } from "@/lib/numberFormat";
+import toast from "react-hot-toast";
+import ExportAllCustomersMovementsButton from "@/components/exports/ExportAllCustomersMovementsButton";
+import ExportAllOrdersWithCustomerButton from "@/components/exports/ExportAllOrdersWithCustomerButton";
 import {
   FaUsers,
   FaPlus,
@@ -17,6 +21,7 @@ import {
   FaInbox,
   FaExclamationTriangle,
   FaSearch,
+  FaFileExcel,
 } from "react-icons/fa";
 
 // 🔹 Tipos manuales para TypeScript
@@ -25,6 +30,7 @@ type CustomerRow = {
   full_name: string;
   email?: string | null;
   phone?: string | null;
+  address?: string | null;
   customer_type: string;
   debt?: number | null;
 };
@@ -65,69 +71,73 @@ function CustomersPageContent() {
     const fetchCustomers = async () => {
       setLoading(true);
 
-      // Obtener todos los clientes activos
-      const { data: customersData, error: customersError } = await supabase
-        .from("customers")
-        .select("*")
-        .eq("is_active", true)
-        .order("full_name", { ascending: true });
+      try {
+        // Obtener todos los clientes activos
+        const { data: customersData, error: customersError } = await supabase
+          .from("customers")
+          .select("id, full_name, email, phone, address, customer_type")
+          .eq("is_active", true)
+          .order("full_name", { ascending: true });
 
-      if (customersError) {
-        console.error("Error fetching customers:", customersError);
-        setCustomers([]);
-        setLoading(false);
-        return;
-      }
+        if (customersError) throw customersError;
 
-      // Obtener la deuda de cada cliente desde los pedidos (cualquier método de pago) y ventas en CUENTA CORRIENTE
-      const customersWithDebt = await Promise.all(
-        (customersData || []).map(async (customer) => {
-          // Deuda de pedidos con saldo pendiente (cualquier método de pago)
-          const { data: ordersData } = await supabase
+        // Reducimos N+1: traemos deudas globales y agregamos por cliente en memoria
+        const [ordersDebtRes, salesDebtRes] = await Promise.all([
+          supabase
             .from("orders")
-            .select("amount_pending")
-            .eq("customer_id", customer.id)
+            .select("customer_id, amount_pending")
             .gt("amount_pending", 0)
-            .neq("status", "cancelado");
-
-          const ordersDebt = (ordersData || []).reduce(
-            (sum, order) => sum + (order.amount_pending || 0),
-            0
-          );
-
-          // Deuda de ventas en cuenta corriente
-          const { data: salesData } = await supabase
+            .neq("status", "cancelado"),
+          supabase
             .from("sales")
-            .select("amount_pending")
-            .eq("customer_id", customer.id)
+            .select("customer_id, amount_pending")
             .eq("payment_method", "cuenta_corriente")
             .eq("is_cancelled", false)
-            .gt("amount_pending", 0);
+            .gt("amount_pending", 0),
+        ]);
 
-          const salesDebt = (salesData || []).reduce(
-            (sum, sale) => sum + ((sale as any).amount_pending || 0),
-            0
+        if (ordersDebtRes.error) throw ordersDebtRes.error;
+        if (salesDebtRes.error) throw salesDebtRes.error;
+
+        const debtByCustomer = new Map<string, number>();
+        const addDebt = (
+          customerId: string | null,
+          amountPending: number | null
+        ) => {
+          if (!customerId) return;
+          const current = debtByCustomer.get(customerId) || 0;
+          debtByCustomer.set(customerId, current + Number(amountPending || 0));
+        };
+
+        (ordersDebtRes.data || []).forEach((row) => {
+          addDebt(row.customer_id, row.amount_pending as number | null);
+        });
+        (salesDebtRes.data || []).forEach((row) => {
+          addDebt(row.customer_id, row.amount_pending as number | null);
+        });
+
+        const customersWithDebt = (customersData || []).map((customer) => ({
+          ...customer,
+          debt: debtByCustomer.get(customer.id) || 0,
+        }));
+
+        // Aplicar filtro de deuda
+        let filteredCustomers = customersWithDebt;
+        if (debtFilter === "with_debt") {
+          filteredCustomers = customersWithDebt.filter((c) => (c.debt || 0) > 0);
+        } else if (debtFilter === "no_debt") {
+          filteredCustomers = customersWithDebt.filter(
+            (c) => (c.debt || 0) === 0
           );
+        }
 
-          return {
-            ...customer,
-            debt: ordersDebt + salesDebt,
-          };
-        })
-      );
-
-      // Aplicar filtro de deuda
-      let filteredCustomers = customersWithDebt;
-      if (debtFilter === "with_debt") {
-        filteredCustomers = customersWithDebt.filter((c) => (c.debt || 0) > 0);
-      } else if (debtFilter === "no_debt") {
-        filteredCustomers = customersWithDebt.filter(
-          (c) => (c.debt || 0) === 0
-        );
+        setCustomers(filteredCustomers);
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+        setCustomers([]);
+      } finally {
+        setLoading(false);
       }
-
-      setCustomers(filteredCustomers);
-      setLoading(false);
     };
 
     fetchCustomers();
@@ -148,6 +158,53 @@ function CustomersPageContent() {
     );
   }, [customers, searchTerm]);
 
+  const handleExportCustomersExcel = async () => {
+    if (filteredCustomers.length === 0) {
+      toast.error("No hay clientes para exportar");
+      return;
+    }
+
+    const XLSX = await import("xlsx");
+
+    const rows = filteredCustomers.map((customer) => {
+      const normalizedType = (customer.customer_type || "").trim().toLowerCase();
+      const customerTypeLabel =
+        normalizedType === "mayorista"
+          ? "Mayorista"
+          : normalizedType === "minorista"
+            ? "Minorista"
+            : "No definido";
+
+      return {
+        Nombre: customer.full_name || "",
+        Telefono: customer.phone || "",
+        Direccion: customer.address || "",
+        Email: customer.email || "",
+        TipoCliente: customerTypeLabel,
+        DeudaPendiente: Number((customer.debt || 0).toFixed(2)),
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(rows, {
+      header: ["Nombre", "Telefono", "Direccion", "Email", "TipoCliente", "DeudaPendiente"],
+    });
+    worksheet["!cols"] = [
+      { wch: 35 },
+      { wch: 18 },
+      { wch: 35 },
+      { wch: 32 },
+      { wch: 14 },
+      { wch: 16 },
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Clientes");
+
+    const exportDate = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(workbook, `clientes_${exportDate}.xlsx`);
+    toast.success("Clientes exportados correctamente");
+  };
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 min-h-screen">
       {/* HEADER */}
@@ -160,7 +217,15 @@ function CustomersPageContent() {
             Administra tu cartera de clientes y sus cuentas
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
+          <ExportAllCustomersMovementsButton />
+          <ExportAllOrdersWithCustomerButton />
+          <button
+            onClick={handleExportCustomersExcel}
+            className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-700 text-white rounded-lg hover:from-emerald-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
+          >
+            <FaFileExcel /> Exportar Excel
+          </button>
           <Link
             href="/dashboard/clientes/deudores"
             className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl transition-all font-semibold flex items-center gap-2"
@@ -351,13 +416,13 @@ function CustomersPageContent() {
                       {customer.debt && customer.debt > 0 ? (
                         <div className="flex items-center gap-2">
                           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-2 border-red-400">
-                            <FaExclamationTriangle />${customer.debt.toFixed(2)}
+                            <FaExclamationTriangle />{formatCurrency(customer.debt)}
                           </span>
                         </div>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-sm font-bold text-green-600">
                           <FaDollarSign />
-                          0.00
+                          {formatCurrency(0).replace("$", "")}
                         </span>
                       )}
                     </td>

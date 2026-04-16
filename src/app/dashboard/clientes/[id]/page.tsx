@@ -1,22 +1,195 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/server";
+import { createLooseAdminClient } from "@/lib/admin";
 import Link from "next/link";
 import { Database } from "@/lib/database.types";
+import { formatCurrency } from "@/lib/numberFormat";
 import {
   FaMoneyBillWave,
   FaReceipt,
   FaArrowLeft,
   FaMapMarkerAlt,
 } from "react-icons/fa"; // Importa el ícono de dirección
-import RegisterPayment from "@/components/RegisterPayment";
-import PaymentHistoryList from "@/components/PaymentHistoryList";
+import RegisterPayment from "@/components/payments/RegisterPayment";
+import PaymentHistoryList from "@/components/payments/PaymentHistoryList";
+import ExportCustomerMovementsButton from "@/components/exports/ExportCustomerMovementsButton";
 
 // Desactivar cache de Next.js
 export const dynamic = "force-dynamic";
 
 // Usamos los tipos generados de Supabase en lugar de manuales
 type CustomerRow = Database["public"]["Tables"]["customers"]["Row"];
-type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
+type PaymentHistoryEntry = {
+  id: number | string;
+  amount: number;
+  created_at: string;
+  type: string;
+  customer_id: string;
+  payment_method: string | null;
+  comment: string | null;
+};
+
+type PaymentHistoryRaw = PaymentHistoryEntry & {
+  sale_id?: string | null;
+};
+
+const PAYMENTS_SELECT_WITH_SALE_ID =
+  "id, amount, created_at, type, customer_id, payment_method, comment, sale_id";
+const PAYMENTS_SELECT_BASE =
+  "id, amount, created_at, type, customer_id, payment_method, comment";
+
+function isMissingSaleIdColumnError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+
+  const message = String((error as { message?: string }).message || "").toLowerCase();
+  const details = String((error as { details?: string }).details || "").toLowerCase();
+
+  return message.includes("sale_id") || details.includes("sale_id");
+}
+
+async function fetchPaymentRows(client: any, customerId: string): Promise<{
+  rows: PaymentHistoryRaw[];
+  error: unknown;
+}> {
+  const withSaleId = await client
+    .from("payments")
+    .select(PAYMENTS_SELECT_WITH_SALE_ID)
+    .eq("customer_id", customerId)
+    .order("created_at", { ascending: false });
+
+  if (!withSaleId.error) {
+    return {
+      rows: (withSaleId.data || []) as PaymentHistoryRaw[],
+      error: null,
+    };
+  }
+
+  if (!isMissingSaleIdColumnError(withSaleId.error)) {
+    return { rows: [], error: withSaleId.error };
+  }
+
+  const withoutSaleId = await client
+    .from("payments")
+    .select(PAYMENTS_SELECT_BASE)
+    .eq("customer_id", customerId)
+    .order("created_at", { ascending: false });
+
+  if (withoutSaleId.error) {
+    return { rows: [], error: withoutSaleId.error };
+  }
+
+  return {
+    rows: ((withoutSaleId.data || []) as PaymentHistoryEntry[]).map((row) => ({
+      ...row,
+      sale_id: null,
+    })),
+    error: null,
+  };
+}
+
+type OrderHistoryRow = {
+  id: string;
+  created_at: string;
+  payment_method: string | null;
+  status: string | null;
+  total_amount?: number | null;
+  amount_paid?: number | null;
+  amount_pending?: number | null;
+};
+
+type SaleHistoryRow = {
+  id: string;
+  created_at: string;
+  payment_method: string | null;
+  total_amount?: number | null;
+  amount_paid?: number | null;
+  amount_pending?: number | null;
+  is_cancelled?: boolean | null;
+};
+
+function buildSyntheticMovements(
+  customerId: string,
+  payments: PaymentHistoryRaw[],
+  orders: OrderHistoryRow[],
+  sales: SaleHistoryRow[]
+): PaymentHistoryEntry[] {
+  const useTotalAmountFallback = payments.length === 0;
+
+  const saleIdsWithPurchaseMovement = new Set(
+    payments
+      .filter((p) => p.type === "compra" && !!p.sale_id)
+      .map((p) => String(p.sale_id))
+  );
+
+  const hasOrderPurchaseMovement = (orderId: string) => {
+    const shortId = orderId.slice(0, 8).toLowerCase();
+    return payments.some((p) => {
+      if (p.type !== "compra" || !p.comment) return false;
+      const comment = p.comment.toLowerCase();
+      return (
+        comment.includes(`pedido #${shortId}`) ||
+        comment.includes(`pedido ${shortId}`)
+      );
+    });
+  };
+
+  const synthetic: PaymentHistoryEntry[] = [];
+
+  for (const order of orders) {
+    if (order.status === "cancelado") continue;
+
+    const totalAmount = Number(order.total_amount || 0);
+    const amountPaid = Number(order.amount_paid || 0);
+    const currentPending = Number(order.amount_pending || 0);
+    const inferredDebtAtCreation = Math.max(0, totalAmount - amountPaid);
+    const movementAmount = inferredDebtAtCreation > 0.01
+      ? inferredDebtAtCreation
+      : useTotalAmountFallback
+      ? totalAmount
+      : currentPending;
+
+    if (movementAmount <= 0.01) continue;
+    if (hasOrderPurchaseMovement(order.id)) continue;
+
+    synthetic.push({
+      id: `order-${order.id}`,
+      amount: movementAmount,
+      created_at: order.created_at,
+      type: "compra",
+      customer_id: customerId,
+      payment_method: order.payment_method,
+      comment: `Pedido #${order.id.slice(0, 8)} - saldo pendiente`,
+    });
+  }
+
+  for (const sale of sales) {
+    if (sale.is_cancelled) continue;
+
+    const totalAmount = Number(sale.total_amount || 0);
+    const amountPaid = Number(sale.amount_paid || 0);
+    const currentPending = Number(sale.amount_pending || 0);
+    const inferredDebtAtCreation = Math.max(0, totalAmount - amountPaid);
+    const movementAmount = inferredDebtAtCreation > 0.01
+      ? inferredDebtAtCreation
+      : useTotalAmountFallback
+      ? totalAmount
+      : currentPending;
+
+    if (movementAmount <= 0.01) continue;
+    if (saleIdsWithPurchaseMovement.has(sale.id)) continue;
+
+    synthetic.push({
+      id: `sale-${sale.id}`,
+      amount: movementAmount,
+      created_at: sale.created_at,
+      type: "compra",
+      customer_id: customerId,
+      payment_method: sale.payment_method,
+      comment: `Venta #${sale.id.slice(0, 8)} - cuenta corriente`,
+    });
+  }
+
+  return synthetic;
+}
 
 // Esta es la forma estándar de definir props en una página dinámica de Next.js
 interface CustomerDetailPageProps {
@@ -27,27 +200,77 @@ export default async function CustomerDetailPage(
   props: CustomerDetailPageProps
 ) {
   const params = await props.params;
-  console.log("CustomerDetailPage params:", params);
-  const cookieStore = await cookies();
-  const supabase = createServerComponentClient<Database>({
-    cookies: () => cookieStore,
-  });
+  const normalizedId = decodeURIComponent(params.id).trim();
+  const supabase = await createClient();
+  const adminClient = createLooseAdminClient();
 
   // Obtenemos los datos del cliente
-  const { data: customer, error: customerError } = await supabase
+  const { data: customerData } = await supabase
     .from("customers")
     .select("*")
-    .eq("id", params.id)
-    .single();
+    .eq("id", normalizedId)
+    .maybeSingle();
 
-  // Obtenemos los pagos
-  const { data: payments, error: paymentsError } = await supabase
-    .from("payments")
-    .select("*")
-    .eq("customer_id", params.id)
+  const customer =
+    customerData ||
+    (
+      (
+        await adminClient
+          .from("customers")
+          .select("*")
+          .eq("id", normalizedId)
+          .maybeSingle()
+      ).data as CustomerRow | null
+    );
+
+  // Obtenemos movimientos base (payments); hay fallback si la DB aun no tiene sale_id.
+  const primaryPayments = await fetchPaymentRows(supabase, normalizedId);
+  let basePayments: PaymentHistoryRaw[] = primaryPayments.rows;
+
+  if (primaryPayments.error || basePayments.length === 0) {
+    const adminPayments = await fetchPaymentRows(adminClient, normalizedId);
+    if (adminPayments.rows.length > 0 || primaryPayments.error) {
+      basePayments = adminPayments.rows;
+    }
+  }
+
+  const { data: ordersHistoryData, error: ordersHistoryError } = await supabase
+    .from("orders")
+    .select("id, created_at, payment_method, status, total_amount, amount_paid, amount_pending")
+    .eq("customer_id", normalizedId)
+    .neq("status", "cancelado")
     .order("created_at", { ascending: false });
 
-  if (customerError || !customer) {
+  const ordersHistory = ordersHistoryError
+    ? ((
+        await adminClient
+          .from("orders")
+          .select("id, created_at, payment_method, status, total_amount, amount_paid, amount_pending")
+          .eq("customer_id", normalizedId)
+          .neq("status", "cancelado")
+          .order("created_at", { ascending: false })
+      ).data as OrderHistoryRow[] | null)
+    : (ordersHistoryData as unknown as OrderHistoryRow[] | null);
+
+  const { data: salesHistoryData, error: salesHistoryError } = await supabase
+    .from("sales")
+    .select("id, created_at, payment_method, total_amount, amount_paid, amount_pending, is_cancelled")
+    .eq("customer_id", normalizedId)
+    .eq("is_cancelled", false)
+    .order("created_at", { ascending: false });
+
+  const salesHistory = salesHistoryError
+    ? ((
+        await adminClient
+          .from("sales")
+          .select("id, created_at, payment_method, total_amount, amount_paid, amount_pending, is_cancelled")
+          .eq("customer_id", normalizedId)
+          .eq("is_cancelled", false)
+          .order("created_at", { ascending: false })
+      ).data as SaleHistoryRow[] | null)
+    : (salesHistoryData as unknown as SaleHistoryRow[] | null);
+
+  if (!customer) {
     return (
       <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-red-600">
@@ -63,36 +286,45 @@ export default async function CustomerDetailPage(
     );
   }
 
-  // Calcular la deuda real desde los pedidos (cualquier método de pago con saldo pendiente)
-  const { data: ordersData } = await supabase
-    .from("orders")
-    .select("id, amount_pending, created_at, status, payment_method")
-    .eq("customer_id", params.id)
-    .gt("amount_pending", 0)
-    .neq("status", "cancelado")
-    .order("created_at", { ascending: false });
+  const customerReference = (customer as any).reference as string | null;
 
-  // Calcular la deuda de ventas en CUENTA CORRIENTE
-  const { data: salesData } = await supabase
-    .from("sales")
-    .select("id, amount_pending, created_at, payment_method")
-    .eq("customer_id", params.id)
-    .eq("payment_method", "cuenta_corriente")
-    .eq("is_cancelled", false)
-    .gt("amount_pending", 0)
-    .order("created_at", { ascending: false });
+  const ordersData = (ordersHistory || []).filter(
+    (order) => Number(order.amount_pending || 0) > 0
+  );
+
+  const salesData = (salesHistory || []).filter(
+    (sale) =>
+      (sale.payment_method || "") === "cuenta_corriente" &&
+      Number(sale.amount_pending || 0) > 0 &&
+      !sale.is_cancelled
+  );
 
   const ordersDebt = (ordersData || []).reduce(
-    (sum, order) => sum + ((order as any).amount_pending || 0),
+    (sum, order) => sum + Number(order.amount_pending || 0),
     0
   );
 
   const salesDebt = (salesData || []).reduce(
-    (sum, sale) => sum + ((sale as any).amount_pending || 0),
+    (sum, sale) => sum + Number(sale.amount_pending || 0),
     0
   );
 
   const currentDebt = ordersDebt + salesDebt;
+
+  const syntheticMovements = buildSyntheticMovements(
+    customer.id,
+    basePayments,
+    ordersHistory || [],
+    salesHistory || []
+  );
+
+  const historyMovements: PaymentHistoryEntry[] = [
+    ...basePayments,
+    ...syntheticMovements,
+  ].sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   return (
     <div className="space-y-6">
@@ -131,9 +363,9 @@ export default async function CustomerDetailPage(
                 <p className="text-sm text-gray-600 dark:text-slate-300 ml-6 mt-1">
                   {customer.address}
                 </p>
-                {customer.reference && (
+                {customerReference && (
                   <p className="text-xs text-gray-500 dark:text-slate-400 ml-6 mt-1 italic">
-                    Ref: {customer.reference}
+                    Ref: {customerReference}
                   </p>
                 )}
               </div>
@@ -147,7 +379,7 @@ export default async function CustomerDetailPage(
               className={`text-4xl font-bold mt-2 ${currentDebt > 0 ? "text-red-600" : "text-green-600"
                 }`}
             >
-              ${currentDebt.toFixed(2)}
+              {formatCurrency(currentDebt)}
             </p>
             <p className="text-xs text-gray-400 mt-1">
               {currentDebt > 0
@@ -201,7 +433,7 @@ export default async function CustomerDetailPage(
                             Saldo Pendiente
                           </p>
                           <p className="text-2xl font-bold text-orange-600">
-                            ${order.amount_pending?.toFixed(2)}
+                            {formatCurrency(order.amount_pending)}
                           </p>
                         </div>
                       </div>
@@ -240,7 +472,7 @@ export default async function CustomerDetailPage(
                             Saldo Pendiente
                           </p>
                           <p className="text-2xl font-bold text-red-600">
-                            ${sale.amount_pending?.toFixed(2)}
+                            {formatCurrency(sale.amount_pending)}
                           </p>
                         </div>
                       </div>
@@ -253,8 +485,14 @@ export default async function CustomerDetailPage(
       )}
 
       <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-bold mb-4">Historial de Movimientos</h2>
-        <PaymentHistoryList initialPayments={payments || []} />
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+          <h2 className="text-xl font-bold">Historial de Movimientos</h2>
+          <ExportCustomerMovementsButton
+            customerName={customer.full_name}
+            payments={historyMovements}
+          />
+        </div>
+        <PaymentHistoryList initialPayments={historyMovements} />
       </div>
     </div>
   );

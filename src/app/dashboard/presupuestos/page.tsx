@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import PDFDownloadButton from "@/components/PDFDownloadButton";
+import PDFDownloadButton from "@/components/pdf/PDFDownloadButton";
 import {
   FaCalendarAlt,
   FaFileInvoiceDollar,
@@ -229,7 +229,7 @@ export default function BudgetsPage() {
                   </div>
 
                   <div className="text-right">
-                    <p className="font-bold text-gray-900 dark:text-slate-50">${Number(budget.total_amount || 0).toFixed(2)}</p>
+                    <p className="font-bold text-gray-900 dark:text-slate-50">${Number(budget.total_amount || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                     <p className="text-xs text-gray-500 dark:text-slate-400 uppercase">{budget.status || "activo"}</p>
                     <button
                       onClick={() => setSelectedBudgetIdForPrint(budget.id)}
