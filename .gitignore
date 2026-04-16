@@ -47,5 +47,5 @@ bash.exe.stackdump
 # supabase cli temporary files
 supabase-cli-temp/
 
-# generated data exports
-exports/
+# generated data exports (solo raíz del proyecto)
+/exports/
