@@ -52,16 +52,25 @@ export default function DailyOrdersView({
   onDeliverOrder,
   onCancelOrder,
 }: DailyOrdersViewProps) {
+  // Parsear fecha con T12:00:00 evita que UTC medianoche cruce al día anterior en Argentina (-03:00)
+  const parseLocalDate = (dateStr: string) => new Date(`${dateStr}T12:00:00`);
+
   const handlePrevDay = () => {
-    const date = new Date(selectedDate);
+    const date = parseLocalDate(selectedDate);
     date.setDate(date.getDate() - 1);
-    onDateChange(date.toISOString().split("T")[0]);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    onDateChange(`${yyyy}-${mm}-${dd}`);
   };
 
   const handleNextDay = () => {
-    const date = new Date(selectedDate);
+    const date = parseLocalDate(selectedDate);
     date.setDate(date.getDate() + 1);
-    onDateChange(date.toISOString().split("T")[0]);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    onDateChange(`${yyyy}-${mm}-${dd}`);
   };
 
   return (
@@ -115,7 +124,7 @@ export default function DailyOrdersView({
       <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700">
         <h2 className="font-bold text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2 text-lg">
           <FaClipboardList className="text-blue-600" /> Pedidos del{" "}
-          {new Date(selectedDate).toLocaleDateString("es-AR", {
+          {new Date(`${selectedDate}T12:00:00`).toLocaleDateString("es-AR", {
             day: "numeric",
             month: "long",
           })}{" "}

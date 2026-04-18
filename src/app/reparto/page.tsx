@@ -82,10 +82,11 @@ export default function RepartoPage() {
   const [shipping, setShipping] = useState(0);
   const [historyFilter, setHistoryFilter] = useState("all");
 
-  // Date State for Daily View
+  // Date State for Daily View — usar zona horaria Argentina para evitar desfasaje con UTC
   const [selectedDate, setSelectedDate] = useState(() => {
     const now = new Date();
-    return now.toISOString().split("T")[0]; // YYYY-MM-DD
+    // toLocaleDateString con timeZone Argentina siempre devuelve la fecha local correcta
+    return now.toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" }); // Formato YYYY-MM-DD
   });
 
   // Fetch customers
@@ -112,7 +113,7 @@ export default function RepartoPage() {
 
   // Fetch daily orders
   const fetchDailyHistory = useCallback(
-    async (userId: string, date: string) => {
+    async (_userId: string, date: string) => {
       try {
         // Create start and end timestamps for the selected date in Argentina timezone
         // We assume the date string is YYYY-MM-DD
@@ -129,7 +130,7 @@ export default function RepartoPage() {
           .select(
             "id, total_amount, status, created_at, customer_id, profile_id, customers(full_name, address, reference)"
           )
-          .eq("profile_id", userId)
+          // Sin filtro de profile_id: se muestran todos los pedidos del negocio
           .gte("created_at", startDate)
           .lt("created_at", endDate)
           .order("created_at", { ascending: false });
@@ -144,16 +145,16 @@ export default function RepartoPage() {
   );
 
   // Fetch all orders history
-  const fetchAllOrdersHistory = useCallback(async (userId: string) => {
+  const fetchAllOrdersHistory = useCallback(async (_userId: string) => {
     try {
       const { data, error } = await (supabase as any)
         .from("orders")
         .select(
           "id, total_amount, status, created_at, customer_id, profile_id, customers(full_name, address, reference)"
         )
-        .eq("profile_id", userId)
+        // Sin filtro de profile_id: se muestran todos los pedidos del negocio
         .order("created_at", { ascending: false })
-        .limit(100);
+        .limit(200);
 
       if (error) throw error;
       setAllOrders((data || []) as unknown as Order[]);
@@ -200,7 +201,7 @@ export default function RepartoPage() {
           event: "*",
           schema: "public",
           table: "orders",
-          filter: `profile_id=eq.${currentUser.id}`,
+          // Sin filtro de profile_id: escucha cambios en todos los pedidos del negocio
         },
         (payload) => {
           console.log("Order change detected:", payload);
