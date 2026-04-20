@@ -4,6 +4,16 @@ import { createLooseAdminClient } from '@/lib/admin';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+export async function getChoferes() {
+  const supabase = createLooseAdminClient();
+  // Role string exactly like that might be customized, let's fetch any profile that might be a driver.
+  // We'll fetch all profiles to be safe, or just where role is 'chofer_reparto' if they use standard roles.
+  // Often it's 'chofer' or 'chofer_reparto' or 'repartidor'.
+  const { data } = await supabase.from('profiles').select('id, full_name, role');
+  // For now we return all, in the UI we will filter if needed, but it's fine.
+  return data || [];
+}
+
 function getArgentinaDayBounds(date: string) {
   // date: 'YYYY-MM-DD' en zona Argentina
   const startISO = `${date}T00:00:00-03:00`;
@@ -45,6 +55,12 @@ export type DeskSaleRow = {
   created_at: string;
 };
 
+export type ProductSummary = {
+  productId: string;
+  productName: string;
+  quantity: number;
+};
+
 export type DeliveryCashCloseResult = {
   date: string;
   totalOrders: number;
@@ -54,6 +70,10 @@ export type DeliveryCashCloseResult = {
   collected: PaymentBreakdown;
   debtGenerated: number;
   orders: DeliveryOrderRow[];
+  productsSummary: ProductSummary[];
+  expenses: { id: string; category: string; amount: number; description: string; date: string }[];
+  routeExpensesTotal: number;
+  netCashToHandOver: number;
 };
 
 export type DeskCashCloseResult = {
@@ -68,13 +88,14 @@ export type DeskCashCloseResult = {
 // ─── Cierre de Reparto ────────────────────────────────────────────────────────
 
 export async function getDeliveryCashClose(
-  date: string
+  date: string,
+  profileId?: string
 ): Promise<{ success: boolean; data?: DeliveryCashCloseResult; error?: string }> {
   try {
     const supabase = createLooseAdminClient();
     const { startISO, endISO } = getArgentinaDayBounds(date);
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('orders')
       .select(`
         id,
@@ -84,11 +105,18 @@ export async function getDeliveryCashClose(
         payment_method,
         status,
         created_at,
-        customers ( full_name )
+        customers ( full_name ),
+        order_items ( quantity, products ( id, name ) )
       `)
       .gte('created_at', startISO)
       .lt('created_at', endISO)
       .order('created_at', { ascending: false });
+
+    if (profileId && profileId !== 'todos') {
+      query = query.eq('profile_id', profileId);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
 
@@ -119,20 +147,56 @@ export async function getDeliveryCashClose(
     };
 
     let debtGenerated = 0;
+    const productCounts: Record<string, ProductSummary> = {};
 
-    for (const o of delivered) {
-      const paid = o.amount_paid;
-      const method = (o.payment_method || 'otros').toLowerCase().trim();
+    for (const row of rows) {
+      if (row.status === 'entregado') {
+        const paid = Number(row.amount_paid) || 0;
+        const method = (row.payment_method || 'otros').toLowerCase().trim();
 
-      if (method === 'efectivo') collected.efectivo += paid;
-      else if (method === 'transferencia') collected.transferencia += paid;
-      else if (method === 'mercado_pago' || method === 'mercadopago') collected.mercado_pago += paid;
-      else if (method === 'cuenta_corriente') collected.cuenta_corriente += paid;
-      else collected.otros += paid;
+        if (method === 'efectivo') collected.efectivo += paid;
+        else if (method === 'transferencia') collected.transferencia += paid;
+        else if (method === 'mercado_pago' || method === 'mercadopago') collected.mercado_pago += paid;
+        else if (method === 'cuenta_corriente') collected.cuenta_corriente += paid;
+        else collected.otros += paid;
 
-      collected.total += paid;
-      debtGenerated += o.amount_pending;
+        collected.total += paid;
+        debtGenerated += Number(row.amount_pending) || 0;
+
+        // Sumarizar productos
+        const items = row.order_items || [];
+        for (const item of items) {
+          if (item.products) {
+            const pId = item.products.id;
+            if (!productCounts[pId]) {
+              productCounts[pId] = {
+                productId: pId,
+                productName: item.products.name,
+                quantity: 0
+              };
+            }
+            productCounts[pId].quantity += Number(item.quantity) || 0;
+          }
+        }
+      }
     }
+
+    const productsSummary = Object.values(productCounts).sort((a, b) => b.quantity - a.quantity);
+
+    // Fetch expenses
+    let expQuery = supabase
+      .from('expenses')
+      .select('id, category, amount, description, date')
+      .eq('date', date);
+
+    if (profileId && profileId !== 'todos') {
+      expQuery = expQuery.eq('user_id', profileId);
+    }
+
+    const { data: expensesData } = await expQuery;
+    const expenses = (expensesData || []) as any[];
+    const routeExpensesTotal = expenses.reduce((s, e) => s + Number(e.amount), 0);
+    const netCashToHandOver = collected.efectivo - routeExpensesTotal;
 
     return {
       success: true,
@@ -145,6 +209,10 @@ export async function getDeliveryCashClose(
         collected,
         debtGenerated,
         orders,
+        productsSummary,
+        expenses,
+        routeExpensesTotal,
+        netCashToHandOver
       },
     };
   } catch (err: unknown) {

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   getDeliveryCashClose,
   getDeskCashClose,
+  getChoferes,
   type DeliveryCashCloseResult,
   type DeskCashCloseResult,
 } from "@/app/actions/cashCloseActions";
@@ -144,15 +145,23 @@ function StatCard({ label, value, icon, color }: { label: string; value: number 
 
 function RepartoTab() {
   const [date, setDate] = useState(todayAR);
+  const [profileId, setProfileId] = useState("todos");
+  const [choferes, setChoferes] = useState<{id: string, full_name: string}[]>([]);
   const [data, setData] = useState<DeliveryCashCloseResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
-  const load = useCallback(async (d: string) => {
+  useEffect(() => {
+    getChoferes().then((res) => {
+      setChoferes(res as any);
+    });
+  }, []);
+
+  const load = useCallback(async (d: string, pId: string) => {
     setLoading(true);
     setError(null);
-    const res = await getDeliveryCashClose(d);
+    const res = await getDeliveryCashClose(d, pId);
     if (res.success && res.data) {
       setData(res.data);
       setLoaded(true);
@@ -168,13 +177,38 @@ function RepartoTab() {
     setData(null);
   };
 
+  const handleProfileChange = (pId: string) => {
+    setProfileId(pId);
+    setLoaded(false);
+    setData(null);
+  };
+
   return (
     <div className="space-y-6">
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <DateNav date={date} onChange={handleDateChange} />
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          <DateNav date={date} onChange={handleDateChange} />
+          
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2 shadow-sm">
+            <span className="text-sm font-semibold text-gray-700 dark:text-slate-300">Chofer:</span>
+            <select
+              value={profileId}
+              onChange={(e) => handleProfileChange(e.target.value)}
+              className="bg-transparent outline-none cursor-pointer text-sm font-medium text-gray-800 dark:text-slate-100"
+            >
+              <option value="todos">Todos los choferes</option>
+              {choferes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.full_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <button
-          onClick={() => load(date)}
+          onClick={() => load(date, profileId)}
           disabled={loading}
           className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold text-sm hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50"
         >
@@ -270,6 +304,78 @@ function RepartoTab() {
                     <span className="font-bold text-red-600 dark:text-red-400">{fmt(data.debtGenerated)}</span>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+
+          {/* Resumen de Productos y Gastos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Productos Vendidos (Liquidación) */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-100 dark:border-slate-800 flex justify-between bg-gray-50 dark:bg-slate-800">
+                <h3 className="font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
+                  <FaBoxOpen className="text-blue-500" /> Liquidación de Carga
+                </h3>
+                <span className="text-xs text-gray-500 font-medium">Bienes entregados</span>
+              </div>
+              <div className="p-0">
+                {data.productsSummary && data.productsSummary.length > 0 ? (
+                  <ul className="divide-y divide-gray-100 dark:divide-slate-800">
+                    {data.productsSummary.map(ps => (
+                      <li key={ps.productId} className="flex justify-between items-center p-3 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                        <span className="text-sm font-medium text-gray-700 dark:text-slate-300">{ps.productName}</span>
+                        <span className="font-bold text-gray-900 dark:text-slate-100 bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded text-sm">
+                          x{ps.quantity}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-400 text-center py-6">Seleccioná un chofer o entregá un pedido</p>
+                )}
+              </div>
+            </div>
+
+            {/* Rendición Efectivo y Gastos */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800">
+                <h3 className="font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
+                  <FaMoneyBillWave className="text-indigo-500" /> Rendición de Efectivo
+                </h3>
+              </div>
+              <div className="p-5 flex-1 flex flex-col space-y-4">
+                <div className="flex justify-between items-center bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-slate-700">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Cobrado (Efectivo)</span>
+                  <span className="font-bold text-gray-800 dark:text-slate-200">{fmt(data.collected.efectivo)}</span>
+                </div>
+
+                <div className="flex-1">
+                  <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Gastos de Ruta</span>
+                  {data.expenses && data.expenses.length > 0 ? (
+                    <div className="space-y-2">
+                      {data.expenses.map(exp => (
+                        <div key={exp.id} className="flex justify-between items-center text-sm p-2 rounded bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30">
+                          <span className="text-red-800 dark:text-red-300 opacity-80">{exp.description}</span>
+                          <span className="font-semibold text-red-600 dark:text-red-400">-{fmt(exp.amount)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-400 italic">No se registraron gastos para este turno.</p>
+                  )}
+                </div>
+
+                <div className="mt-auto border-t-2 border-indigo-100 dark:border-indigo-900/50 pt-4">
+                  <div className="flex justify-between items-end backdrop-blur-sm bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
+                    <div>
+                      <span className="text-xs text-indigo-600 dark:text-indigo-300 font-bold uppercase tracking-wide">A rendir en caja</span>
+                      <p className="text-sm text-indigo-800 dark:text-indigo-200 opacity-70 mt-0.5">Efectivo - Gastos</p>
+                    </div>
+                    <span className="font-black text-2xl text-indigo-700 dark:text-indigo-300">
+                      {fmt(data.netCashToHandOver)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

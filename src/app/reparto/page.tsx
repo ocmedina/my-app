@@ -22,6 +22,7 @@ import RemitoModal from "./components/modals/RemitoModal";
 import CancelOrderModal from "./components/modals/CancelOrderModal";
 import OrderDetailsModal from "./components/modals/OrderDetailsModal";
 import EditOrderModal from "./components/modals/EditOrderModal";
+import AddExpenseModal from "./components/modals/AddExpenseModal";
 
 // --- Tipos de Datos ---
 type Customer = Database["public"]["Tables"]["customers"]["Row"];
@@ -65,6 +66,7 @@ export default function RepartoPage() {
   const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
   const [isCancelOrderModalOpen, setIsCancelOrderModalOpen] = useState(false);
   const [isOrderDetailsModalOpen, setIsOrderDetailsModalOpen] = useState(false);
+  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
 
   // Selection States
   const [selectedOrderForDelivery, setSelectedOrderForDelivery] =
@@ -595,6 +597,15 @@ export default function RepartoPage() {
         onClose={() => setIsOrderDetailsModalOpen(false)}
         orderId={selectedOrderIdForDetails}
       />
+      <AddExpenseModal
+        isOpen={isAddExpenseModalOpen}
+        userId={currentUser?.id || ""}
+        onClose={() => setIsAddExpenseModalOpen(false)}
+        onSuccess={() => {
+          // If we want to refresh anything specific when an expense is added, we can do it here.
+          // By default, it's just saved to the database.
+        }}
+      />
 
       <DeliveryHeader
         currentUser={currentUser}
@@ -602,6 +613,7 @@ export default function RepartoPage() {
         view={view}
         setView={setView}
         onLogout={handleLogout}
+        onOpenExpenseModal={() => setIsAddExpenseModalOpen(true)}
       />
 
       {view === "new_order" && (
