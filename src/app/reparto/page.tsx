@@ -31,6 +31,9 @@ type Order = {
   id: string;
   customer_id: string;
   total_amount: number;
+  amount_paid: number;
+  amount_pending: number;
+  payment_method: string | null;
   status: string;
   created_at: string;
   profile_id: string;
@@ -128,7 +131,7 @@ export default function RepartoPage() {
         const { data, error } = await (supabase as any)
           .from("orders")
           .select(
-            "id, total_amount, status, created_at, customer_id, profile_id, customers(full_name, address, reference)"
+            "id, total_amount, status, created_at, customer_id, profile_id, amount_paid, amount_pending, payment_method, customers(full_name, address, reference)"
           )
           // Sin filtro de profile_id: se muestran todos los pedidos del negocio
           .gte("created_at", startDate)

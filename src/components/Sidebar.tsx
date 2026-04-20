@@ -72,7 +72,7 @@ const navSections = {
       adminOnly: true,
     },
     {
-      href: "/dashboard/reportes",
+      href: "/dashboard/cierre",
       label: "Cierre de Caja",
       icon: HiOutlineDocumentReport,
       adminOnly: true,

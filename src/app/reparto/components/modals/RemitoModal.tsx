@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import PDFDownloadButton from "@/components/pdf/PDFDownloadButton";
 import { Database } from "@/lib/database.types";
+import { getCustomerRealDebt } from "@/app/actions/cashCloseActions";
 
 type Customer = Database["public"]["Tables"]["customers"]["Row"];
 type FullOrder = {
@@ -41,6 +42,8 @@ export default function RemitoModal({
 
   useEffect(() => {
     if (isOpen && orderId) {
+      // Reset stale data to prevent showing old PDF after HMR or re-open
+      setOrderData(null);
       setLoading(true);
       const fetchFullOrder = async () => {
         try {
@@ -53,7 +56,52 @@ export default function RemitoModal({
           if (error) throw error;
 
           if (order) {
-            setOrderData(order as FullOrder);
+            const customerId = order.customer_id;
+            let realDebt = 0;
+
+            try {
+              const [ordersRes, salesRes] = await Promise.all([
+                supabase
+                  .from("orders")
+                  .select("amount_pending, status, total_amount, id")
+                  .eq("customer_id", customerId)
+                  .neq("status", "cancelado"),
+                supabase
+                  .from("sales")
+                  .select("amount_pending, payment_method, is_cancelled, id")
+                  .eq("customer_id", customerId)
+              ]);
+
+              const ordersDebt = (ordersRes.data || [])
+                .filter((o: any) => o.status !== "cancelado" && Number(o.amount_pending || 0) > 0)
+                .reduce((s: number, o: any) => s + Number(o.amount_pending), 0);
+
+              const salesDebt = (salesRes.data || [])
+                .filter(
+                  (sv: any) =>
+                    !sv.is_cancelled &&
+                    (sv.payment_method || "").toLowerCase() === "cuenta_corriente" &&
+                    Number(sv.amount_pending || 0) > 0
+                )
+                .reduce((s: number, sv: any) => s + Number(sv.amount_pending), 0);
+
+              realDebt = ordersDebt + salesDebt;
+              (order as any)._debugDebt = {
+                customerId,
+                realDebt,
+                ordersPendingLength: (ordersRes.data || []).filter((o: any) => Number(o.amount_pending || 0) > 0).length,
+                salesPendingLength: (salesRes.data || []).filter((s: any) => Number(s.amount_pending || 0) > 0).length,
+                rawOrders: ordersRes.data,
+                rawSales: salesRes.data
+              };
+            } catch (debtErr) {
+              console.error("[RemitoModal] error calculando deuda:", debtErr);
+            }
+
+            setOrderData({
+              ...order,
+              customers: { ...order.customers, realDebt },
+            } as FullOrder);
           }
         } catch (error: any) {
           toast.error("No se pudieron cargar los datos del remito.");
@@ -90,6 +138,15 @@ export default function RemitoModal({
             </div>
           ) : (
             <>
+              {/* BLOQUE DE DEBUG TEMPORAL PARA IDENTIFICAR POR QUÉ ES 0 */}
+              <div className="mb-4 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-900/50 text-xs">
+                <p className="font-bold text-amber-800 dark:text-amber-500 mb-1">🔍 DEBUG INFO (enviame captura de esto):</p>
+                <p className="text-amber-700 dark:text-amber-400">ID Cliente: {(orderData as any)._debugDebt?.customerId}</p>
+                <p className="text-amber-700 dark:text-amber-400">Total Calculado: ${(orderData as any)._debugDebt?.realDebt}</p>
+                <p className="text-amber-700 dark:text-amber-400">Pedidos con deuda &gt; 0: {(orderData as any)._debugDebt?.ordersPendingLength}</p>
+                <p className="text-amber-700 dark:text-amber-400">Ventas con deuda &gt; 0: {(orderData as any)._debugDebt?.salesPendingLength}</p>
+              </div>
+
               <p className="mb-4 text-gray-700 dark:text-slate-200 text-center">
                 El remito para{" "}
                 <span className="font-bold">

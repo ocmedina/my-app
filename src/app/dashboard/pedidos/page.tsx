@@ -474,7 +474,44 @@ function RemitoModal({
           if (error) throw error;
 
           if (order) {
-            setOrderData(order as FullOrderDetails);
+            const customerId = order.customer_id;
+            let realDebt = 0;
+
+            try {
+              const [ordersRes, salesRes] = await Promise.all([
+                supabase
+                  .from("orders")
+                  .select("amount_pending, status")
+                  .eq("customer_id", customerId)
+                  .neq("status", "cancelado"),
+                supabase
+                  .from("sales")
+                  .select("amount_pending, payment_method, is_cancelled")
+                  .eq("customer_id", customerId)
+              ]);
+
+              const ordersDebt = (ordersRes.data || [])
+                .filter((o: any) => o.status !== "cancelado" && Number(o.amount_pending || 0) > 0)
+                .reduce((s: number, o: any) => s + Number(o.amount_pending), 0);
+
+              const salesDebt = (salesRes.data || [])
+                .filter(
+                  (sv: any) =>
+                    !sv.is_cancelled &&
+                    (sv.payment_method || "").toLowerCase() === "cuenta_corriente" &&
+                    Number(sv.amount_pending || 0) > 0
+                )
+                .reduce((s: number, sv: any) => s + Number(sv.amount_pending), 0);
+
+              realDebt = ordersDebt + salesDebt;
+            } catch (debtErr) {
+              console.error("[RemitoModal] error calculando deuda:", debtErr);
+            }
+
+            setOrderData({
+              ...order,
+              customers: { ...order.customers, realDebt },
+            } as FullOrderDetails);
           }
         } catch (error: any) {
           toast.error("No se pudieron cargar los datos del remito.");
