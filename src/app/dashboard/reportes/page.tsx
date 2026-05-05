@@ -8,10 +8,10 @@ import {
   FaPrint,
   FaCalculator,
   FaCashRegister,
-  FaChartLine,
   FaExclamationTriangle,
 } from "react-icons/fa";
 import { getUTCInterval } from "@/lib/date-utils";
+import ReportsCharts from "@/components/ReportsCharts";
 
 interface DailyClosingData {
   startingFloat: number;
@@ -274,6 +274,8 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6 print:space-y-4">
+      <ReportsCharts />
+
       <div className="print:hidden">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2 sm:gap-3">
           <FaCashRegister className="text-blue-600 text-xl sm:text-2xl" />

@@ -535,8 +535,21 @@ export default function RepartoPage() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        await supabase.auth.signOut({ scope: "local" });
+      }
+    } catch (error) {
+      try {
+        await supabase.auth.signOut({ scope: "local" });
+      } catch {
+        // ignore logout cleanup errors
+      }
+    } finally {
+      router.replace("/login");
+      router.refresh();
+    }
   };
 
   const pendingOrdersCount = dailyOrders.filter(
