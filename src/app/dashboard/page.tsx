@@ -14,7 +14,6 @@ import {
   FaBalanceScale,
 } from "react-icons/fa";
 import QuickActionsHeader from "@/components/QuickActionsHeader";
-import ChristmasCountdown from "@/components/ChristmasCountdown";
 
 // --- Tipos ---
 type CustomerRow = {
@@ -148,8 +147,6 @@ async function getDashboardData(
   options: { isFull: boolean; isRepartidor: boolean }
 ) {
   const { isFull, isRepartidor } = options;
-  const emptyCount = Promise.resolve({ count: 0 } as any);
-  const emptyList = Promise.resolve({ data: [] } as any);
 
   // Obtener fecha en zona horaria Argentina
   const now = new Date();
@@ -173,6 +170,42 @@ async function getDashboardData(
     }T00:00:00-03:00`;
   const startOfNextMonth = `${firstDayOfNextMonth.toISOString().split("T")[0]
     }T00:00:00-03:00`;
+
+  // --- Optimización: usar RPC para dashboard completo (1 query en vez de 10) ---
+  if (isFull) {
+    const { data: summary, error: rpcError } = await supabase.rpc(
+      "get_dashboard_summary",
+      {
+        p_start_of_month: startOfMonth,
+        p_start_of_next_month: startOfNextMonth,
+      }
+    );
+
+    if (!rpcError && summary) {
+      const totalOrdersDebt = Number(summary.totalOrdersDebt) || 0;
+      const totalSalesDebt = Number(summary.totalSalesDebt) || 0;
+
+      return {
+        productCount: Number(summary.productCount) || 0,
+        clientCount: Number(summary.clientCount) || 0,
+        totalOrders: Number(summary.totalOrders) || 0,
+        totalSales: Number(summary.totalSales) || 0,
+        totalOrderSales: Number(summary.totalOrderSales) || 0,
+        totalDebt: totalOrdersDebt + totalSalesDebt,
+        customersWithDebtCount: Number(summary.customersWithDebtCount) || 0,
+        pendingOrders: (summary.pendingOrders || []) as any[],
+        criticalStockProducts: (summary.criticalStockProducts || []) as any[],
+        recentSales: (summary.recentSales || []) as any[],
+      };
+    }
+
+    // Fallback: si la RPC falla (ej. no existe aún), usar queries individuales
+    console.warn("Dashboard RPC fallback — usando queries individuales:", rpcError?.message);
+  }
+
+  // --- Fallback para acceso limitado o si la RPC no está disponible ---
+  const emptyCount = Promise.resolve({ count: 0 } as any);
+  const emptyList = Promise.resolve({ data: [] } as any);
 
   const [
     productCountRes,
@@ -358,8 +391,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Cuenta regresiva navideña */}
-      <ChristmasCountdown />
 
       {/* Acciones Rápidas como Header */}
       {!isRepartidor && <QuickActionsHeader />}

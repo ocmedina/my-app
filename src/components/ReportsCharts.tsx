@@ -163,125 +163,145 @@ export default function ReportsCharts({ variant = "section" }: { variant?: "sect
         };
       })();
 
-      const [
-        salesRes,
-        ordersRes,
-        prevSalesRes,
-        prevOrdersRes,
-        productsCountRes,
-        customersCountRes,
-        ordersCountRes,
-        pendingOrdersRes,
-      ] = await Promise.all([
-        supabase
-          .from("sales")
-          .select("id, created_at, total_amount, payment_method")
-          .gte("created_at", start)
-          .lte("created_at", end)
-          .order("created_at", { ascending: true }),
-        (supabase as any)
-          .from("orders")
-          .select("id, created_at, total_amount, status")
-          .gte("created_at", start)
-          .lte("created_at", end),
-        supabase
-          .from("sales")
-          .select("total_amount")
-          .gte("created_at", prevStart)
-          .lte("created_at", prevEnd),
-        (supabase as any)
-          .from("orders")
-          .select("total_amount")
-          .eq("status", "entregado")
-          .gte("created_at", prevStart)
-          .lte("created_at", prevEnd),
-        supabase
-          .from("products")
-          .select("id", { count: "exact", head: true })
-          .eq("is_active", true),
-        supabase
-          .from("customers")
-          .select("id", { count: "exact", head: true })
-          .eq("is_active", true),
-        (supabase as any)
-          .from("orders")
-          .select("id", { count: "exact", head: true }),
-        (supabase as any)
-          .from("orders")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "pendiente"),
-      ]);
-
-      if (salesRes.error) throw new Error(`ventas: ${getErrorMessage(salesRes.error)}`);
-      if (ordersRes.error) throw new Error(`pedidos: ${getErrorMessage(ordersRes.error)}`);
-      if (prevSalesRes.error) throw new Error(`ventas previas: ${getErrorMessage(prevSalesRes.error)}`);
-      if (prevOrdersRes.error) throw new Error(`pedidos previos: ${getErrorMessage(prevOrdersRes.error)}`);
-
-      setSystemStats({
-        productsActive: productsCountRes.error ? 0 : productsCountRes.count ?? 0,
-        customersActive: customersCountRes.error ? 0 : customersCountRes.count ?? 0,
-        ordersTotal: ordersCountRes.error ? 0 : ordersCountRes.count ?? 0,
-        pendingOrders: pendingOrdersRes.error ? 0 : pendingOrdersRes.count ?? 0,
-      });
-
-      const sales = salesRes.data || [];
-      const orders = ordersRes.data || [];
-      const deliveredOrders = orders.filter((o: any) => o.status === "entregado");
-
-      const saleIds = sales.map((s) => s.id);
-      const orderIds = deliveredOrders.map((o: any) => o.id);
-      const emptyResult = { data: [] as any[], error: null as any };
-
-      const [saleItemsRes, orderItemsRes] = await Promise.all([
-        saleIds.length > 0
-          ? supabase
-              .from("sale_items")
-              .select("quantity, product_id, sale_id")
-              .in("sale_id", saleIds)
-          : Promise.resolve(emptyResult),
-        orderIds.length > 0
-          ? (supabase as any)
-              .from("order_items")
-              .select("quantity, product_id, order_id")
-              .in("order_id", orderIds)
-          : Promise.resolve(emptyResult),
-      ]);
-
-      if (saleItemsRes.error) {
-        console.warn("Reportes: error en sale_items", saleItemsRes.error);
-      }
-      if (orderItemsRes.error) {
-        console.warn("Reportes: error en order_items", orderItemsRes.error);
-      }
-
-      const saleItems = saleItemsRes.error ? [] : saleItemsRes.data || [];
-      const orderItems = orderItemsRes.error ? [] : orderItemsRes.data || [];
-
-      const productIds = Array.from(
-        new Set(
-          [...saleItems, ...orderItems]
-            .map((item: any) => item.product_id)
-            .filter(Boolean)
-        )
+      const { data: rpcData, error: rpcError } = await supabase.rpc(
+        "get_reports_raw_data",
+        {
+          p_start: start,
+          p_end: end,
+          p_prev_start: prevStart,
+          p_prev_end: prevEnd,
+        }
       );
 
-      let products: any[] = [];
-      if (productIds.length > 0) {
-        const { data: productsData, error: productsError } = await supabase
-          .from("products")
-          .select("id, name")
-          .in("id", productIds);
+      let systemStatsObj, sales, orders, saleItems, orderItems, products, previousPeriodTotal;
 
-        if (productsError) {
-          console.warn("Reportes: error en products", productsError);
-        } else {
+      if (!rpcError && rpcData) {
+        // Usar datos de la RPC
+        const data = typeof rpcData === "string" ? JSON.parse(rpcData) : rpcData;
+        systemStatsObj = data.systemStats;
+        sales = data.sales || [];
+        orders = data.orders || [];
+        previousPeriodTotal = data.previousPeriodTotal || 0;
+        saleItems = data.saleItems || [];
+        orderItems = data.orderItems || [];
+        products = data.products || [];
+        
+        setSystemStats({
+          productsActive: systemStatsObj.productsActive || 0,
+          customersActive: systemStatsObj.customersActive || 0,
+          ordersTotal: systemStatsObj.ordersTotal || 0,
+          pendingOrders: systemStatsObj.pendingOrders || 0,
+        });
+      } else {
+        // FALLBACK: si la RPC falla o no existe, usar las queries originales
+        console.warn("RPC get_reports_raw_data falló o no existe. Usando fallback.", rpcError);
+        
+        const [
+          salesRes,
+          ordersRes,
+          prevSalesRes,
+          prevOrdersRes,
+          productsCountRes,
+          customersCountRes,
+          ordersCountRes,
+          pendingOrdersRes,
+        ] = await Promise.all([
+          supabase
+            .from("sales")
+            .select("id, created_at, total_amount, payment_method")
+            .gte("created_at", start)
+            .lte("created_at", end)
+            .order("created_at", { ascending: true }),
+          (supabase as any)
+            .from("orders")
+            .select("id, created_at, total_amount, status")
+            .gte("created_at", start)
+            .lte("created_at", end),
+          supabase
+            .from("sales")
+            .select("total_amount")
+            .gte("created_at", prevStart)
+            .lte("created_at", prevEnd),
+          (supabase as any)
+            .from("orders")
+            .select("total_amount")
+            .eq("status", "entregado")
+            .gte("created_at", prevStart)
+            .lte("created_at", prevEnd),
+          supabase
+            .from("products")
+            .select("id", { count: "exact", head: true })
+            .eq("is_active", true),
+          supabase
+            .from("customers")
+            .select("id", { count: "exact", head: true })
+            .eq("is_active", true),
+          (supabase as any)
+            .from("orders")
+            .select("id", { count: "exact", head: true }),
+          (supabase as any)
+            .from("orders")
+            .select("id", { count: "exact", head: true })
+            .eq("status", "pendiente"),
+        ]);
+
+        if (salesRes.error) throw new Error(`ventas: ${getErrorMessage(salesRes.error)}`);
+        if (ordersRes.error) throw new Error(`pedidos: ${getErrorMessage(ordersRes.error)}`);
+
+        setSystemStats({
+          productsActive: productsCountRes.error ? 0 : productsCountRes.count ?? 0,
+          customersActive: customersCountRes.error ? 0 : customersCountRes.count ?? 0,
+          ordersTotal: ordersCountRes.error ? 0 : ordersCountRes.count ?? 0,
+          pendingOrders: pendingOrdersRes.error ? 0 : pendingOrdersRes.count ?? 0,
+        });
+
+        sales = salesRes.data || [];
+        orders = ordersRes.data || [];
+        const deliveredOrders = orders.filter((o: any) => o.status === "entregado");
+
+        const saleIds = sales.map((s) => s.id);
+        const orderIds = deliveredOrders.map((o: any) => o.id);
+        const emptyResult = { data: [] as any[], error: null as any };
+
+        const [saleItemsRes, orderItemsRes] = await Promise.all([
+          saleIds.length > 0
+            ? supabase
+                .from("sale_items")
+                .select("quantity, product_id, sale_id")
+                .in("sale_id", saleIds)
+            : Promise.resolve(emptyResult),
+          orderIds.length > 0
+            ? (supabase as any)
+                .from("order_items")
+                .select("quantity, product_id, order_id")
+                .in("order_id", orderIds)
+            : Promise.resolve(emptyResult),
+        ]);
+
+        saleItems = saleItemsRes.error ? [] : saleItemsRes.data || [];
+        orderItems = orderItemsRes.error ? [] : orderItemsRes.data || [];
+
+        const productIds = Array.from(
+          new Set(
+            [...saleItems, ...orderItems]
+              .map((item: any) => item.product_id)
+              .filter(Boolean)
+          )
+        );
+
+        products = [];
+        if (productIds.length > 0) {
+          const { data: productsData } = await supabase
+            .from("products")
+            .select("id, name")
+            .in("id", productIds);
           products = productsData || [];
         }
-      }
 
-      const previousPeriodTotal =
-        (prevSalesRes.data || []).reduce((sum, s) => sum + Number(s.total_amount), 0) +
-        (prevOrdersRes.data || []).reduce((sum: number, o: any) => sum + Number(o.total_amount), 0);
+        previousPeriodTotal =
+          (prevSalesRes.data || []).reduce((sum, s) => sum + Number(s.total_amount), 0) +
+          (prevOrdersRes.data || []).reduce((sum: number, o: any) => sum + Number(o.total_amount), 0);
+      }
 
       processData(
         sales,

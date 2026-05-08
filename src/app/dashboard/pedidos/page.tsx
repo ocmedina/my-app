@@ -658,8 +658,7 @@ export default function OrdersPage() {
       .select(
         `
         id, created_at, total_amount, status, payment_method, amount_paid, amount_pending,
-        customers ( id, full_name, delivery_day ),
-        order_items ( quantity, products ( id, name, stock ) )
+        customers ( id, full_name, delivery_day )
       `,
         { count: "exact" }
       )

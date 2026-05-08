@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { hasPermission, type Role } from '@/lib/permissions';
 
@@ -188,7 +188,7 @@ export function useAuth() {
     };
   }, []);
 
-  const can = (permission: keyof typeof import('@/lib/permissions').PERMISSIONS) => {
+  const can = useCallback((permission: keyof typeof import('@/lib/permissions').PERMISSIONS) => {
     const legacyAllow = Array.isArray(profile?.permissions) ? profile.permissions : [];
     const allow = Array.isArray(profile?.permissions_allow) ? profile.permissions_allow : [];
     const deny = Array.isArray(profile?.permissions_deny) ? profile.permissions_deny : [];
@@ -202,14 +202,14 @@ export function useAuth() {
     if (roleAllow.includes(permission)) return true;
 
     return hasPermission(profile?.role, permission);
-  };
+  }, [profile, rolePermissions]);
 
-  return {
+  return useMemo(() => ({
     user,
     profile,
     role: profile?.role as Role,
     loading,
     can,
     isAdmin: profile?.role === 'administrador',
-  };
+  }), [user, profile, loading, can]);
 }
