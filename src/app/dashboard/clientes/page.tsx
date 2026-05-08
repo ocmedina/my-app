@@ -96,11 +96,6 @@ function CustomersPageContent() {
     const fetchCustomers = async () => {
       setLoading(true);
 
-      const controller = new AbortController();
-      const abortTimeout = setTimeout(() => {
-        controller.abort();
-      }, 8000);
-
       try {
         const from = (currentPage - 1) * ITEMS_PER_PAGE;
         const to = from + ITEMS_PER_PAGE - 1;
@@ -110,8 +105,7 @@ function CustomersPageContent() {
           .select("id, full_name, email, phone, address, customer_type", { count: "exact" })
           .eq("is_active", true)
           .order("full_name", { ascending: true })
-          .range(from, to)
-          .abortSignal(controller.signal);
+          .range(from, to);
 
         if (debouncedSearch.trim()) {
           query = query.or(
@@ -125,12 +119,11 @@ function CustomersPageContent() {
         setTotalCount(count || 0);
 
         const customerIds = (customersData || [])
-          .map((customer) => customer.id)
+          .map((customer: any) => customer.id)
           .filter(Boolean);
 
         if (customerIds.length === 0) {
           setCustomers([]);
-          clearTimeout(abortTimeout);
           setLoading(false);
           return;
         }
@@ -141,19 +134,15 @@ function CustomersPageContent() {
             .select("customer_id, amount_pending")
             .in("customer_id", customerIds)
             .gt("amount_pending", 0)
-            .neq("status", "cancelado")
-            .abortSignal(controller.signal),
+            .neq("status", "cancelado"),
           supabase
             .from("sales")
             .select("customer_id, amount_pending")
             .in("customer_id", customerIds)
             .eq("payment_method", "cuenta_corriente")
             .eq("is_cancelled", false)
-            .gt("amount_pending", 0)
-            .abortSignal(controller.signal),
+            .gt("amount_pending", 0),
         ]);
-
-        clearTimeout(abortTimeout);
 
         if (ordersDebtRes.error) throw ordersDebtRes.error;
         if (salesDebtRes.error) throw salesDebtRes.error;
@@ -175,7 +164,7 @@ function CustomersPageContent() {
           addDebt(row.customer_id, row.amount_pending as number | null);
         });
 
-        const customersWithDebt = (customersData || []).map((customer) => ({
+        const customersWithDebt = (customersData || []).map((customer: any) => ({
           ...customer,
           debt: debtByCustomer.get(customer.id) || 0,
         }));
@@ -191,12 +180,6 @@ function CustomersPageContent() {
 
         setCustomers(filteredCustomers);
       } catch (error: any) {
-        clearTimeout(abortTimeout);
-        if (error.name === "AbortError" || error.message?.includes("AbortError")) {
-          toast.error("Tiempo de espera agotado. Verifica tu conexión.");
-        } else {
-          toast.error("Error al cargar los clientes.");
-        }
         console.error("Error fetching customers:", error);
         setCustomers([]);
       } finally {

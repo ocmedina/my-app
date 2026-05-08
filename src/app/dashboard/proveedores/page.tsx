@@ -43,39 +43,22 @@ export default function SuppliersPage() {
   const fetchSuppliers = async () => {
     setLoading(true);
 
-    const controller = new AbortController();
-    const abortTimeout = setTimeout(() => {
-      controller.abort();
-    }, 8000);
-
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("suppliers")
         .select("*")
         .eq("is_active", true)
-        .order("name", { ascending: true })
-        .abortSignal(controller.signal);
+        .order("name", { ascending: true });
 
-      clearTimeout(abortTimeout);
+      const { data, error } = await query;
 
       if (error) {
-        if (error.message?.includes("AbortError")) {
-           toast.error("Tiempo de espera agotado. Verifica tu conexión.");
-        } else {
-           toast.error("Error al cargar los proveedores.");
-        }
-        console.error(error);
+        console.error("Error fetching suppliers:", error);
         return;
       }
 
       setSuppliers(data || []);
     } catch (error: any) {
-      clearTimeout(abortTimeout);
-      if (error.name === "AbortError" || error.message?.includes("AbortError")) {
-        toast.error("Tiempo de espera agotado. Verifica tu conexión.");
-      } else {
-        toast.error("Error al cargar los proveedores.");
-      }
       console.error("Error fetching suppliers:", error);
     } finally {
       setLoading(false);

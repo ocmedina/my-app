@@ -661,12 +661,6 @@ export default function OrdersPage() {
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
-    
-    // Configurar AbortController para forzar el fin si la red se cuelga
-    const controller = new AbortController();
-    const abortTimeout = setTimeout(() => {
-      controller.abort();
-    }, 8000);
 
     try {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -682,8 +676,7 @@ export default function OrdersPage() {
           { count: "exact" }
         )
         .order("created_at", { ascending: false })
-        .range(from, to)
-        .abortSignal(controller.signal);
+        .range(from, to);
 
       if (statusFilter !== "todos") query = query.eq("status", statusFilter);
       if (dateFilter) {
@@ -698,14 +691,7 @@ export default function OrdersPage() {
 
       const { data, error, count } = await query;
 
-      clearTimeout(abortTimeout);
-
       if (error) {
-        if (error.message?.includes("AbortError")) {
-           toast.error("Tiempo de espera agotado. Verifica tu conexión.");
-        } else {
-           toast.error("Error al cargar los pedidos.");
-        }
         console.error(error);
         return;
       }
@@ -713,12 +699,6 @@ export default function OrdersPage() {
       setOrders((data || []) as unknown as OrderRow[]);
       setTotalCount(count || 0);
     } catch (error: any) {
-      clearTimeout(abortTimeout);
-      if (error.name === "AbortError" || error.message?.includes("AbortError")) {
-        toast.error("Tiempo de espera agotado. Verifica tu conexión.");
-      } else {
-        toast.error("Error al cargar los pedidos.");
-      }
       console.error("Error fetching orders:", error);
     } finally {
       setLoading(false);

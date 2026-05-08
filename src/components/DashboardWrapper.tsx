@@ -63,6 +63,20 @@ export default function DashboardWrapper({
     checkStartingFloat();
   }, []);
 
+  // GLOBAL KEEP-ALIVE PARA PREVENIR SUSPENSIÓN POR INACTIVIDAD
+  // Ping a Supabase cada 45 segundos para que la conexión no muera.
+  useEffect(() => {
+    const keepAliveInterval = setInterval(async () => {
+      try {
+        await supabase.from("profiles").select("id").limit(1);
+      } catch (e) {
+        // Ignorar errores del ping
+      }
+    }, 45000); // 45 segundos
+
+    return () => clearInterval(keepAliveInterval);
+  }, []);
+
   const checkStartingFloat = async () => {
     try {
       const today = getTodayArg();

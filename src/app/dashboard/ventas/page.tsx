@@ -60,11 +60,6 @@ export default function SalesHistoryPage() {
   const fetchSales = async () => {
     setLoading(true);
 
-    const controller = new AbortController();
-    const abortTimeout = setTimeout(() => {
-      controller.abort();
-    }, 8000);
-
     try {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
@@ -86,8 +81,7 @@ export default function SalesHistoryPage() {
           { count: "exact" }
         )
         .order("created_at", { ascending: false })
-        .range(from, to)
-        .abortSignal(controller.signal);
+        .range(from, to);
 
       // --- FILTRO POR DÍA ESPECÍFICO (Zona Horaria Argentina UTC-3) ---
       if (date) {
@@ -105,14 +99,7 @@ export default function SalesHistoryPage() {
 
       const { data, error, count } = await query;
 
-      clearTimeout(abortTimeout);
-
       if (error) {
-        if (error.message?.includes("AbortError")) {
-           toast.error("Tiempo de espera agotado. Verifica tu conexión.");
-        } else {
-           toast.error("Error al cargar el historial de ventas.");
-        }
         console.error("Error fetching sales:", error);
         return;
       }
@@ -120,12 +107,6 @@ export default function SalesHistoryPage() {
       setSales(data || []);
       setTotalCount(count || 0);
     } catch (error: any) {
-      clearTimeout(abortTimeout);
-      if (error.name === "AbortError" || error.message?.includes("AbortError")) {
-        toast.error("Tiempo de espera agotado. Verifica tu conexión.");
-      } else {
-        toast.error("Error al cargar el historial de ventas.");
-      }
       console.error("Error fetching sales:", error);
     } finally {
       setLoading(false);
