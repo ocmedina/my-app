@@ -1,7 +1,8 @@
 // src/app/dashboard/ventas/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
@@ -41,58 +42,90 @@ export default function SalesHistoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const loadingTimeoutRef = useRef<number | null>(null);
+  const pathname = usePathname();
 
   const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
 
+  useEffect(() => {
+    return () => {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
   const fetchSales = async () => {
     setLoading(true);
-
-    const from = (currentPage - 1) * ITEMS_PER_PAGE;
-    const to = from + ITEMS_PER_PAGE - 1;
-
-    let query = supabase
-      .from("sales")
-      .select(
-        `
-        id,
-        created_at,
-        total_amount,
-        payment_method,
-        is_cancelled,
-        customers ( full_name ),
-        profiles ( full_name )
-      `,
-        { count: "exact" }
-      )
-      .order("created_at", { ascending: false })
-      .range(from, to);
-
-    // --- FILTRO POR DÍA ESPECÍFICO (Zona Horaria Argentina UTC-3) ---
-    if (date) {
-      const { startUTC, endUTC } = getUTCInterval(date, 'America/Argentina/Buenos_Aires');
-      query = query.gte("created_at", startUTC).lte("created_at", endUTC);
+    if (loadingTimeoutRef.current) {
+      window.clearTimeout(loadingTimeoutRef.current);
     }
+    loadingTimeoutRef.current = window.setTimeout(() => {
+      setLoading(false);
+      toast.error("No se pudo cargar el historial de ventas.");
+    }, 10000);
+    try {
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
 
-    // --- FILTRO POR MÉTODO DE PAGO ---
-    if (paymentFilter !== "all") {
-      query = query.eq("payment_method", paymentFilter);
-    }
+      let query = supabase
+        .from("sales")
+        .select(
+          `
+          id,
+          created_at,
+          total_amount,
+          payment_method,
+          is_cancelled,
+          customers ( full_name ),
+          profiles ( full_name )
+        `,
+          { count: "exact" }
+        )
+        .order("created_at", { ascending: false })
+        .range(from, to);
 
-    const { data, error, count } = await query;
+      // --- FILTRO POR DÍA ESPECÍFICO (Zona Horaria Argentina UTC-3) ---
+      if (date) {
+        const { startUTC, endUTC } = getUTCInterval(
+          date,
+          "America/Argentina/Buenos_Aires"
+        );
+        query = query.gte("created_at", startUTC).lte("created_at", endUTC);
+      }
 
-    if (error) {
-      console.error("Error fetching sales:", error);
-    } else {
+      // --- FILTRO POR MÉTODO DE PAGO ---
+      if (paymentFilter !== "all") {
+        query = query.eq("payment_method", paymentFilter);
+      }
+
+      const { data, error, count } = await query;
+
+      if (error) {
+        console.error("Error fetching sales:", error);
+        toast.error("Error al cargar el historial de ventas.");
+        return;
+      }
+
       setSales(data || []);
       setTotalCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching sales:", error);
+      toast.error("Error al cargar el historial de ventas.");
+    } finally {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchSales();
-  }, [date, currentPage, paymentFilter]); // Se ejecuta si la fecha, página o filtro de pago cambian
+  }, [date, currentPage, paymentFilter, pathname]); // Se ejecuta si la fecha, página o filtro de pago cambian
 
   const handleCancelSale = async (saleId: string) => {
     if (

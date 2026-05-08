@@ -76,25 +76,9 @@ export default function UpdatesNotification() {
       );
       setHasNewUpdates(hasNew);
       if (!hasNew) setActiveTab("all");
-
-      // AUTO-OPEN: Si hay novedades no vistas, abrir el panel automáticamente después de 1.5s
-      if (hasNew) {
-        const timer = setTimeout(() => {
-          setIsOpen(true);
-        }, 1500);
-        return () => clearTimeout(timer);
-      }
     } else {
       const hasNew = UPDATES.some((update) => update.isNew);
       setHasNewUpdates(hasNew);
-
-      // Si es la primera vez que entra (no hay storage), también abrir
-      if (hasNew) {
-        const timer = setTimeout(() => {
-          setIsOpen(true);
-        }, 1500);
-        return () => clearTimeout(timer);
-      }
     }
   }, []);
 

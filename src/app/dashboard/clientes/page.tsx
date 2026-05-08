@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, useRef, Suspense } from "react";
+import { useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import CustomerActions from "@/components/CustomerActions";
 import { supabase } from "@/lib/supabaseClient";
@@ -38,6 +38,7 @@ type CustomerRow = {
 function CustomersPageContent() {
   const searchParams = useSearchParams();
   const filterParam = searchParams.get("filter");
+  const pathname = usePathname();
 
   const [customers, setCustomers] = useState<CustomerRow[]>([]);
   const [debtFilter, setDebtFilter] = useState(
@@ -49,6 +50,7 @@ function CustomersPageContent() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const loadingTimeoutRef = useRef<number | null>(null);
 
   const ITEMS_PER_PAGE = 50;
 
@@ -60,6 +62,15 @@ function CustomersPageContent() {
     }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  useEffect(() => {
+    return () => {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Obtener el rol del usuario una sola vez
   useEffect(() => {
@@ -84,6 +95,13 @@ function CustomersPageContent() {
   useEffect(() => {
     const fetchCustomers = async () => {
       setLoading(true);
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+      }
+      loadingTimeoutRef.current = window.setTimeout(() => {
+        setLoading(false);
+        toast.error("No se pudo cargar los clientes.");
+      }, 10000);
 
       try {
         const from = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -109,16 +127,27 @@ function CustomersPageContent() {
         if (customersError) throw customersError;
         setTotalCount(count || 0);
 
-        // Reducimos N+1: traemos deudas globales y agregamos por cliente en memoria
+        const customerIds = (customersData || [])
+          .map((customer) => customer.id)
+          .filter(Boolean);
+
+        if (customerIds.length === 0) {
+          setCustomers([]);
+          return;
+        }
+
+        // Reducimos N+1 y consultas pesadas: traemos deudas solo de los clientes visibles
         const [ordersDebtRes, salesDebtRes] = await Promise.all([
           supabase
             .from("orders")
             .select("customer_id, amount_pending")
+            .in("customer_id", customerIds)
             .gt("amount_pending", 0)
             .neq("status", "cancelado"),
           supabase
             .from("sales")
             .select("customer_id, amount_pending")
+            .in("customer_id", customerIds)
             .eq("payment_method", "cuenta_corriente")
             .eq("is_cancelled", false)
             .gt("amount_pending", 0),
@@ -164,12 +193,16 @@ function CustomersPageContent() {
         console.error("Error fetching customers:", error);
         setCustomers([]);
       } finally {
+        if (loadingTimeoutRef.current) {
+          window.clearTimeout(loadingTimeoutRef.current);
+          loadingTimeoutRef.current = null;
+        }
         setLoading(false);
       }
     };
 
     fetchCustomers();
-  }, [debtFilter, currentPage, debouncedSearch]);
+  }, [debtFilter, currentPage, debouncedSearch, pathname]);
 
   // filteredCustomers ahora es directamente customers (búsqueda ya es server-side)
   const filteredCustomers = customers;

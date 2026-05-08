@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -625,6 +626,8 @@ export default function OrdersPage() {
   const [selectedOrderIdForRemito, setSelectedOrderIdForRemito] = useState<
     string | null
   >(null);
+  const pathname = usePathname();
+  const loadingTimeoutRef = useRef<number | null>(null);
 
   const [statusFilter, setStatusFilter] = useState<
     "todos" | OrderRow["status"]
@@ -647,53 +650,78 @@ export default function OrdersPage() {
     setCurrentPage(1);
   };
 
+  useEffect(() => {
+    return () => {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
   const fetchOrders = useCallback(async () => {
     setLoading(true);
-
-    const from = (currentPage - 1) * ITEMS_PER_PAGE;
-    const to = from + ITEMS_PER_PAGE - 1;
-
-    let query = supabase
-      .from("orders")
-      .select(
-        `
-        id, created_at, total_amount, status, payment_method, amount_paid, amount_pending,
-        customers ( id, full_name, delivery_day )
-      `,
-        { count: "exact" }
-      )
-      .order("created_at", { ascending: false })
-      .range(from, to);
-
-    if (statusFilter !== "todos") query = query.eq("status", statusFilter);
-    if (dateFilter) {
-      // Filtro con zona horaria Argentina (UTC-3)
-      const startDate = `${dateFilter}T00:00:00-03:00`;
-      const endDate = `${dateFilter}T23:59:59.999-03:00`;
-      query = query.gte("created_at", startDate).lte("created_at", endDate);
+    if (loadingTimeoutRef.current) {
+      window.clearTimeout(loadingTimeoutRef.current);
     }
-    if (searchQuery.length > 2)
-      query = query.ilike("customers.full_name", `%${searchQuery}%`);
-    if (deliveryDayFilter !== "todos")
-      query = query.eq("customers.delivery_day", deliveryDayFilter);
+    loadingTimeoutRef.current = window.setTimeout(() => {
+      setLoading(false);
+      toast.error("No se pudo cargar los pedidos.");
+    }, 10000);
+    try {
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
 
-    const { data, error, count } = await query;
+      let query = supabase
+        .from("orders")
+        .select(
+          `
+          id, created_at, total_amount, status, payment_method, amount_paid, amount_pending,
+          customers ( id, full_name, delivery_day )
+        `,
+          { count: "exact" }
+        )
+        .order("created_at", { ascending: false })
+        .range(from, to);
 
-    if (error) {
-      toast.error("Error al cargar los pedidos.");
-      console.error(error);
-    } else {
+      if (statusFilter !== "todos") query = query.eq("status", statusFilter);
+      if (dateFilter) {
+        // Filtro con zona horaria Argentina (UTC-3)
+        const startDate = `${dateFilter}T00:00:00-03:00`;
+        const endDate = `${dateFilter}T23:59:59.999-03:00`;
+        query = query.gte("created_at", startDate).lte("created_at", endDate);
+      }
+      if (searchQuery.length > 2)
+        query = query.ilike("customers.full_name", `%${searchQuery}%`);
+      if (deliveryDayFilter !== "todos")
+        query = query.eq("customers.delivery_day", deliveryDayFilter);
+
+      const { data, error, count } = await query;
+
+      if (error) {
+        toast.error("Error al cargar los pedidos.");
+        console.error(error);
+        return;
+      }
+
       setOrders((data || []) as unknown as OrderRow[]);
       setTotalCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      toast.error("Error al cargar los pedidos.");
+    } finally {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+      setLoading(false);
     }
-
-    setLoading(false);
   }, [currentPage, statusFilter, dateFilter, searchQuery, deliveryDayFilter]);
 
   useEffect(() => {
     const debounce = setTimeout(fetchOrders, 300);
     return () => clearTimeout(debounce);
-  }, [fetchOrders]);
+  }, [fetchOrders, pathname]);
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
