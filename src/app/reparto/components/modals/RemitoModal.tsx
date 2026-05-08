@@ -47,11 +47,19 @@ export default function RemitoModal({
       setLoading(true);
       const fetchFullOrder = async () => {
         try {
-          const { data: order, error } = await (supabase as any)
+          const query = (supabase as any)
             .from("orders")
             .select("*, customers(*), order_items(*, products(*))")
             .eq("id", orderId)
             .single();
+
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
+          });
+
+          const result = await Promise.race([query, timeoutPromise]) as any;
+          const order = result?.data;
+          const error = result?.error;
 
           if (error) throw error;
 
@@ -60,7 +68,7 @@ export default function RemitoModal({
             let realDebt = 0;
 
             try {
-              const [ordersRes, salesRes] = await Promise.all([
+              const debtsPromise = Promise.all([
                 supabase
                   .from("orders")
                   .select("amount_pending, status, total_amount, id")
@@ -71,6 +79,12 @@ export default function RemitoModal({
                   .select("amount_pending, payment_method, is_cancelled, id")
                   .eq("customer_id", customerId)
               ]);
+
+              const timeoutPromise2 = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
+              });
+
+              const [ordersRes, salesRes] = await Promise.race([debtsPromise, timeoutPromise2]) as any;
 
               const ordersDebt = (ordersRes.data || [])
                 .filter((o: any) => o.status !== "cancelado" && Number(o.amount_pending || 0) > 0)
@@ -94,7 +108,11 @@ export default function RemitoModal({
                 rawOrders: ordersRes.data,
                 rawSales: salesRes.data
               };
-            } catch (debtErr) {
+            } catch (debtErr: any) {
+              if (debtErr.message === "TIMEOUT_FORZADO") {
+                window.location.reload();
+                return;
+              }
               console.error("[RemitoModal] error calculando deuda:", debtErr);
             }
 
@@ -104,6 +122,10 @@ export default function RemitoModal({
             } as FullOrder);
           }
         } catch (error: any) {
+          if (error.message === "TIMEOUT_FORZADO") {
+            window.location.reload();
+            return;
+          }
           toast.error("No se pudieron cargar los datos del remito.");
           console.error(error);
           onClose();
