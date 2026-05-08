@@ -50,7 +50,13 @@ export default function SuppliersPage() {
         .eq("is_active", true)
         .order("name", { ascending: true });
 
-      const { data, error } = await query;
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
+      });
+
+      const result = await Promise.race([query, timeoutPromise]) as any;
+      const data = result?.data;
+      const error = result?.error;
 
       if (error) {
         console.error("Error fetching suppliers:", error);
@@ -59,6 +65,10 @@ export default function SuppliersPage() {
 
       setSuppliers(data || []);
     } catch (error: any) {
+      if (error.message === "TIMEOUT_FORZADO") {
+        window.location.reload();
+        return;
+      }
       console.error("Error fetching suppliers:", error);
     } finally {
       setLoading(false);

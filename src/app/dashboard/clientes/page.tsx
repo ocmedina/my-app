@@ -113,7 +113,14 @@ function CustomersPageContent() {
           );
         }
 
-        const { data: customersData, error: customersError, count } = await query;
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
+        });
+
+        const result = await Promise.race([query, timeoutPromise]) as any;
+        const customersData = result?.data;
+        const customersError = result?.error;
+        const count = result?.count;
 
         if (customersError) throw customersError;
         setTotalCount(count || 0);
@@ -128,7 +135,11 @@ function CustomersPageContent() {
           return;
         }
 
-        const [ordersDebtRes, salesDebtRes] = await Promise.all([
+        const timeoutPromise2 = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
+        });
+
+        const debtsPromise = Promise.all([
           supabase
             .from("orders")
             .select("customer_id, amount_pending")
@@ -144,6 +155,8 @@ function CustomersPageContent() {
             .gt("amount_pending", 0),
         ]);
 
+        const [ordersDebtRes, salesDebtRes] = await Promise.race([debtsPromise, timeoutPromise2]) as any;
+
         if (ordersDebtRes.error) throw ordersDebtRes.error;
         if (salesDebtRes.error) throw salesDebtRes.error;
 
@@ -157,11 +170,11 @@ function CustomersPageContent() {
           debtByCustomer.set(customerId, current + Number(amountPending || 0));
         };
 
-        (ordersDebtRes.data || []).forEach((row) => {
-          addDebt(row.customer_id, row.amount_pending as number | null);
+        (ordersDebtRes.data || []).forEach((row: any) => {
+          addDebt(row.customer_id, row.amount_pending);
         });
-        (salesDebtRes.data || []).forEach((row) => {
-          addDebt(row.customer_id, row.amount_pending as number | null);
+        (salesDebtRes.data || []).forEach((row: any) => {
+          addDebt(row.customer_id, row.amount_pending);
         });
 
         const customersWithDebt = (customersData || []).map((customer: any) => ({
@@ -171,15 +184,19 @@ function CustomersPageContent() {
 
         let filteredCustomers = customersWithDebt;
         if (debtFilter === "with_debt") {
-          filteredCustomers = customersWithDebt.filter((c) => (c.debt || 0) > 0);
+          filteredCustomers = customersWithDebt.filter((c: any) => (c.debt || 0) > 0);
         } else if (debtFilter === "no_debt") {
           filteredCustomers = customersWithDebt.filter(
-            (c) => (c.debt || 0) === 0
+            (c: any) => (c.debt || 0) === 0
           );
         }
 
         setCustomers(filteredCustomers);
       } catch (error: any) {
+        if (error.message === "TIMEOUT_FORZADO") {
+          window.location.reload();
+          return;
+        }
         console.error("Error fetching customers:", error);
         setCustomers([]);
       } finally {

@@ -97,7 +97,14 @@ export default function SalesHistoryPage() {
         query = query.eq("payment_method", paymentFilter);
       }
 
-      const { data, error, count } = await query;
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
+      });
+
+      const result = await Promise.race([query, timeoutPromise]) as any;
+      const data = result?.data;
+      const error = result?.error;
+      const count = result?.count;
 
       if (error) {
         console.error("Error fetching sales:", error);
@@ -107,6 +114,10 @@ export default function SalesHistoryPage() {
       setSales(data || []);
       setTotalCount(count || 0);
     } catch (error: any) {
+      if (error.message === "TIMEOUT_FORZADO") {
+        window.location.reload();
+        return;
+      }
       console.error("Error fetching sales:", error);
     } finally {
       setLoading(false);
