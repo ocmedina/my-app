@@ -661,13 +661,13 @@ export default function OrdersPage() {
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
-    if (loadingTimeoutRef.current) {
-      window.clearTimeout(loadingTimeoutRef.current);
-    }
-    loadingTimeoutRef.current = window.setTimeout(() => {
-      setLoading(false);
-      toast.error("No se pudo cargar los pedidos.");
-    }, 10000);
+    
+    // Configurar AbortController para forzar el fin si la red se cuelga
+    const controller = new AbortController();
+    const abortTimeout = setTimeout(() => {
+      controller.abort();
+    }, 8000);
+
     try {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
@@ -682,11 +682,11 @@ export default function OrdersPage() {
           { count: "exact" }
         )
         .order("created_at", { ascending: false })
-        .range(from, to);
+        .range(from, to)
+        .abortSignal(controller.signal);
 
       if (statusFilter !== "todos") query = query.eq("status", statusFilter);
       if (dateFilter) {
-        // Filtro con zona horaria Argentina (UTC-3)
         const startDate = `${dateFilter}T00:00:00-03:00`;
         const endDate = `${dateFilter}T23:59:59.999-03:00`;
         query = query.gte("created_at", startDate).lte("created_at", endDate);
@@ -698,22 +698,29 @@ export default function OrdersPage() {
 
       const { data, error, count } = await query;
 
+      clearTimeout(abortTimeout);
+
       if (error) {
-        toast.error("Error al cargar los pedidos.");
+        if (error.message?.includes("AbortError")) {
+           toast.error("Tiempo de espera agotado. Verifica tu conexión.");
+        } else {
+           toast.error("Error al cargar los pedidos.");
+        }
         console.error(error);
         return;
       }
 
       setOrders((data || []) as unknown as OrderRow[]);
       setTotalCount(count || 0);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      toast.error("Error al cargar los pedidos.");
-    } finally {
-      if (loadingTimeoutRef.current) {
-        window.clearTimeout(loadingTimeoutRef.current);
-        loadingTimeoutRef.current = null;
+    } catch (error: any) {
+      clearTimeout(abortTimeout);
+      if (error.name === "AbortError" || error.message?.includes("AbortError")) {
+        toast.error("Tiempo de espera agotado. Verifica tu conexión.");
+      } else {
+        toast.error("Error al cargar los pedidos.");
       }
+      console.error("Error fetching orders:", error);
+    } finally {
       setLoading(false);
     }
   }, [currentPage, statusFilter, dateFilter, searchQuery, deliveryDayFilter]);

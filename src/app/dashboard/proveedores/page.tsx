@@ -42,35 +42,42 @@ export default function SuppliersPage() {
 
   const fetchSuppliers = async () => {
     setLoading(true);
-    if (loadingTimeoutRef.current) {
-      window.clearTimeout(loadingTimeoutRef.current);
-    }
-    loadingTimeoutRef.current = window.setTimeout(() => {
-      setLoading(false);
-      toast.error("No se pudo cargar los proveedores.");
-    }, 10000);
+
+    const controller = new AbortController();
+    const abortTimeout = setTimeout(() => {
+      controller.abort();
+    }, 8000);
+
     try {
       const { data, error } = await supabase
         .from("suppliers")
         .select("*")
         .eq("is_active", true)
-        .order("name", { ascending: true });
+        .order("name", { ascending: true })
+        .abortSignal(controller.signal);
+
+      clearTimeout(abortTimeout);
 
       if (error) {
-        toast.error("Error al cargar los proveedores.");
+        if (error.message?.includes("AbortError")) {
+           toast.error("Tiempo de espera agotado. Verifica tu conexión.");
+        } else {
+           toast.error("Error al cargar los proveedores.");
+        }
         console.error(error);
         return;
       }
 
       setSuppliers(data || []);
-    } catch (error) {
-      console.error("Error fetching suppliers:", error);
-      toast.error("Error al cargar los proveedores.");
-    } finally {
-      if (loadingTimeoutRef.current) {
-        window.clearTimeout(loadingTimeoutRef.current);
-        loadingTimeoutRef.current = null;
+    } catch (error: any) {
+      clearTimeout(abortTimeout);
+      if (error.name === "AbortError" || error.message?.includes("AbortError")) {
+        toast.error("Tiempo de espera agotado. Verifica tu conexión.");
+      } else {
+        toast.error("Error al cargar los proveedores.");
       }
+      console.error("Error fetching suppliers:", error);
+    } finally {
       setLoading(false);
     }
   };

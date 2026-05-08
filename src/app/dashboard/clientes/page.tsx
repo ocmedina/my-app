@@ -95,27 +95,24 @@ function CustomersPageContent() {
   useEffect(() => {
     const fetchCustomers = async () => {
       setLoading(true);
-      if (loadingTimeoutRef.current) {
-        window.clearTimeout(loadingTimeoutRef.current);
-      }
-      loadingTimeoutRef.current = window.setTimeout(() => {
-        setLoading(false);
-        toast.error("No se pudo cargar los clientes.");
-      }, 10000);
+
+      const controller = new AbortController();
+      const abortTimeout = setTimeout(() => {
+        controller.abort();
+      }, 8000);
 
       try {
         const from = (currentPage - 1) * ITEMS_PER_PAGE;
         const to = from + ITEMS_PER_PAGE - 1;
 
-        // Query paginada con búsqueda server-side
         let query = supabase
           .from("customers")
           .select("id, full_name, email, phone, address, customer_type", { count: "exact" })
           .eq("is_active", true)
           .order("full_name", { ascending: true })
-          .range(from, to);
+          .range(from, to)
+          .abortSignal(controller.signal);
 
-        // Búsqueda server-side
         if (debouncedSearch.trim()) {
           query = query.or(
             `full_name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,phone.ilike.%${debouncedSearch}%`
@@ -133,25 +130,30 @@ function CustomersPageContent() {
 
         if (customerIds.length === 0) {
           setCustomers([]);
+          clearTimeout(abortTimeout);
+          setLoading(false);
           return;
         }
 
-        // Reducimos N+1 y consultas pesadas: traemos deudas solo de los clientes visibles
         const [ordersDebtRes, salesDebtRes] = await Promise.all([
           supabase
             .from("orders")
             .select("customer_id, amount_pending")
             .in("customer_id", customerIds)
             .gt("amount_pending", 0)
-            .neq("status", "cancelado"),
+            .neq("status", "cancelado")
+            .abortSignal(controller.signal),
           supabase
             .from("sales")
             .select("customer_id, amount_pending")
             .in("customer_id", customerIds)
             .eq("payment_method", "cuenta_corriente")
             .eq("is_cancelled", false)
-            .gt("amount_pending", 0),
+            .gt("amount_pending", 0)
+            .abortSignal(controller.signal),
         ]);
+
+        clearTimeout(abortTimeout);
 
         if (ordersDebtRes.error) throw ordersDebtRes.error;
         if (salesDebtRes.error) throw salesDebtRes.error;
@@ -178,7 +180,6 @@ function CustomersPageContent() {
           debt: debtByCustomer.get(customer.id) || 0,
         }));
 
-        // Aplicar filtro de deuda
         let filteredCustomers = customersWithDebt;
         if (debtFilter === "with_debt") {
           filteredCustomers = customersWithDebt.filter((c) => (c.debt || 0) > 0);
@@ -189,14 +190,16 @@ function CustomersPageContent() {
         }
 
         setCustomers(filteredCustomers);
-      } catch (error) {
+      } catch (error: any) {
+        clearTimeout(abortTimeout);
+        if (error.name === "AbortError" || error.message?.includes("AbortError")) {
+          toast.error("Tiempo de espera agotado. Verifica tu conexión.");
+        } else {
+          toast.error("Error al cargar los clientes.");
+        }
         console.error("Error fetching customers:", error);
         setCustomers([]);
       } finally {
-        if (loadingTimeoutRef.current) {
-          window.clearTimeout(loadingTimeoutRef.current);
-          loadingTimeoutRef.current = null;
-        }
         setLoading(false);
       }
     };

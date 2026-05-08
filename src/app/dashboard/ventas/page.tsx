@@ -59,13 +59,12 @@ export default function SalesHistoryPage() {
 
   const fetchSales = async () => {
     setLoading(true);
-    if (loadingTimeoutRef.current) {
-      window.clearTimeout(loadingTimeoutRef.current);
-    }
-    loadingTimeoutRef.current = window.setTimeout(() => {
-      setLoading(false);
-      toast.error("No se pudo cargar el historial de ventas.");
-    }, 10000);
+
+    const controller = new AbortController();
+    const abortTimeout = setTimeout(() => {
+      controller.abort();
+    }, 8000);
+
     try {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
@@ -77,6 +76,8 @@ export default function SalesHistoryPage() {
           id,
           created_at,
           total_amount,
+          amount_paid,
+          amount_pending,
           payment_method,
           is_cancelled,
           customers ( full_name ),
@@ -85,7 +86,8 @@ export default function SalesHistoryPage() {
           { count: "exact" }
         )
         .order("created_at", { ascending: false })
-        .range(from, to);
+        .range(from, to)
+        .abortSignal(controller.signal);
 
       // --- FILTRO POR DÍA ESPECÍFICO (Zona Horaria Argentina UTC-3) ---
       if (date) {
@@ -103,22 +105,29 @@ export default function SalesHistoryPage() {
 
       const { data, error, count } = await query;
 
+      clearTimeout(abortTimeout);
+
       if (error) {
+        if (error.message?.includes("AbortError")) {
+           toast.error("Tiempo de espera agotado. Verifica tu conexión.");
+        } else {
+           toast.error("Error al cargar el historial de ventas.");
+        }
         console.error("Error fetching sales:", error);
-        toast.error("Error al cargar el historial de ventas.");
         return;
       }
 
       setSales(data || []);
       setTotalCount(count || 0);
-    } catch (error) {
-      console.error("Error fetching sales:", error);
-      toast.error("Error al cargar el historial de ventas.");
-    } finally {
-      if (loadingTimeoutRef.current) {
-        window.clearTimeout(loadingTimeoutRef.current);
-        loadingTimeoutRef.current = null;
+    } catch (error: any) {
+      clearTimeout(abortTimeout);
+      if (error.name === "AbortError" || error.message?.includes("AbortError")) {
+        toast.error("Tiempo de espera agotado. Verifica tu conexión.");
+      } else {
+        toast.error("Error al cargar el historial de ventas.");
       }
+      console.error("Error fetching sales:", error);
+    } finally {
       setLoading(false);
     }
   };
