@@ -63,11 +63,11 @@ export function useAuth() {
 
     const attachProfileSubscription = (userId: string) => {
       if (profileChannel) {
-        profileChannel.unsubscribe();
+        supabase.removeChannel(profileChannel);
       }
 
       profileChannel = supabase
-        .channel('profile-updates')
+        .channel(`profile-updates-${Math.random().toString(36).substring(7)}`)
         .on(
           'postgres_changes',
           {
@@ -91,11 +91,11 @@ export function useAuth() {
       if (!role) return;
 
       if (rolePermissionsChannel) {
-        rolePermissionsChannel.unsubscribe();
+        supabase.removeChannel(rolePermissionsChannel);
       }
 
       rolePermissionsChannel = supabase
-        .channel('role-permissions-updates')
+        .channel(`role-permissions-updates-${Math.random().toString(36).substring(7)}`)
         .on(
           'postgres_changes',
           {
@@ -134,11 +134,11 @@ export function useAuth() {
         setProfile(null);
         setRolePermissions(null);
         if (profileChannel) {
-          profileChannel.unsubscribe();
+          supabase.removeChannel(profileChannel);
           profileChannel = null;
         }
         if (rolePermissionsChannel) {
-          rolePermissionsChannel.unsubscribe();
+          supabase.removeChannel(rolePermissionsChannel);
           rolePermissionsChannel = null;
         }
       }
@@ -164,11 +164,11 @@ export function useAuth() {
           setProfile(null);
           setRolePermissions(null);
           if (profileChannel) {
-            profileChannel.unsubscribe();
+            supabase.removeChannel(profileChannel);
             profileChannel = null;
           }
           if (rolePermissionsChannel) {
-            rolePermissionsChannel.unsubscribe();
+            supabase.removeChannel(rolePermissionsChannel);
             rolePermissionsChannel = null;
           }
         }
@@ -180,10 +180,10 @@ export function useAuth() {
     return () => {
       subscription.unsubscribe();
       if (profileChannel) {
-        profileChannel.unsubscribe();
+        supabase.removeChannel(profileChannel);
       }
       if (rolePermissionsChannel) {
-        rolePermissionsChannel.unsubscribe();
+        supabase.removeChannel(rolePermissionsChannel);
       }
     };
   }, []);
