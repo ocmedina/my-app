@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import ReactQueryProvider from "@/components/ReactQueryProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,18 +31,19 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-
-          {children}
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              duration: 5000,
-              style: {
-                background: "#333",
-                color: "#fff",
-              },
-            }}
-          />
+          <ReactQueryProvider>
+            {children}
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                duration: 5000,
+                style: {
+                  background: "#333",
+                  color: "#fff",
+                },
+              }}
+            />
+          </ReactQueryProvider>
         </ThemeProvider>
       </body>
     </html>

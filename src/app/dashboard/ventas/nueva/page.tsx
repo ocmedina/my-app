@@ -237,11 +237,11 @@ export default function NewSalePage() {
         }
 
         const {
-          data: { session },
+          data: { user },
           error: sessionError,
-        } = await supabase.auth.getSession();
+        } = await supabase.auth.getUser();
         if (sessionError) throw sessionError;
-        setCurrentUser(session?.user ?? null);
+        setCurrentUser(user ?? null);
       } catch (error) {
         console.error("Error cargando datos iniciales:", error);
         toast.error("Error al cargar los datos");

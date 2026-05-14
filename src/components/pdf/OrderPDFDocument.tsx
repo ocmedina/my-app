@@ -232,13 +232,7 @@ export default function OrderPDFDocument({ order }: { order: any }) {
           .from("settings")
           .select("key, value");
 
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
-        });
-
-        const result = await Promise.race([query, timeoutPromise]) as any;
-        const data = result?.data;
-        const error = result?.error;
+        const { data, error } = await query;
 
         if (error) {
           console.error("Error cargando settings:", error);
@@ -249,11 +243,7 @@ export default function OrderPDFDocument({ order }: { order: any }) {
           setSettings(mapped);
         }
       } catch (error: any) {
-        if (error.message === "TIMEOUT_FORZADO") {
-          window.location.reload();
-        } else {
-          console.error("Error cargando settings:", error);
-        }
+        console.error("Error cargando settings:", error);
       }
     };
     fetchSettings();

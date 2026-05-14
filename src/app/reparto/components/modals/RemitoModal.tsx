@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import CustomLoader from "@/components/CustomLoader";
 import { FaPrint, FaTimes } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
@@ -40,26 +40,32 @@ export default function RemitoModal({
   const [loading, setLoading] = useState(false);
   const [printFormat, setPrintFormat] = useState<"A4" | "thermal">("thermal");
 
+  const timeoutRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (isOpen && orderId) {
       // Reset stale data to prevent showing old PDF after HMR or re-open
       setOrderData(null);
       setLoading(true);
+
+      // Kill-switch: si las queries se cuelgan más de 8s, cerrar el modal.
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = window.setTimeout(() => {
+        timeoutRef.current = null;
+        toast.error("No se pudo cargar el remito. Intentá de nuevo.");
+        setLoading(false);
+        onClose();
+      }, 8000);
+
       const fetchFullOrder = async () => {
         try {
           const query = (supabase as any)
             .from("orders")
-            .select("*, customers(*), order_items(*, products(*))")
+            .select("*, customers(*), order_items(*, products(*))") 
             .eq("id", orderId)
             .single();
 
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
-          });
-
-          const result = await Promise.race([query, timeoutPromise]) as any;
-          const order = result?.data;
-          const error = result?.error;
+          const { data: order, error } = await query;
 
           if (error) throw error;
 
@@ -80,11 +86,7 @@ export default function RemitoModal({
                   .eq("customer_id", customerId)
               ]);
 
-              const timeoutPromise2 = new Promise((_, reject) => {
-                setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
-              });
-
-              const [ordersRes, salesRes] = await Promise.race([debtsPromise, timeoutPromise2]) as any;
+              const [ordersRes, salesRes] = await debtsPromise as any;
 
               const ordersDebt = (ordersRes.data || [])
                 .filter((o: any) => o.status !== "cancelado" && Number(o.amount_pending || 0) > 0)
@@ -109,10 +111,6 @@ export default function RemitoModal({
                 rawSales: salesRes.data
               };
             } catch (debtErr: any) {
-              if (debtErr.message === "TIMEOUT_FORZADO") {
-                window.location.reload();
-                return;
-              }
               console.error("[RemitoModal] error calculando deuda:", debtErr);
             }
 
@@ -122,19 +120,27 @@ export default function RemitoModal({
             } as FullOrder);
           }
         } catch (error: any) {
-          if (error.message === "TIMEOUT_FORZADO") {
-            window.location.reload();
-            return;
-          }
           toast.error("No se pudieron cargar los datos del remito.");
           console.error(error);
           onClose();
         } finally {
+          // Cancelar el kill-switch — las queries completaron
+          if (timeoutRef.current) {
+            window.clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
           setLoading(false);
         }
       };
       fetchFullOrder();
     }
+
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
   }, [isOpen, orderId, onClose]);
 
   if (!isOpen) return null;

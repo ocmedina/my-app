@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useLayout } from '@/contexts/LayoutContext';
+import { getCachedUserRole } from '@/lib/roleCache';
 import {
   HiOutlineDesktopComputer,
   HiTemplate,
@@ -79,20 +80,14 @@ export default function SettingsPage() {
   useEffect(() => {
     const checkUserRole = async () => {
       setCheckingAuth(true);
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { user } } = await supabase.auth.getUser();
 
-      if (!session) {
+      if (!user) {
         router.push('/login');
         return;
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .single();
-
-      const role = profile?.role || 'vendedor';
+      const role = (await getCachedUserRole()) || 'vendedor';
       setUserRole(role);
 
       if (role !== 'administrador') {
@@ -194,6 +189,14 @@ export default function SettingsPage() {
     setExportProgress('Conectando con el servidor...');
 
     try {
+      // Usar getUser() para validar la sesión con el servidor
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Sesión expirada');
+        setExporting(false);
+        return;
+      }
+      // getSession() solo para obtener el access_token (no para autenticar)
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error('Sesión expirada');
@@ -279,6 +282,14 @@ export default function SettingsPage() {
     setImportReport(null);
 
     try {
+      // Usar getUser() para validar la sesión con el servidor
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Sesión expirada');
+        setImporting(false);
+        return;
+      }
+      // getSession() solo para obtener el access_token
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error('Sesión expirada');

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import UpdatesNotification from "./UpdatesNotification";
+import MaintenanceBanner from "./MaintenanceBanner";
 import { HiMenu } from "react-icons/hi";
 import Link from "next/link";
 
@@ -26,6 +27,9 @@ export default function SidebarLayout({
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                {/* Maintenance Banner */}
+                <MaintenanceBanner />
+
                 {/* Mobile Header */}
                 <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 shrink-0">
                     <div className="flex items-center gap-3">

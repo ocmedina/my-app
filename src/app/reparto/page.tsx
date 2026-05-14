@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import { User } from "@supabase/supabase-js";
 import { Database } from "@/lib/database.types";
 import { useRouter } from "next/navigation";
+import { useResumeRefresh } from "@/hooks/useResumeRefresh";
 
 // Components
 import DeliveryHeader from "./components/DeliveryHeader";
@@ -57,6 +58,31 @@ export default function RepartoPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const loadingTimeoutRef = useRef<number | null>(null);
+  const workerRef = useRef<Worker | null>(null);
+
+  // ─── WEB WORKER KEEP-ALIVE (reparto no usa DashboardWrapper) ──────────
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const worker = new Worker("/keepalive.worker.js");
+      workerRef.current = worker;
+      worker.onmessage = async (event) => {
+        if (event.data?.type === "ping") {
+          try {
+            await supabase.from("profiles").select("id").limit(1);
+          } catch { /* ignorar */ }
+        }
+      };
+      return () => { worker.terminate(); workerRef.current = null; };
+    } catch {
+      // Fallback si Workers no disponibles
+      const interval = setInterval(async () => {
+        try { await supabase.from("profiles").select("id").limit(1); } catch { /* ignorar */ }
+      }, 25000);
+      return () => clearInterval(interval);
+    }
+  }, []);
 
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -96,12 +122,24 @@ export default function RepartoPage() {
 
   // Fetch customers
   const fetchCustomers = useCallback(async () => {
+    // Kill-switch: si la conexión se cuelga más de 8s, recargar la página.
+    if (loadingTimeoutRef.current) window.clearTimeout(loadingTimeoutRef.current);
+    loadingTimeoutRef.current = window.setTimeout(() => {
+      loadingTimeoutRef.current = null;
+      window.location.reload();
+    }, 8000);
+
     try {
       const { data, error } = await supabase
         .from("customers")
         .select("*")
         .eq("is_active", true)
         .order("full_name");
+
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
 
       if (error) throw error;
 
@@ -113,6 +151,11 @@ export default function RepartoPage() {
       }
     } catch (error: any) {
       toast.error("Error al cargar clientes");
+    } finally {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
     }
   }, [selectedCustomer]);
 
@@ -168,15 +211,23 @@ export default function RepartoPage() {
     }
   }, []);
 
+  useResumeRefresh(() => {
+    fetchCustomers();
+    if (currentUser) {
+      fetchDailyHistory(currentUser.id, selectedDate);
+      fetchAllOrdersHistory(currentUser.id);
+    }
+  });
+
   // Load initial data
   useEffect(() => {
     async function loadInitialData() {
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session?.user) {
-        setCurrentUser(session.user);
-        fetchAllOrdersHistory(session.user.id);
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUser(user);
+        fetchAllOrdersHistory(user.id);
       } else {
         router.push("/login");
       }

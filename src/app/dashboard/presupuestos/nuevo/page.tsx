@@ -43,10 +43,9 @@ export default function NewBudgetPage() {
     const loadInitialData = async () => {
       const loadingToast = toast.loading("Cargando datos...");
 
-      const [{ data: customersData, error: customersError }, { data: productsData, error: productsError }, sessionRes] = await Promise.all([
+      const [{ data: customersData, error: customersError }, { data: productsData, error: productsError }] = await Promise.all([
         supabase.from("customers").select("*").eq("is_active", true).order("full_name"),
         supabase.from("products").select("*").eq("is_active", true).order("name"),
-        supabase.auth.getSession(),
       ]);
 
       if (customersError || productsError) {
@@ -54,11 +53,13 @@ export default function NewBudgetPage() {
         return;
       }
 
+      const { data: { user } } = await supabase.auth.getUser();
+
       setCustomers(customersData || []);
       setProducts(productsData || []);
       setFilteredCustomers(customersData || []);
       setFilteredProducts(productsData || []);
-      setCurrentUser(sessionRes.data.session?.user ?? null);
+      setCurrentUser(user ?? null);
       toast.success("Datos cargados", { id: loadingToast });
     };
 

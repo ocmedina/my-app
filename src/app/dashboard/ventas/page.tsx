@@ -32,6 +32,7 @@ import {
 } from "react-icons/fa";
 import { getUTCInterval } from "@/lib/date-utils";
 import SaleTicketModal from "./components/SaleTicketModal";
+import { useResumeRefresh } from "@/hooks/useResumeRefresh";
 
 const ITEMS_PER_PAGE = 10; // Puedes ajustar cuántas ventas mostrar por página
 
@@ -59,6 +60,16 @@ export default function SalesHistoryPage() {
 
   const fetchSales = async () => {
     setLoading(true);
+
+    // Kill-switch: si la conexión se cuelga más de 8s (Supabase suspendido),
+    // recargar la página silenciosamente para restaurar la conexión.
+    if (loadingTimeoutRef.current) {
+      window.clearTimeout(loadingTimeoutRef.current);
+    }
+    loadingTimeoutRef.current = window.setTimeout(() => {
+      loadingTimeoutRef.current = null;
+      window.location.reload();
+    }, 8000);
 
     try {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -97,14 +108,13 @@ export default function SalesHistoryPage() {
         query = query.eq("payment_method", paymentFilter);
       }
 
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
-      });
+      const { data, error, count } = await query;
 
-      const result = await Promise.race([query, timeoutPromise]) as any;
-      const data = result?.data;
-      const error = result?.error;
-      const count = result?.count;
+      // Query completó — cancelar el kill-switch
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
 
       if (error) {
         console.error("Error fetching sales:", error);
@@ -114,15 +124,17 @@ export default function SalesHistoryPage() {
       setSales(data || []);
       setTotalCount(count || 0);
     } catch (error: any) {
-      if (error.message === "TIMEOUT_FORZADO") {
-        window.location.reload();
-        return;
-      }
       console.error("Error fetching sales:", error);
     } finally {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
       setLoading(false);
     }
   };
+
+  useResumeRefresh(fetchSales);
 
   useEffect(() => {
     fetchSales();

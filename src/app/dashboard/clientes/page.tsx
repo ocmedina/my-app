@@ -9,6 +9,8 @@ import { formatCurrency } from "@/lib/numberFormat";
 import toast from "react-hot-toast";
 import ExportAllCustomersMovementsButton from "@/components/exports/ExportAllCustomersMovementsButton";
 import ExportAllOrdersWithCustomerButton from "@/components/exports/ExportAllOrdersWithCustomerButton";
+import { useResumeRefresh } from "@/hooks/useResumeRefresh";
+import { getCachedUserRole } from "@/lib/roleCache";
 import {
   FaUsers,
   FaPlus,
@@ -51,6 +53,7 @@ function CustomersPageContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const loadingTimeoutRef = useRef<number | null>(null);
+  const requestIdRef = useRef(0);
 
   const ITEMS_PER_PAGE = 50;
 
@@ -75,26 +78,33 @@ function CustomersPageContent() {
   // Obtener el rol del usuario una sola vez
   useEffect(() => {
     const fetchUserRole = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-        if (profile) {
-          setUserRole(profile.role);
-        }
-      }
+      const role = await getCachedUserRole();
+      if (role) setUserRole(role);
     };
     fetchUserRole();
   }, []);
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
+  const clearLoadingTimeout = () => {
+    if (loadingTimeoutRef.current) {
+      window.clearTimeout(loadingTimeoutRef.current);
+      loadingTimeoutRef.current = null;
+    }
+  };
+
+  const startLoadingTimeout = (requestId: number) => {
+    clearLoadingTimeout();
+    loadingTimeoutRef.current = window.setTimeout(() => {
+      if (requestId === requestIdRef.current) {
+        // Si la query se cuelga, recargar la página para restaurar la conexión
+        window.location.reload();
+      }
+    }, 8000);
+  };
+
+  const fetchCustomers = async () => {
+      const requestId = ++requestIdRef.current;
       setLoading(true);
+      startLoadingTimeout(requestId);
 
       try {
         const from = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -113,14 +123,7 @@ function CustomersPageContent() {
           );
         }
 
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
-        });
-
-        const result = await Promise.race([query, timeoutPromise]) as any;
-        const customersData = result?.data;
-        const customersError = result?.error;
-        const count = result?.count;
+        const { data: customersData, error: customersError, count } = await query;
 
         if (customersError) throw customersError;
         setTotalCount(count || 0);
@@ -131,13 +134,12 @@ function CustomersPageContent() {
 
         if (customerIds.length === 0) {
           setCustomers([]);
-          setLoading(false);
+          if (requestId === requestIdRef.current) {
+            clearLoadingTimeout();
+            setLoading(false);
+          }
           return;
         }
-
-        const timeoutPromise2 = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
-        });
 
         const debtsPromise = Promise.all([
           supabase
@@ -155,7 +157,7 @@ function CustomersPageContent() {
             .gt("amount_pending", 0),
         ]);
 
-        const [ordersDebtRes, salesDebtRes] = await Promise.race([debtsPromise, timeoutPromise2]) as any;
+          const [ordersDebtRes, salesDebtRes] = await debtsPromise as any;
 
         if (ordersDebtRes.error) throw ordersDebtRes.error;
         if (salesDebtRes.error) throw salesDebtRes.error;
@@ -193,19 +195,21 @@ function CustomersPageContent() {
 
         setCustomers(filteredCustomers);
       } catch (error: any) {
-        if (error.message === "TIMEOUT_FORZADO") {
-          window.location.reload();
-          return;
-        }
         console.error("Error fetching customers:", error);
         setCustomers([]);
       } finally {
-        setLoading(false);
+        if (requestId === requestIdRef.current) {
+          clearLoadingTimeout();
+          setLoading(false);
+        }
       }
     };
 
+  useEffect(() => {
     fetchCustomers();
   }, [debtFilter, currentPage, debouncedSearch, pathname]);
+
+  useResumeRefresh(fetchCustomers);
 
   // filteredCustomers ahora es directamente customers (búsqueda ya es server-side)
   const filteredCustomers = customers;

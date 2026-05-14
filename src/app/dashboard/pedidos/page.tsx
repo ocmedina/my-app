@@ -32,6 +32,7 @@ import {
 import toast from "react-hot-toast";
 import OrderStatusChanger from "@/components/OrderStatusChanger";
 import PDFDownloadButton from "@/components/pdf/PDFDownloadButton";
+import { useResumeRefresh } from "@/hooks/useResumeRefresh";
 
 const ITEMS_PER_PAGE = 15;
 
@@ -460,15 +461,26 @@ function RemitoModal({
   const [orderData, setOrderData] = useState<FullOrderDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [printFormat, setPrintFormat] = useState<"A4" | "thermal">("thermal");
+  const remitoTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isOpen && orderId) {
       setLoading(true);
+
+      // Kill-switch: si las queries se cuelgan más de 8s, cerrar el modal.
+      if (remitoTimeoutRef.current) window.clearTimeout(remitoTimeoutRef.current);
+      remitoTimeoutRef.current = window.setTimeout(() => {
+        remitoTimeoutRef.current = null;
+        toast.error("No se pudo cargar el remito. Intentá de nuevo.");
+        setLoading(false);
+        onClose();
+      }, 8000);
+
       const fetchFullOrder = async () => {
         try {
           const { data: order, error } = await supabase
             .from("orders")
-            .select("*, customers(*), order_items(*, products(*))")
+            .select("*, customers(*), order_items(*, products(*))") 
             .eq("id", orderId)
             .single();
 
@@ -519,11 +531,23 @@ function RemitoModal({
           console.error(error);
           onClose();
         } finally {
+          // Cancelar el kill-switch — las queries completaron
+          if (remitoTimeoutRef.current) {
+            window.clearTimeout(remitoTimeoutRef.current);
+            remitoTimeoutRef.current = null;
+          }
           setLoading(false);
         }
       };
       fetchFullOrder();
     }
+
+    return () => {
+      if (remitoTimeoutRef.current) {
+        window.clearTimeout(remitoTimeoutRef.current);
+        remitoTimeoutRef.current = null;
+      }
+    };
   }, [isOpen, orderId, onClose]);
 
   if (!isOpen) return null;
@@ -662,6 +686,15 @@ export default function OrdersPage() {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
 
+    // Kill-switch: si la conexión se cuelga más de 8s, recargar la página.
+    if (loadingTimeoutRef.current) {
+      window.clearTimeout(loadingTimeoutRef.current);
+    }
+    loadingTimeoutRef.current = window.setTimeout(() => {
+      loadingTimeoutRef.current = null;
+      window.location.reload();
+    }, 8000);
+
     try {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
@@ -689,14 +722,13 @@ export default function OrdersPage() {
       if (deliveryDayFilter !== "todos")
         query = query.eq("customers.delivery_day", deliveryDayFilter);
 
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
-      });
+      const { data, error, count } = await query;
 
-      const result = await Promise.race([query, timeoutPromise]) as any;
-      const data = result?.data;
-      const error = result?.error;
-      const count = result?.count;
+      // Query completó — cancelar el kill-switch
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
 
       if (error) {
         console.error(error);
@@ -706,12 +738,12 @@ export default function OrdersPage() {
       setOrders((data || []) as unknown as OrderRow[]);
       setTotalCount(count || 0);
     } catch (error: any) {
-      if (error.message === "TIMEOUT_FORZADO") {
-        window.location.reload();
-        return; // Detenemos la ejecución aquí
-      }
       console.error("Error fetching orders:", error);
     } finally {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
       setLoading(false);
     }
   }, [currentPage, statusFilter, dateFilter, searchQuery, deliveryDayFilter]);
@@ -720,6 +752,8 @@ export default function OrdersPage() {
     const debounce = setTimeout(fetchOrders, 300);
     return () => clearTimeout(debounce);
   }, [fetchOrders, pathname]);
+
+  useResumeRefresh(fetchOrders);
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 

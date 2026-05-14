@@ -67,8 +67,8 @@ export default function NewOrderPage() {
         .order("name");
 
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (customersError || productsError) {
         toast.error("Error al cargar los datos", { id: loadingToast });
@@ -79,7 +79,7 @@ export default function NewOrderPage() {
       setFilteredCustomers(customersData || []);
       setProducts(productsData || []);
       setFilteredProducts(productsData || []);
-      setCurrentUser(session?.user ?? null);
+      setCurrentUser(user ?? null);
       toast.success("Datos cargados", { id: loadingToast });
     }
     loadInitialData();

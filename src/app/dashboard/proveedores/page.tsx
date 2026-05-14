@@ -7,6 +7,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { formatCurrency } from "@/lib/numberFormat";
 import toast from "react-hot-toast";
 import SupplierActions from "@/components/SupplierActions";
+import { useResumeRefresh } from "@/hooks/useResumeRefresh";
+import { getCachedUserRole } from "@/lib/roleCache";
 import {
   FaPlus,
   FaTruck,
@@ -43,6 +45,15 @@ export default function SuppliersPage() {
   const fetchSuppliers = async () => {
     setLoading(true);
 
+    // Kill-switch: si la conexión se cuelga más de 8s, recargar la página.
+    if (loadingTimeoutRef.current) {
+      window.clearTimeout(loadingTimeoutRef.current);
+    }
+    loadingTimeoutRef.current = window.setTimeout(() => {
+      loadingTimeoutRef.current = null;
+      window.location.reload();
+    }, 8000);
+
     try {
       let query = supabase
         .from("suppliers")
@@ -50,13 +61,13 @@ export default function SuppliersPage() {
         .eq("is_active", true)
         .order("name", { ascending: true });
 
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("TIMEOUT_FORZADO")), 2000);
-      });
+      const { data, error } = await query;
 
-      const result = await Promise.race([query, timeoutPromise]) as any;
-      const data = result?.data;
-      const error = result?.error;
+      // Query completó — cancelar el kill-switch
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
 
       if (error) {
         console.error("Error fetching suppliers:", error);
@@ -65,12 +76,12 @@ export default function SuppliersPage() {
 
       setSuppliers(data || []);
     } catch (error: any) {
-      if (error.message === "TIMEOUT_FORZADO") {
-        window.location.reload();
-        return;
-      }
       console.error("Error fetching suppliers:", error);
     } finally {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
       setLoading(false);
     }
   };
@@ -78,40 +89,17 @@ export default function SuppliersPage() {
   // Obtener el rol del usuario una sola vez
   useEffect(() => {
     const fetchUserRole = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-        if (profile) {
-          setUserRole(profile.role);
-        }
-      }
+      const role = await getCachedUserRole();
+      if (role) setUserRole(role);
     };
     fetchUserRole();
   }, []);
 
   useEffect(() => {
     fetchSuppliers();
-
-    // Recargar cuando la página se vuelve visible
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        fetchSuppliers();
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    // Limpiar el event listener cuando el componente se desmonte
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
   }, [pathname]);
+
+  useResumeRefresh(fetchSuppliers);
 
   // Filtrar proveedores por búsqueda y deuda
   const filteredSuppliers = useMemo(() => {

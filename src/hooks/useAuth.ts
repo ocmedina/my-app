@@ -1,14 +1,23 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { hasPermission, type Role } from '@/lib/permissions';
+import { cacheUserRole } from '@/lib/roleCache';
+import { useResumeRefresh } from '@/hooks/useResumeRefresh';
 
 const PROFILE_SELECT = 'id, full_name, username, email, role, is_active, permissions, permissions_allow, permissions_deny';
+
+// Tiempo máximo permitido para que fetchUser complete.
+// Si supera este tiempo → la conexión con Supabase está colgada → recarga la página.
+const AUTH_FETCH_TIMEOUT_MS = 6000;
 
 export function useAuth() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [rolePermissions, setRolePermissions] = useState<{ allow: string[]; deny: string[] } | null>(null);
   const [loading, setLoading] = useState(true);
+  const requestIdRef = useRef(0);
+  const fetchUserRef = useRef<(() => Promise<void>) | null>(null);
+  const safetyTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     let profileChannel: ReturnType<typeof supabase.channel> | null = null;
@@ -116,7 +125,29 @@ export function useAuth() {
         .subscribe();
     };
 
+    const clearSafetyTimer = () => {
+      if (safetyTimerRef.current !== null) {
+        window.clearTimeout(safetyTimerRef.current);
+        safetyTimerRef.current = null;
+      }
+    };
+
+    const startSafetyTimer = (requestId: number) => {
+      clearSafetyTimer();
+      safetyTimerRef.current = window.setTimeout(() => {
+        if (requestId === requestIdRef.current) {
+          // Si la auth fetch se cuelga, recargar la página como los demás módulos.
+          // Anteriormente solo hacía setLoading(false) dejando la página en estado inconsistente.
+          window.location.reload();
+        }
+      }, AUTH_FETCH_TIMEOUT_MS);
+    };
+
     const fetchUser = async () => {
+      const requestId = ++requestIdRef.current;
+      setLoading(true);
+      startSafetyTimer(requestId);
+
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
@@ -126,6 +157,9 @@ export function useAuth() {
 
         setUser(user);
         setProfile(profile || (roleFromMetadata ? { id: user.id, role: roleFromMetadata } : null));
+        if (resolvedRole) {
+          cacheUserRole(user.id, resolvedRole);
+        }
         attachProfileSubscription(user.id);
         fetchRolePermissions(resolvedRole);
         attachRolePermissionsSubscription(resolvedRole);
@@ -142,13 +176,22 @@ export function useAuth() {
           rolePermissionsChannel = null;
         }
       }
-      setLoading(false);
+
+      if (requestId === requestIdRef.current) {
+        clearSafetyTimer();
+        setLoading(false);
+      }
     };
+
+    fetchUserRef.current = fetchUser;
 
     fetchUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        const requestId = ++requestIdRef.current;
+        setLoading(true);
+        startSafetyTimer(requestId);
         if (session?.user) {
           const profile = await fetchProfile(session.user.id);
           const roleFromMetadata = session.user.user_metadata?.role as string | undefined;
@@ -156,6 +199,9 @@ export function useAuth() {
 
           setUser(session.user);
           setProfile(profile || (roleFromMetadata ? { id: session.user.id, role: roleFromMetadata } : null));
+          if (resolvedRole) {
+            cacheUserRole(session.user.id, resolvedRole);
+          }
           attachProfileSubscription(session.user.id);
           fetchRolePermissions(resolvedRole);
           attachRolePermissionsSubscription(resolvedRole);
@@ -173,7 +219,10 @@ export function useAuth() {
           }
         }
 
-        setLoading(false);
+        if (requestId === requestIdRef.current) {
+          clearSafetyTimer();
+          setLoading(false);
+        }
       }
     );
 
@@ -185,8 +234,17 @@ export function useAuth() {
       if (rolePermissionsChannel) {
         supabase.removeChannel(rolePermissionsChannel);
       }
+      clearSafetyTimer();
     };
   }, []);
+
+  // Solo refrescar auth en tab resume — NO en onFocus para evitar requests
+  // duplicados cuando el usuario Alt+Tab de vuelta al browser.
+  useResumeRefresh(async () => {
+    if (fetchUserRef.current) {
+      await fetchUserRef.current();
+    }
+  }, { resumeOnFocus: false, resumeOnVisible: true, resumeOnOnline: true });
 
   const can = useCallback((permission: keyof typeof import('@/lib/permissions').PERMISSIONS) => {
     const legacyAllow = Array.isArray(profile?.permissions) ? profile.permissions : [];

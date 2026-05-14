@@ -34,10 +34,10 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
 
       // 1. Verificar sesión
       const {
-        data: { session },
+        data: { user },
         error: sessionError,
-      } = await supabase.auth.getSession();
-      if (sessionError || !session) {
+      } = await supabase.auth.getUser();
+      if (sessionError || !user) {
         toast.error("Tu sesión expiró. Por favor, vuelve a iniciar sesión.");
         setLoadingCheck(false);
         return;
@@ -79,10 +79,10 @@ export default function SaleDetailsClient({ sale }: { sale: any }) {
 
     // 1. Chequear sesión antes de generar
     const {
-      data: { session },
+      data: { user },
       error: sessionError,
-    } = await supabase.auth.getSession();
-    if (sessionError || !session) {
+    } = await supabase.auth.getUser();
+    if (sessionError || !user) {
       toast.error("Tu sesión expiró. Por favor, vuelve a iniciar sesión.");
       setLoadingGenerate(false);
       return;

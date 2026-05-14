@@ -1,7 +1,7 @@
 // src/app/dashboard/reportes/page.tsx
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import {
@@ -69,6 +69,7 @@ export default function ReportsPage() {
   const [countedCash, setCountedCash] = useState("");
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const loadingTimeoutRef = useRef<number | null>(null);
 
   // Calcular la diferencia en tiempo real
   const realTimeDifference = useMemo(() => {
@@ -86,6 +87,16 @@ export default function ReportsPage() {
     setSavedReport(null);
     setCountedCash("");
 
+    // Kill-switch: si alguna query se cuelga más de 10s (Supabase suspendido),
+    // recargar la página silenciosamente para restaurar la conexión.
+    if (loadingTimeoutRef.current) {
+      window.clearTimeout(loadingTimeoutRef.current);
+    }
+    loadingTimeoutRef.current = window.setTimeout(() => {
+      loadingTimeoutRef.current = null;
+      window.location.reload();
+    }, 10000);
+
     try {
       // 1. Verificar si existe un reporte guardado
       const { data: existingReport, error: reportError } = await supabase
@@ -98,7 +109,6 @@ export default function ReportsPage() {
 
       if (existingReport) {
         setSavedReport(existingReport.report_data);
-        setLoading(false);
         return;
       }
 
@@ -132,6 +142,12 @@ export default function ReportsPage() {
             .gte("created_at", startDate)
             .lte("created_at", endDate),
         ]);
+
+      // Queries completaron — cancelar el kill-switch
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
 
       if (salesResult.error) throw salesResult.error;
       if (ordersResult.error) throw ordersResult.error;
@@ -223,6 +239,10 @@ export default function ReportsPage() {
       console.error("Error fetching data:", error);
       toast.error(`Error al cargar datos: ${error.message}`);
     } finally {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
       setLoading(false);
     }
   };

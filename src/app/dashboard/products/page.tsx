@@ -29,6 +29,8 @@ import {
 } from "react-icons/fa";
 import MassUpdateModal from "./components/MassUpdateModal";
 import BarcodeModal from "./components/BarcodeModal";
+import { useResumeRefresh } from "@/hooks/useResumeRefresh";
+import { getCachedUserRole } from "@/lib/roleCache";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 const ITEMS_PER_PAGE = 10;
@@ -51,31 +53,13 @@ export default function ProductsPage() {
   const [isBarcodeModalOpen, setIsBarcodeModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  useResumeRefresh(() => setRefreshKey((prev) => prev + 1));
+
   // Obtener rol del usuario una sola vez
   useEffect(() => {
     const fetchUserRole = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        const roleFromMetadata = session.user.user_metadata?.role as
-          | string
-          | undefined;
-
-        if (roleFromMetadata) {
-          setUserRole(roleFromMetadata);
-          return;
-        }
-
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-        if (profile?.role) {
-          setUserRole(profile.role);
-        }
-      }
+      const role = await getCachedUserRole();
+      if (role) setUserRole(role);
     };
     fetchUserRole();
   }, []);

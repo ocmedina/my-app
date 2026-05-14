@@ -1,7 +1,7 @@
 // src/components/DashboardWrapper.tsx
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import StartingFloatModal from "./StartingFloatModal";
 
@@ -51,37 +51,110 @@ export default function DashboardWrapper({
   const [showStartingFloatModal, setShowStartingFloatModal] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const hasChecked = useRef(false);
+  const workerRef = useRef<Worker | null>(null);
+  const lastPingRef = useRef<number>(Date.now());
+  const pingInProgressRef = useRef(false);
 
+  // ─── PING FUNCTION ────────────────────────────────────────────────────
+  // Hace un ping liviano a Supabase para mantener la conexión TCP activa.
+  const pingSupabase = useCallback(async () => {
+    if (pingInProgressRef.current) return;
+    pingInProgressRef.current = true;
+    try {
+      await supabase.from("profiles").select("id").limit(1);
+      lastPingRef.current = Date.now();
+    } catch {
+      // Ignorar errores del ping — la reconexión la maneja useResumeRefresh
+    } finally {
+      pingInProgressRef.current = false;
+    }
+  }, []);
+
+  // ─── WEB WORKER KEEP-ALIVE ────────────────────────────────────────────
+  // El Web Worker corre en un hilo separado NO throttleado por el browser,
+  // incluso cuando la pestaña está en background. Envía un mensaje cada 20s
+  // y el hilo principal hace el ping real a Supabase.
   useEffect(() => {
-    // Evitar doble-ejecución en StrictMode y navegaciones
+    if (typeof window === "undefined") return;
+
+    try {
+      const worker = new Worker("/keepalive.worker.js");
+      workerRef.current = worker;
+
+      worker.onmessage = (event) => {
+        if (event.data?.type === "ping") {
+          pingSupabase();
+        }
+      };
+
+      worker.onerror = (err) => {
+        console.warn("[KeepAlive] Worker error:", err);
+      };
+
+      return () => {
+        worker.postMessage({ type: "stop" });
+        worker.terminate();
+        workerRef.current = null;
+      };
+    } catch (err) {
+      // Fallback si los Workers no están disponibles: interval normal
+      console.warn("[KeepAlive] Worker no disponible, usando interval:", err);
+      const fallbackInterval = setInterval(pingSupabase, 25000);
+      return () => clearInterval(fallbackInterval);
+    }
+  }, [pingSupabase]);
+
+  // ─── VISIBILITYCHANGE HANDLER ─────────────────────────────────────────
+  // Cuando el usuario vuelve a la pestaña:
+  // - Si estuvo > 3 minutos: recargar de inmediato (conexión TCP muerta)
+  // - Si estuvo < 3 minutos: ping inmediato para despertar la conexión
+  useEffect(() => {
+    let hiddenAt: number | null = null;
+    const STALE_MS = 3 * 60 * 1000; // 3 minutos
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        hiddenAt = Date.now();
+        return;
+      }
+
+      if (document.visibilityState === "visible") {
+        if (hiddenAt !== null && Date.now() - hiddenAt > STALE_MS) {
+          // Conexión muerta — recargar inmediatamente
+          window.location.reload();
+          return;
+        }
+        hiddenAt = null;
+        // Conexión probablemente viva — ping inmediato
+        pingSupabase();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", pingSupabase);
+    window.addEventListener("online", pingSupabase);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", pingSupabase);
+      window.removeEventListener("online", pingSupabase);
+    };
+  }, [pingSupabase]);
+
+  // ─── STARTING FLOAT CHECK ─────────────────────────────────────────────
+  useEffect(() => {
     if (hasChecked.current) {
       setIsChecking(false);
       return;
     }
     hasChecked.current = true;
-
     checkStartingFloat();
-  }, []);
-
-  // GLOBAL KEEP-ALIVE PARA PREVENIR SUSPENSIÓN POR INACTIVIDAD
-  // Ping a Supabase cada 45 segundos para que la conexión no muera.
-  useEffect(() => {
-    const keepAliveInterval = setInterval(async () => {
-      try {
-        await supabase.from("profiles").select("id").limit(1);
-      } catch (e) {
-        // Ignorar errores del ping
-      }
-    }, 45000); // 45 segundos
-
-    return () => clearInterval(keepAliveInterval);
   }, []);
 
   const checkStartingFloat = async () => {
     try {
       const today = getTodayArg();
 
-      // Verificar caché primero
       const cached = getCachedResult();
       if (cached) {
         if (cached.needsFloat) {
@@ -99,7 +172,6 @@ export default function DashboardWrapper({
       yesterdayDate.setDate(yesterdayDate.getDate() - 1);
       const yesterday = yesterdayDate.toISOString().split("T")[0];
 
-      // 1. Verificar si existe un fondo inicial para hoy
       const { data: todayFloat } = await supabase
         .from("cash_movements")
         .select("id")
@@ -108,29 +180,24 @@ export default function DashboardWrapper({
         .lte("created_at", `${today}T23:59:59.999-03:00`)
         .maybeSingle();
 
-      // Si ya hay fondo inicial de hoy, no mostrar modal
       if (todayFloat) {
         setCachedResult(today, false);
         setIsChecking(false);
         return;
       }
 
-      // 2. Verificar si existe un cierre de caja de ayer
       const { data: yesterdayReport } = await supabase
         .from("daily_reports")
         .select("id")
         .eq("report_date", yesterday)
         .maybeSingle();
 
-      // Si NO hay cierre de ayer, es el primer día o no se cerró ayer
-      // En este caso NO mostramos el modal
       if (!yesterdayReport) {
         setCachedResult(today, false);
         setIsChecking(false);
         return;
       }
 
-      // 3. Si hay cierre de ayer pero NO hay fondo inicial de hoy, mostrar modal
       setCachedResult(today, true);
       setShowStartingFloatModal(true);
     } catch (error) {
@@ -142,7 +209,6 @@ export default function DashboardWrapper({
 
   const handleCloseModal = () => {
     setShowStartingFloatModal(false);
-    // Actualizar caché: ya no necesita float (lo acaba de cargar)
     setCachedResult(getTodayArg(), false);
   };
 
