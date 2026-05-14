@@ -33,7 +33,7 @@ export default function MaintenanceBanner() {
           <FaTools className="flex-shrink-0 animate-pulse" />
           <span>
             🔧 <strong>Mantenimiento en curso (varios días)</strong> — El sistema está
-            operativo con normalidad. Podés seguir usándolo sin problema.
+            operativo con normalidad. Podés seguir usándolo sin problema.(En caso de problemas de recarga o carga, el sistema se autorrecargará en 8 seg.)
           </span>
         </div>
         <button
